@@ -85,7 +85,6 @@ class Event(models.Model):
     
 class Ticket(models.Model):
     code_ticket = models.CharField(max_length=100, unique=True)
-    name = models.CharField(max_length=150)
     email_reception = models.EmailField(null=True, blank=True)
     telephone_payement = models.CharField(max_length=20)
     telephone_reception = models.CharField(max_length=20, null=True, blank=True)

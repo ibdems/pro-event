@@ -28,7 +28,6 @@ def test_create_event(event, category, user):
 
 @pytest.mark.django_db
 def test_create_ticket(ticket, event):
-    assert ticket.name == 'name ticket test'
     assert 'PE-TI' in ticket.code_ticket
     assert ticket.event == event
     assert event.available_capacity() == 169
@@ -39,7 +38,6 @@ def test_create_ticket(ticket, event):
 @pytest.mark.django_db
 def test_create_payement(ticket, event):
     ticket2 = Ticket.objects.create(
-        name='name ticket test',
         email_reception = 'emailtest@gmail.com',
         telephone_payement = '437348787',
         event=event,

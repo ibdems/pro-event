@@ -5,7 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from django.core.exceptions import ValidationError
 
-from config.utils.send_emails import send_mail_activation
+from .utils.send_emails import send_mail_activation
 from users.models import User
 
 class CustomLoginForm(AuthenticationForm):
@@ -36,7 +36,7 @@ class CustomLoginForm(AuthenticationForm):
 class CustomCreateUserForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'password1', 'password2')
+        fields = ('email', 'first_name', 'last_name', 'adresse', 'contact', 'role', 'password1', 'password2')
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

@@ -49,7 +49,6 @@ def event(user, category):
 @pytest.fixture
 def ticket(event):
     return Ticket.objects.create(
-        name='name ticket test',
         email_reception = 'emailtest@gmail.com',
         telephone_payement = '437348787',
         event=event,
