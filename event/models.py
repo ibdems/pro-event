@@ -55,7 +55,6 @@ class Event(models.Model):
     normal_capacity = models.IntegerField(default=0)
     vip_capacity = models.IntegerField(default=0)
     vvip_capacity = models.IntegerField(default=0)
-    price = models.BigIntegerField()
     image = models.ImageField(upload_to='event_images/', blank=True, null=True)
     type_event = models.CharField(max_length=10, choices=type_choices, default='public')
     partner = models.ManyToManyField(Partner, related_name='event_partner')
@@ -90,7 +89,7 @@ class Ticket(models.Model):
     email_reception = models.EmailField(null=True, blank=True)
     telephone_payement = models.CharField(max_length=20)
     telephone_reception = models.CharField(max_length=20, null=True, blank=True)
-    statut_payement = models.BooleanField()
+    statut_payement = models.BooleanField(default=False)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='ticket_event')
     prix_normal = models.BigIntegerField()
@@ -106,7 +105,7 @@ class Ticket(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.code_ticket:
-            self.code_ticket = f"PE-TI-{uuid.uuid4():[:6]}"
+            self.code_ticket = f"PE-TI-{uuid.uuid4().hex[:6]}"
         if not self.qr_code:
             qr = qrcode.make(f"{self.event.title}-{self.code_ticket}")
             buffer = BytesIO()
@@ -119,7 +118,7 @@ class Payement(models.Model):
     tickets = models.ManyToManyField(Ticket, related_name='payements')
     created_at = models.DateTimeField(default=timezone.now)
     update_at = models.DateTimeField(auto_now=True)
-    amount = models.BigIntegerField()
+    amount = models.BigIntegerField(default=0)
     def __str__(self):
         return self.user.email
 

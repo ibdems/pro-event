@@ -7,21 +7,30 @@ from django.db import models
 
 # Create your models here.
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None):
+    def create_user(self, email, first_name, last_name, contact, adresse, password=None):
         if not email:
             raise ValueError("L'adresse email doit etre fournie")
 
         user = self.model(
             email=self.normalize_email(email),
+            first_name = first_name,
+            last_name = last_name,
+            contact = contact,
+            adresse = adresse,
         )
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password):
+    def create_superuser(self, email,first_name, last_name, contact, adresse, password):
         user = self.create_user(
             email=email,
             password=password,
+            first_name = first_name,
+            last_name = last_name,
+            contact = contact,
+            adresse = adresse,
+           
         )
         user.is_staff = True
         user.is_superuser = True
