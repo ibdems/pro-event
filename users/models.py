@@ -48,8 +48,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     adresse = models.CharField(max_length=100, null=True, blank=True)
     photo = models.ImageField('photo_user/', blank=True, null=True)
     role = models.CharField(max_length=255, null=True, blank=True, choices=role_choices, default="associer")
-    created_at = models.DateTimeField(default=timezone.now)
-    update_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now, null=True)
+    update_at = models.DateTimeField(auto_now=True, null=True)
     objects = UserManager()
     USERNAME_FIELD = "email"
 
