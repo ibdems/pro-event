@@ -1,5 +1,6 @@
 from .models import Ticket
 
+
 def verify_ticket(code):
     ticket = Ticket.objects.filter(code_ticket=code).first()
     if not ticket:

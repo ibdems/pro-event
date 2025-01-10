@@ -1,0 +1,81 @@
+{% extends 'event/base.html' %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px;">
+    <h2 class="text-primary text-center mb-4 mt-5 scroll-animated">Explorez Nos Événements</h2>
+
+    <!-- Barre de Recherche et Filtres -->
+     <div class="row mb-4">
+        <div class="col-lg-4">
+            <a href="" class="btn btn-primary">Demander une organisation</a>
+        </div>
+        <div class="col">
+        </div>
+     </div>
+    <div class="row mb-4 align-items-center">
+      <div class="col-md-3 mb-3 mb-md-0">
+        <select class="form-control">
+          <option value="">Catégories</option>
+          <option value="music">Musique</option>
+          <option value="sport">Sport</option>
+          <option value="conference">Conférence</option>
+          <option value="theatre">Théâtre</option>
+          <option value="exhibition">Exposition</option>
+          <option value="festival">Festival</option>
+          <option value="other">Autre</option>
+        </select>
+      </div>
+      <div class="col-md-5 mb-3 mb-md-0">
+        <input type="text" class="form-control" placeholder="Rechercher par titre">
+      </div>
+      <div class="col-md-4">
+        <div class="d-flex gap-3">
+          <select class="form-control">
+            <option value="">Gratuit ou Payant</option>
+            <option value="free">Gratuit</option>
+            <option value="paid">Payant</option>
+          </select>
+
+          <button type="submit" class="btn btn-primary">Rechercher</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      {% for event in events %}
+        <div class="col-md-4 mb-4">
+          <div class="event-card scroll-animated">
+            <div class="position-relative overflow-hidden">
+              <img src="{{ event.image.url }}" alt="Event {{ event.id }}" class="card-img-top">
+              <div class="event-date mt-2"> <i class="fas fa-calendar-days text-primary me-2"></i>{{ event.start_date }} - {{ event.end_date }}</div>
+            </div>
+            <div class="card-body">
+              <div class="event-location mb-2">
+                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                {{ event.location }} <!-- Lieu de l'événement -->
+              </div>
+              <h5 class="card-title mb-3">{{ event.title }}</h5> <!-- Titre de l'événement -->
+              <div class="d-flex justify-content-between align-items-center">
+                <a href="" class="btn btn-primary">Voir les détails</a> <!-- Lien vers les détails -->
+                <span class="text-primary me-3 fw-bold">{{ event.type_access }}</span> <!-- Type d'accès -->
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if events.has_previous %}
+        <a href="?page={{ events.previous_page_number }}">Précédent</a>
+        {% endif %}
+
+        <span>Page {{ events.number }} de {{ events.paginator.num_pages }}</span>
+
+        {% if events.has_next %}
+        <a href="?page={{ events.next_page_number }}">Suivant</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

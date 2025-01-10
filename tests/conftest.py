@@ -1,34 +1,35 @@
-import pytest
-from users.models import User
-from event.models import Category, Event, Ticket, Partner, Payement
-from django.utils import timezone
 from datetime import timedelta
-from PIL import Image
 from io import BytesIO
+
+import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils import timezone
+from PIL import Image
+
+from event.models import Category, Event, Partner, Ticket
+from users.models import User
+
 
 @pytest.fixture
 def user():
     return User.objects.create_user(
-        email = 'usertest@gmail.com',
-        first_name = 'user test',
-        last_name = 'test',
-        contact = '628923883',
-        adresse = 'Conakry'
+        email="usertest@gmail.com",
+        first_name="user test",
+        last_name="test",
+        contact="628923883",
+        adresse="Conakry",
     )
+
 
 @pytest.fixture
 def category():
-    return Category.objects.create(
-        name='Category 1'
-    )
+    return Category.objects.create(name="Category 1")
+
 
 @pytest.fixture
 def partner():
-    return Partner.objects.create(
-        name = 'name partner test',
-        description = 'description test'
-    )
+    return Partner.objects.create(name="name partner test", description="description test")
+
 
 @pytest.fixture
 def event(user, category):
@@ -49,8 +50,8 @@ def event(user, category):
 @pytest.fixture
 def ticket(event):
     return Ticket.objects.create(
-        email_reception = 'emailtest@gmail.com',
-        telephone_payement = '437348787',
+        email_reception="emailtest@gmail.com",
+        telephone_payement="437348787",
         event=event,
         prix_normal=15000,
         prix_vip=45000,
@@ -65,6 +66,3 @@ def image_large():
     img.save(buffer, format="JPEG")
     buffer.seek(0)
     return SimpleUploadedFile("large_image.jpg", buffer.getvalue(), content_type="image/jpeg")
-
-
-

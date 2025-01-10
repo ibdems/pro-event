@@ -1,0 +1,114 @@
+{% extends "event/base.html" %}
+{% load static %}
+{% block title %}
+À propos
+{% endblock title %}
+
+{% block content %}
+<!-- Section Héros -->
+<section class="hero-section position-relative">
+  <img src="{% static 'img/profil_proevent2.jpg' %}" alt="Background" class="hero-bg">
+  <div class="container h-100 d-flex align-items-center">
+    <div class="hero-content shadow">
+      <h1 class="display-2 fw-bold text-primary">Découvrez ProEvent</h1>
+      <p class="fs-5 mb-4">ProEvent révolutionne la gestion des événements en offrant des services complets : organisation, billetterie et partenariats stratégiques. Notre mission ? Faire de chaque événement une réussite mémorable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Section Mission et Vision -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-primary text-center mb-5 scroll-animated">Notre mission et notre vision</h2>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="advantages-card p-4 shadow-sm scroll-animated">
+          <i class="fas fa-bullseye advantages-icon"></i>
+          <h3 class="h4 mb-3">Notre mission</h3>
+          <p class="mb-0">Chez ProEvent, nous nous engageons à simplifier l’organisation d’événements pour nos clients, qu’ils soient privés ou professionnels. Nous offrons des solutions flexibles et personnalisées pour répondre à tous vos besoins.</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="advantages-card p-4 shadow-sm scroll-animated">
+          <i class="fas fa-lightbulb advantages-icon"></i>
+          <h3 class="h4 mb-3">Notre vision</h3>
+          <p class="mb-0">Devenir le leader de la gestion d’événements en Afrique et offrir une plateforme complète qui connecte organisateurs, lieux et participants avec une qualité exceptionnelle.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section Notre Équipe -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-primary text-center mb-5 scroll-animated">Rencontrez notre équipe</h2>
+    <div class="row g-4">
+      <div class="col-md-4 text-center">
+        <div class="team-card scroll-animated">
+          <img src="{% static 'img/team1.jpg' %}" alt="Membre 1" class="rounded-circle mb-3" width="150">
+          <h5 class="mb-1">Fatoumata Diallo</h5>
+          <small class="text-muted d-block">CEO & Fondatrice</small>
+          <p class="mt-3">"Créer des expériences mémorables est ma passion."</p>
+        </div>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="team-card scroll-animated">
+          <img src="{% static 'img/team2.jpg' %}" alt="Membre 2" class="rounded-circle mb-3" width="150">
+          <h5 class="mb-1">Mamadou Sow</h5>
+          <small class="text-muted d-block">Responsable Logistique</small>
+          <p class="mt-3">"Assurer la fluidité de vos événements est ma priorité."</p>
+        </div>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="team-card scroll-animated">
+          <img src="{% static 'img/team3.jpg' %}" alt="Membre 3" class="rounded-circle mb-3" width="150">
+          <h5 class="mb-1">Aminata Ba</h5>
+          <small class="text-muted d-block">Directrice des Partenariats</small>
+          <p class="mt-3">"Collaborer avec les meilleurs partenaires, c’est ma mission."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section Statistiques -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-primary text-center mb-5 scroll-animated">Quelques chiffres clés</h2>
+    <div class="row g-4 text-center">
+      <div class="col-md-4">
+        <div class="card shadow-sm p-4 scroll-animated stats-card">
+          <h3 class="display-4 text-primary fw-bold counter" data-target="200">0</h3>
+          <p class="mb-0">Événements organisés</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm p-4 scroll-animated stats-card">
+          <h3 class="display-4 text-primary fw-bold counter" data-target="50">0</h3>
+          <p class="mb-0">Partenaires de qualité</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm p-4 scroll-animated stats-card">
+          <h3 class="display-4 text-primary fw-bold counter" data-target="10000">0</h3>
+          <p class="mb-0">Tickets vendus</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Section Contact -->
+<section class="contact-section text-center text-white py-5">
+  <div class="container">
+    <h2 class="mb-4">Contactez-nous</h2>
+    <p class="lead mb-4">Vous avez une question ou besoin d'une assistance ? Notre équipe est là pour vous aider.</p>
+    <a href="" class="btn btn-outline-light btn-lg">Nous contacter</a>
+  </div>
+</section>
+
+
+{% endblock content %}

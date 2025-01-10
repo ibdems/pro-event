@@ -1,0 +1,99 @@
+{% extends "event/base.html" %}
+{% block title %}
+  Contact-Nous
+{% endblock title %}
+{% block content %}
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-primary text-center mt-4 mb-3 scroll-animated">Contactez-nous</h2>
+
+    <!-- Informations de Contact -->
+    <div class="row g-4 align-items-center">
+      <!-- Numéro de téléphone -->
+      <div class="col-md-4 scroll-animated">
+        <div class="card p-4 shadow-sm">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-phone-alt text-primary me-3" style="font-size: 40px;"></i>
+            <div>
+              <h5 class="text-primary">Téléphone</h5>
+              <span class="mb-0 fw-bold fs-5">+224 123 456 789</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adresse Email -->
+      <div class="col-md-4 scroll-animated">
+        <div class="card p-4 shadow-sm">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-envelope text-primary me-3" style="font-size: 40px;"></i>
+            <div>
+              <h5 class="text-primary">Email</h5>
+              <p class="mb-0 fw-bold fs-5">contact@proevent.com</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adresse Physique -->
+      <div class="col-md-4 scroll-animated">
+        <div class="card p-4 shadow-sm">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-map-marker-alt text-primary me-3" style="font-size: 40px;"></i>
+            <div>
+              <h5 class="text-primary">Adresse</h5>
+              <p class="mb-0 fw-bold fs-5">Rue XYZ, Conakry, Guinée</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Réseaux sociaux -->
+    <div class="text-center my-5 scroll-animated">
+      <h5 class="text-primary mb-3">Suivez-nous sur les réseaux sociaux</h5>
+      <div class="social-links justify-content-center">
+        <a href="#" class="text-primary"><i class="fab fa-facebook"></i></a>
+        <a href="#" class="text-primary"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="text-primary"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="text-primary"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+
+    <!-- Formulaire de Contact -->
+    <div class="row justify-content-center">
+      <div class="col-md-10 scroll-animated">
+        <form class="p-4 shadow-sm card">
+          <h5 class="text-primary text-center mb-4">Laissez-nous un message</h5>
+          <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nom</label>
+                    <input type="text" id="name" class="form-control" placeholder="Votre nom">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="Votre adresse email">
+                </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+                <label for="object" class="form-label">Object</label>
+                <input type="text" id="object" class="form-control" placeholder="Le sujet de votre message">
+            </div>
+          <div class="mb-3">
+            <label for="message" class="form-label">Message</label>
+            <textarea id="message" class="form-control" rows="5" placeholder="Votre message"></textarea>
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary">Envoyer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

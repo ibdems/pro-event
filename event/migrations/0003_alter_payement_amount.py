@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('event', '0002_initial'),
+        ("event", "0002_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='payement',
-            name='amount',
+            model_name="payement",
+            name="amount",
             field=models.BigIntegerField(default=0),
         ),
     ]

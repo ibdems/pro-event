@@ -34,7 +34,7 @@
                                         {% for error in form.non_field_errors  %}
                                             <p class="alert alert-danger"> {{error}}</p>
                                         {% endfor %}
-                                        
+
                                     {% endif %}
                                     <h3 class="text-center font-weight-light my-4">Se Connecter</h3>
                                 </div>
@@ -45,15 +45,15 @@
                                             <input class="form-control {% if form.username.errors %}is-invalid{% endif %}" id="inputEmail" type="email" name="username"
                                                  />
                                             <label for="inputEmail">Email</label>
-                                            
+
                                         </div>
                                         <div class="form-floating mb-3">
                                             <input class="form-control {% if form.password.errors %}is-invalid{% endif %}" id="inputPassword" type="password" name="password"
                                                 placeholder="Password" />
                                             <label for="inputPassword">Mot de passe</label>
-                                            
+
                                         </div>
-                                        
+
                                         <button type="submit" class="btn btn-outline-dark">Se Connecter</button>
                                     </form>
                                 </div>

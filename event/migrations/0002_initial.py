@@ -10,29 +10,37 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('event', '0001_initial'),
+        ("event", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='event_user', to=settings.AUTH_USER_MODEL),
+            model_name="event",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="event_user",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='event',
-            name='partner',
-            field=models.ManyToManyField(related_name='event_partner', to='event.partner'),
+            model_name="event",
+            name="partner",
+            field=models.ManyToManyField(related_name="event_partner", to="event.partner"),
         ),
         migrations.AddField(
-            model_name='ticket',
-            name='event',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ticket_event', to='event.event'),
+            model_name="ticket",
+            name="event",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ticket_event",
+                to="event.event",
+            ),
         ),
         migrations.AddField(
-            model_name='payement',
-            name='tickets',
-            field=models.ManyToManyField(related_name='payements', to='event.ticket'),
+            model_name="payement",
+            name="tickets",
+            field=models.ManyToManyField(related_name="payements", to="event.ticket"),
         ),
     ]
