@@ -48,22 +48,24 @@ class Partner(models.Model):
 
 class Event(models.Model):
     type_choices = (("public", "Public"), ("private", "Privé"))
-
     type_access = (("gratuit", "Gratuit"), ("payant", "Payant"))
     uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="event_user")
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     title = models.CharField(max_length=150)
     description = models.TextField()
-    start_date = models.DateTimeField(blank=True, null=True)
-    end_date = models.DateTimeField(blank=True, null=True)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
     location = models.CharField(max_length=150)
     normal_capacity = models.IntegerField(default=0)
     vip_capacity = models.IntegerField(default=0)
     vvip_capacity = models.IntegerField(default=0)
+    prix_normal = models.BigIntegerField(default=0)
+    prix_vip = models.BigIntegerField(default=0)
+    prix_vvip = models.BigIntegerField(default=0)
     image = models.ImageField(upload_to="event_images/", blank=True, null=True)
     type_event = models.CharField(max_length=10, choices=type_choices, default="public")
-    partner = models.ManyToManyField(Partner, related_name="event_partner")
+    partner = models.ManyToManyField(Partner, related_name="event_partner", null=True, blank=True)
     statut = models.BooleanField(default=True)
     type_access = models.CharField(max_length=10, choices=type_access, default="payant")
     created_at = models.DateTimeField(default=timezone.now)
@@ -82,13 +84,52 @@ class Event(models.Model):
         tickets_sold = self.ticket_event.count()
         return self.total_capacity() - tickets_sold
 
+    def save(self, *args, **kwargs):
+        print(f"Start Date: {self.start_date}, End Date: {self.end_date}")
+        super().save(*args, **kwargs)
+
     def clean(self):
         if self.normal_capacity < 0 or self.vip_capacity < 0 or self.vvip_capacity < 0:
             raise ValidationError("La capacité ne peut pas être négative.")
-        if self.start_date > self.end_date:
-            raise ValidationError("La date de début ne peut pas être après la date de fin.")
+        print(f"Start Date: {self.start_date}, End Date: {self.end_date}")
+        if self.start_date and self.end_date:
+            if self.start_date > self.end_date:
+                raise ValidationError("La date de début ne peut pas être après la date de fin.")
         if self.image and self.image.size > 2 * 1024 * 1024:
             raise ValidationError("L'image ne peut pas dépasser 2MB.")
+        if self.prix_normal < 0 or self.prix_vip < 0 or self.prix_vvip < 0:
+            raise ValidationError("Les prix ne peuvent pas être négatifs.")
+        if self.type_access == "gratuit" and (
+            self.prix_normal > 0 or self.prix_vip > 0 or self.prix_vvip > 0
+        ):
+            raise ValidationError("Vous ne pouvez pas definir un prix pour un événement gratuit.")
+
+        if self.prix_vip > 0 and self.vip_capacity == 0:
+            raise ValidationError(
+                "La capacité VIP doit être supérieure à 0 si le prix VIP est supérieur à 0."
+            )
+        if self.prix_vvip > 0 and self.vvip_capacity == 0 and self.type_access == "payant":
+            raise ValidationError(
+                "La capacité VVIP doit être supérieure à 0 si le prix VVIP est"
+                + "supérieur à 0 pour un événement payant"
+            )
+        if self.vip_capacity > 0 and self.prix_vip == 0 and self.type_access == "payant":
+            raise ValidationError(
+                "Vous devez definir un prix VIP si la capacité VIP est supérieur"
+                + "à 0 pour un événement payant"
+            )
+        if self.vvip_capacity > 0 and self.vvip_capacity == 0 and self.type_access == "payant":
+            raise ValidationError(
+                "Vous devez definir un prix VVIP si la capacité VVIP est"
+                + " supérieur à 0 pour un événement payant"
+            )
+        if self.normal_capacity <= 0:
+            raise ValidationError("La capacité normale doit être supérieure à 0.")
+
+        if self.type_access == "payant" and self.prix_normal == 0:
+            raise ValidationError("Vous devez definir un prix pour un événement payant.")
+
+        return super().clean()
 
 
 class Ticket(models.Model):
@@ -99,9 +140,6 @@ class Ticket(models.Model):
     statut_payement = models.BooleanField(default=False)
     qr_code = models.ImageField(upload_to="qr_codes/", blank=True, null=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="ticket_event")
-    prix_normal = models.BigIntegerField()
-    prix_vip = models.BigIntegerField(null=True, blank=True)
-    prix_vvip = models.BigIntegerField(null=True, blank=True)
     scan_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now)
     update_at = models.DateTimeField(auto_now=True)

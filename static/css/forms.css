@@ -138,8 +138,8 @@ form .aligned div.help:last-child {
 
 input[type="text"],
 input[type="email"],
-input[type="password"],input[type="file"],
-select,
+input[type="password"],input[type="file"],input[type="number"],
+div select,.related-widget-wrapper,
 textarea {
     display: block;
     width: 100%;

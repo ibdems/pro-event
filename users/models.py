@@ -37,7 +37,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     role_choices = (
-        ("member", "Membre"),
+        ("membre", "Membre"),
         ("organisateur", "Organisateur"),
     )
     email = models.EmailField(verbose_name="Adresse Email", unique=True)

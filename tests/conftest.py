@@ -44,6 +44,9 @@ def event(user, category):
         normal_capacity=100,
         vip_capacity=50,
         vvip_capacity=20,
+        prix_normal=23000,
+        prix_vip=45000,
+        prix_vvip=100000,
     )
 
 
@@ -53,9 +56,6 @@ def ticket(event):
         email_reception="emailtest@gmail.com",
         telephone_payement="437348787",
         event=event,
-        prix_normal=15000,
-        prix_vip=45000,
-        prix_vvip=100000,
     )
 
 

@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import (
@@ -24,6 +24,20 @@ from .utils.send_emails import send_mail_activation, send_mail_reset_password
 class CustomLoginView(LoginView):
     form_class = CustomLoginForm
     template_name = "accounts/sign-in.html"
+
+    def form_valid(self, form):
+        user = form.cleaned_data.get("user")
+        if user is None:
+            return self.form_invalid(form)
+
+        # Connecter l'utilisateur
+        login(self.request, user)
+
+        # Rediriger vers la page de succès
+        return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        return self.request.GET.get("next", "/proevent/")
 
 
 class CustomUserCreationView(CreateView):
@@ -118,3 +132,8 @@ def lock(request):
     # Marquer la session comme verrouillée par défaut
     request.session["locked"] = True
     return render(request, "accounts/locked.html", {"user": request.user})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("/")

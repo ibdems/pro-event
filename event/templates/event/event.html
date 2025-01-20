@@ -1,81 +1,111 @@
 {% extends 'event/base.html' %}
-
 {% block content %}
-<div class="container" style="margin-top: 100px;">
-    <h2 class="text-primary text-center mb-4 mt-5 scroll-animated">Explorez Nos Événements</h2>
+<div class="container" style="margin-top: 100px">
+  <h2 class="text-primary text-center mb-4 scroll-animated">
+    Explorez Nos Événements
+  </h2>
 
-    <!-- Barre de Recherche et Filtres -->
-     <div class="row mb-4">
-        <div class="col-lg-4">
-            <a href="" class="btn btn-primary">Demander une organisation</a>
-        </div>
-        <div class="col">
-        </div>
-     </div>
+  <!-- Barre de Recherche et Filtres -->
+  <div class="row mb-4">
+    <div class="col-lg-4">
+      <a href="#" class="btn btn-primary">Demander une organisation</a>
+    </div>
+    <div class="col"></div>
+  </div>
+  <form action="" method="get">
     <div class="row mb-4 align-items-center">
-      <div class="col-md-3 mb-3 mb-md-0">
-        <select class="form-control">
-          <option value="">Catégories</option>
-          <option value="music">Musique</option>
-          <option value="sport">Sport</option>
-          <option value="conference">Conférence</option>
-          <option value="theatre">Théâtre</option>
-          <option value="exhibition">Exposition</option>
-          <option value="festival">Festival</option>
-          <option value="other">Autre</option>
-        </select>
+      <div class="col-md-3 col-lg-3 mb-3 mb-md-0">
+        {{ filter.form.category }}
       </div>
-      <div class="col-md-5 mb-3 mb-md-0">
-        <input type="text" class="form-control" placeholder="Rechercher par titre">
+      <div class="col-md-4 col-lg-5 mb-3 mb-md-0">
+        {{ filter.form.title }}
       </div>
-      <div class="col-md-4">
+      <div class="col-md-5 col-lg-4">
         <div class="d-flex gap-3">
-          <select class="form-control">
-            <option value="">Gratuit ou Payant</option>
-            <option value="free">Gratuit</option>
-            <option value="paid">Payant</option>
-          </select>
-
+          {{ filter.form.type_access }}
           <button type="submit" class="btn btn-primary">Rechercher</button>
         </div>
       </div>
     </div>
+  </form>
 
-    <div class="row">
-      {% for event in events %}
-        <div class="col-md-4 mb-4">
-          <div class="event-card scroll-animated">
-            <div class="position-relative overflow-hidden">
-              <img src="{{ event.image.url }}" alt="Event {{ event.id }}" class="card-img-top">
-              <div class="event-date mt-2"> <i class="fas fa-calendar-days text-primary me-2"></i>{{ event.start_date }} - {{ event.end_date }}</div>
-            </div>
-            <div class="card-body">
-              <div class="event-location mb-2">
-                <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                {{ event.location }} <!-- Lieu de l'événement -->
-              </div>
-              <h5 class="card-title mb-3">{{ event.title }}</h5> <!-- Titre de l'événement -->
-              <div class="d-flex justify-content-between align-items-center">
-                <a href="" class="btn btn-primary">Voir les détails</a> <!-- Lien vers les détails -->
-                <span class="text-primary me-3 fw-bold">{{ event.type_access }}</span> <!-- Type d'accès -->
-              </div>
-            </div>
+  <div class="row">
+    {% for event in events %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="event-card scroll-animated">
+        <div class="position-relative overflow-hidden">
+          <img
+            src="{{ event.image.url }}"
+            alt="Event {{ event.id }}"
+            class="card-img-top"
+          />
+          <!-- Type d'accès affiché sur l'image -->
+          <div class="event-date position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom">
+            <i class="fas fa-{% if event.type_access == 'gratuit'%}unlock-alt{% else %}lock
+            {% endif %}  me-2"></i> {{ event.type_access|title }}
+          </div>
+          <!-- Dates affichées sous l'image -->
+          <div class="event-date mt-2">
+            <i class="fas fa-calendar-days text-primary"></i>
+            {{ event.start_date }} - {{ event.end_date }}
           </div>
         </div>
-      {% endfor %}
-    </div>
+        <div class="card-body">
+          <!-- Lieu de l'événement -->
+          <div class="event-location mb-2 d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-map-marker-alt text-primary"></i>
+              {{ event.location }}
+            </div>
+            <span class="badge bg-secondary">{{ event.category.name }}</span>
+          </div>
 
-    <div class="pagination">
-        {% if events.has_previous %}
-        <a href="?page={{ events.previous_page_number }}">Précédent</a>
+          <!-- Titre et catégorie -->
+          <h5 class="card-title mb-2">{{ event.title }}</h5>
+          <!-- Lien et type d'accès -->
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <a href="{% url 'event:event_detail' event.uid %}" class="btn btn-primary">
+              Voir les détails
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <!-- Message si aucun résultat -->
+    <div class="text-center py-5">
+      <p class="text-muted fs-4">Aucun événement trouvé. Essayez d'ajuster vos filtres.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <div class="d-flex justify-content-center mt-4">
+    <nav>
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a href="?page=1" class="page-link">&laquo; Première</a>
+        </li>
+        <li class="page-item">
+          <a href="?page={{ page_obj.previous_page_number }}" class="page-link">Précédente</a>
+        </li>
         {% endif %}
 
-        <span>Page {{ events.number }} de {{ events.paginator.num_pages }}</span>
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>
+        </li>
 
-        {% if events.has_next %}
-        <a href="?page={{ events.next_page_number }}">Suivant</a>
+        {% if page_obj.has_next %}
+        <li class="page-item">
+          <a href="?page={{ page_obj.next_page_number }}" class="page-link">Suivante</a>
+        </li>
+        <li class="page-item">
+          <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Dernière &raquo;</a>
+        </li>
         {% endif %}
-    </div>
+      </ul>
+    </nav>
+  </div>
 </div>
 {% endblock %}
-

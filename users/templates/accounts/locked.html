@@ -18,8 +18,8 @@
         <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
           <div class="text-center text-md-center mb-4 mt-md-0">
             <div class="avatar avatar-lg mx-auto mb-3">
-              {% if user.profile %}
-                <img class="rounded-circle" alt="Image placeholder" src="{{ user.profile.photo.url }}">
+              {% if user.photo %}
+                <img class="rounded-circle" alt="Image placeholder" src="{{ user.photo.url }}">
               {% else %}
                 <img class="rounded-circle" alt="Image placeholder" src="{% static 'img/profile.png' %}">
               {% endif %}

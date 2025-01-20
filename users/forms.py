@@ -1,9 +1,7 @@
-from typing import Any
-
 from admin_volt.forms import LoginForm
 from django import forms
+from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm, UsernameField
-from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
 
 from users.models import User
@@ -17,29 +15,29 @@ class CustomLoginForm(LoginForm):
         widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Email"}),
     )
     password = forms.CharField(
-        label=("Votre mot de pass"),
+        label=("Votre mot de passe"),
         strip=False,
-        widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Mot de pass"}),
+        widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Mot de passe"}),
     )
 
-    def clean(self) -> dict[str, Any]:
+    def clean(self) -> dict:
         username = self.cleaned_data.get("username")
         password = self.cleaned_data.get("password")
 
-        try:
-            user = User.objects.get(email=username)
-        except Exception:
-            raise ValidationError("Email ou mot de pass invalid")
+        # Authentifier l'utilisateur
+        user = authenticate(email=username, password=password)
+
+        if user is None:
+            raise ValidationError("Email ou mot de passe invalide")
 
         if not user.is_active:
             send_mail_activation(user)
             raise ValidationError(
-                "Votre compte n'est pas actif, consulter votre boite mail pour l'activer"
+                "Votre compte n'est pas actif. Consultez votre boîte mail pour l'activer."
             )
 
-        if not check_password(password, user.password):
-            raise ValidationError("Email ou mot de pass invalid")
-
+        # Stocker l'utilisateur pour une utilisation ultérieure
+        self.cleaned_data["user"] = user
         return self.cleaned_data
 
 

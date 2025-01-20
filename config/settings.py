@@ -102,7 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "Fr"
+LANGUAGE_CODE = "fr-Fr"
 
 TIME_ZONE = "UTC"
 
@@ -128,6 +128,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
 
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/proevent/"
+LOGOUT_REDIRECT_URL = "/"
 
 # Pour django debug toolbar
 INTERNAL_IPS = [
@@ -135,7 +138,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
-LOGIN_REDIRECT_URL = "/"
+
 # env mail
 # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

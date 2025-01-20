@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.admin import widgets
 
 from .models import Category, Contact, Event, Partner, Ticket
 
@@ -16,6 +17,18 @@ class PartnerForms(forms.ModelForm):
 
 
 class EventForms(forms.ModelForm):
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(), empty_label="Choisir une catégorie"
+    )
+    partner = forms.ModelMultipleChoiceField(
+        queryset=Partner.objects.all(), required=False, widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["start_date"].input_formats = ["%Y-%m-%dT%H:%M"]
+        self.fields["end_date"].input_formats = ["%Y-%m-%dT%H:%M"]
+
     class Meta:
         model = Event
         fields = (
@@ -28,6 +41,9 @@ class EventForms(forms.ModelForm):
             "normal_capacity",
             "vip_capacity",
             "vvip_capacity",
+            "prix_normal",
+            "prix_vip",
+            "prix_vvip",
             "image",
             "type_event",
             "partner",
@@ -35,11 +51,21 @@ class EventForms(forms.ModelForm):
         )
         widgets = {
             "start_date": forms.DateTimeInput(
-                format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local"}
+                format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local", "class": "form-control"}
             ),
             "end_date": forms.DateTimeInput(
-                format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local"}
+                format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local", "class": "form-control"}
             ),
+        }
+
+
+class EventForm(forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = "__all__"
+        widgets = {
+            "start_date": widgets.AdminSplitDateTime(),
+            "end_date": widgets.AdminSplitDateTime(),
         }
 
 
@@ -50,9 +76,6 @@ class TicketForms(forms.ModelForm):
             "email_reception",
             "telephone_payement",
             "telephone_reception",
-            "prix_normal",
-            "prix_vip",
-            "prix_vvip",
         )
 
 

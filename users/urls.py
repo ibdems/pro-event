@@ -7,6 +7,7 @@ from .views import (
     CustomUserCreationView,
     PasswordResetView,
     lock,
+    logout_view,
 )
 
 urlpatterns = [
@@ -20,5 +21,6 @@ urlpatterns = [
         name="password_confirmation",
     ),
     path("lock/", lock, name="locked"),
+    path("logout/", logout_view, name="logout"),
     path("", include("django.contrib.auth.urls")),
 ]

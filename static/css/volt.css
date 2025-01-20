@@ -27137,3 +27137,7 @@ table tbody tr th a {
   top: 10px;
   padding: -10px !important;
 }
+
+p{
+  margin-left: 0px !important;
+}
