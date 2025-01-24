@@ -36,3 +36,12 @@ repos:
     hooks:
       - id: python-safety-dependencies-check
         args: ["--ignore=66963", "requirements.txt"]
+
+  - repo: local
+    hooks:
+      - id: run-pytest
+        name: Run Pytest
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -465,3 +465,110 @@
 .pagination .page-item {
     margin: 0 5px;
 }
+.pagination {
+    gap: 0.5rem;
+}
+
+@media (max-width: 576px) {
+    .pagination {
+        font-size: 0.85rem;
+    }
+
+    .pagination .page-item .page-link {
+        padding: 0.5rem;
+    }
+}
+
+.payment-option img {
+    transition: transform 0.2s ease-in-out;
+}
+
+.payment-option img:hover {
+    transform: scale(1.1);
+}
+
+form .form-label {
+    font-weight: bold;
+    color: var(--text-black);
+}
+
+.ticket-card {
+    background: var(--bg-white);
+    transition: transform var(--transition-speed);
+}
+
+.ticket-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-quantity {
+    width: 36px;
+    height: 36px;
+    border: var(--border-width) solid var(--text-black);
+    background: transparent;
+    transition: all var(--transition-speed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-quantity:hover {
+    background-color: var(--primary-blue);
+    color: var(--bg-white);
+}
+
+.quantity-display {
+    font-size: 20px;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+}
+
+
+.payment-method-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: var(--border-width) solid var(--text-black);
+    border-radius: 8px;
+    padding: 1.5rem;
+    height: 100%;
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.payment-method-card img {
+    width: 100%;
+    max-height: 120px;
+    object-fit: contain;
+}
+
+.payment-method-card:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.partner-card {
+    transition: transform var(--transition-speed);
+}
+
+.partner-card:hover {
+    transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal.show .modal-content {
+    animation: fadeIn 0.3s ease-out;
+}

@@ -7,6 +7,7 @@ from .views import (
     EventAddView,
     EventView,
     HomeView,
+    TicketView,
 )
 
 app_name = "event"
@@ -17,4 +18,5 @@ urlpatterns = [
     path("contact/", ContactView.as_view(), name="contact"),
     path("event/detail/<uid>", DetailEventView.as_view(), name="event_detail"),
     path("event/add/", EventAddView.as_view(), name="event_add"),
+    path("event/ticket/", TicketView.as_view(), name="ticket"),
 ]

@@ -1,4 +1,4 @@
-name: Portfolio Ibrahima Dems Pipeline
+name: Piplenes CI/CD ProEvent
 
 on:
   push:
@@ -34,3 +34,6 @@ jobs:
         run: |
           pip install flake8
           flake8 . --max-line-length=100
+
+      - name: Run Tests
+        run: pytest --disable-warnings

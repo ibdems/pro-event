@@ -65,7 +65,7 @@ class Event(models.Model):
     prix_vvip = models.BigIntegerField(default=0)
     image = models.ImageField(upload_to="event_images/", blank=True, null=True)
     type_event = models.CharField(max_length=10, choices=type_choices, default="public")
-    partner = models.ManyToManyField(Partner, related_name="event_partner", null=True, blank=True)
+    partner = models.ManyToManyField(Partner, related_name="event_partner")
     statut = models.BooleanField(default=True)
     type_access = models.CharField(max_length=10, choices=type_access, default="payant")
     created_at = models.DateTimeField(default=timezone.now)
@@ -132,14 +132,53 @@ class Event(models.Model):
         return super().clean()
 
 
-class Ticket(models.Model):
-    code_ticket = models.CharField(max_length=100, unique=True)
+class Payement(models.Model):
+    mode_choices = [
+        ("orange_money", "Orange money"),
+        ("mobile_money", "Mobile money"),
+        ("paycard", "Paycard"),
+        ("visa", "VISA"),
+    ]
+    reference_payement = models.CharField(max_length=100, unique=True)
+    nom_complet = models.CharField(max_length=150)
     email_reception = models.EmailField(null=True, blank=True)
     telephone_payement = models.CharField(max_length=20)
     telephone_reception = models.CharField(max_length=20, null=True, blank=True)
+    payment_method = models.CharField(
+        max_length=25, choices=mode_choices, default="orange_money", null=True, blank=True
+    )
     statut_payement = models.BooleanField(default=False)
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(default=timezone.now)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="payement_event")
+    update_at = models.DateTimeField(auto_now=True)
+    amount = models.BigIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        if not self.reference_payement:
+            self.reference_payement = f"PE-PA-{uuid.uuid4().hex[:6]}".upper()
+        if self.amount <= 0:
+            raise ValidationError("Le montant doit être positif.")
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.reference_payement
+
+    class Meta:
+        verbose_name = "Payement"
+
+
+class Ticket(models.Model):
+    type_choices = (("normal", "Normal"), ("vip", "VIP"), ("vvip", "VVIP"))
+    code_ticket = models.CharField(max_length=100, unique=True)
     qr_code = models.ImageField(upload_to="qr_codes/", blank=True, null=True)
+    ticket_pdf = models.FileField(upload_to="tickets/", null=True, blank=True)
+    payement = models.ForeignKey(
+        Payement, on_delete=models.DO_NOTHING, related_name="ticket_payement"
+    )
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="ticket_event")
+    type_ticket = models.CharField(max_length=20, choices=type_choices, default="normal")
     scan_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now)
     update_at = models.DateTimeField(auto_now=True)
@@ -148,10 +187,14 @@ class Ticket(models.Model):
         return self.event.title
 
     def save(self, *args, **kwargs):
+        if self.event.available_capacity() <= 0:
+            raise ValidationError("Plus de places disponibles pour cet événement.")
         if not self.code_ticket:
-            self.code_ticket = f"PE-TI-{uuid.uuid4().hex[:6]}"
+            self.code_ticket = f"PE-TI-{uuid.uuid4().hex[:6]}".upper()
         if not self.qr_code:
-            qr = qrcode.make(f"{self.event.title}-{self.code_ticket}")
+            qr = qrcode.make(
+                f"{self.event.title}\n Code:{self.code_ticket}\n Type de ticket: {self.type_ticket}"
+            )
             buffer = BytesIO()
             qr.save(buffer, format="PNG")
             self.qr_code.save(f"qr_{self.code_ticket}.png", File(buffer), save=False)
@@ -159,27 +202,6 @@ class Ticket(models.Model):
 
     class Meta:
         verbose_name = "Ticket"
-
-
-class Payement(models.Model):
-    reference_payement = models.CharField(max_length=100, unique=True)
-    tickets = models.ManyToManyField(Ticket, related_name="payements")
-    created_at = models.DateTimeField(default=timezone.now)
-    update_at = models.DateTimeField(auto_now=True)
-    amount = models.BigIntegerField(default=0)
-
-    def save(self, *args, **kwargs):
-        if not self.reference_payement:
-            self.reference_payement = f"PE-PA-{uuid.uuid4().hex[:6]}"
-        if self.amount <= 0:
-            raise ValidationError("Le montant doit être positif.")
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"Paiement pour {self.tickets.count()} billets"
-
-    class Meta:
-        verbose_name = "Payement"
 
 
 class Contact(models.Model):

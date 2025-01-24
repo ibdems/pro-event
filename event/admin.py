@@ -101,25 +101,22 @@ class TicketAdmin(admin.ModelAdmin):
     list_display = (
         "code_ticket",
         "event",
-        "email_reception",
-        "telephone_payement",
-        "statut_payement",
+        "payement",
         "scan_count",
         "created_at",
         "display_qr_code",
+        "type_ticket",
     )
-    list_filter = ("statut_payement", "created_at", "event")
-    search_fields = ("code_ticket", "email_reception", "telephone_payement", "telephone_reception")
+    list_filter = ("created_at", "event")
+    search_fields = ("code_ticket", "payement")
     readonly_fields = ("code_ticket", "qr_code", "created_at", "update_at", "scan_count")
     list_per_page = 10
 
     fieldsets = (
-        ("Informations du ticket", {"fields": ("code_ticket", "event", "qr_code")}),
         (
-            "Informations de contact",
-            {"fields": ("email_reception", "telephone_payement", "telephone_reception")},
+            "Informations du ticket",
+            {"fields": ("code_ticket", "event", "type_ticket", "ticket_pdf")},
         ),
-        ("Statut", {"fields": ("statut_payement", "scan_count")}),
     )
 
     def display_qr_code(self, obj):
@@ -132,16 +129,21 @@ class TicketAdmin(admin.ModelAdmin):
 
 @admin.register(Payement)
 class PayementAdmin(admin.ModelAdmin):
-    list_display = ("reference_payement", "amount", "ticket_count", "created_at")
+    list_display = (
+        "reference_payement",
+        "amount",
+        "nom_complet",
+        "email_reception",
+        "telephone_payement",
+        "telephone_reception",
+        "payment_method",
+        "created_at",
+    )
     list_filter = ("created_at",)
     search_fields = ("reference_payement",)
     readonly_fields = ("reference_payement", "created_at", "update_at")
-    filter_horizontal = ("tickets",)
 
-    def ticket_count(self, obj):
-        return obj.tickets.count()
-
-    ticket_count.short_description = "Nombre de tickets"
+    # ticket_count.short_description = "Nombre de tickets"
 
     def get_readonly_fields(self, request, obj=None):
         if obj:

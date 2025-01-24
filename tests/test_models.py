@@ -33,13 +33,24 @@ def test_create_event(event, category, user):
 
 
 @pytest.mark.django_db
-def test_create_ticket(ticket, event):
-    assert "PE-TI" in ticket.code_ticket
-    assert ticket.event == event
-    assert event.available_capacity() == 169
-    assert ticket.qr_code is not None
-    assert ticket.qr_code.name.startswith("qr_")
-    assert ticket.qr_code.path.endswith(".png")
+def test_create_payement(payement, event):
+    assert payement.amount == 68000
+    assert payement.event == event
+    assert payement.reference_payement.startswith("PE-PA")
+
+
+@pytest.mark.django_db
+def test_create_ticket(ticket, event, payement):
+    ticket1, ticket2 = ticket
+    assert ticket1.code_ticket.startswith("PE-TI-")
+    assert ticket1.event == event
+    assert event.available_capacity() == 168
+    assert ticket1.qr_code is not None
+    assert ticket1.qr_code.name.startswith("qr_")
+    assert ticket1.qr_code.path.endswith(".png")
+    assert ticket1.payement is not None
+    assert ticket1.payement == payement
+    assert ticket2.payement == payement
 
 
 # @pytest.mark.django_db

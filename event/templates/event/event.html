@@ -1,4 +1,7 @@
 {% extends 'event/base.html' %}
+{% block title %}
+  Evenements
+{% endblock title %}
 {% block content %}
 <div class="container" style="margin-top: 100px">
   <h2 class="text-primary text-center mb-4 scroll-animated">
@@ -81,8 +84,8 @@
 
   <!-- Pagination -->
   <div class="d-flex justify-content-center mt-4">
-    <nav>
-      <ul class="pagination">
+    <nav aria-label="Pagination">
+      <ul class="pagination pagination-sm flex-wrap">
         {% if page_obj.has_previous %}
         <li class="page-item">
           <a href="?page=1" class="page-link">&laquo; Première</a>
@@ -107,5 +110,6 @@
       </ul>
     </nav>
   </div>
+
 </div>
 {% endblock %}

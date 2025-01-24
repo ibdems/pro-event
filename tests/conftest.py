@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 from PIL import Image
 
-from event.models import Category, Event, Partner, Ticket
+from event.models import Category, Event, Partner, Payement, Ticket
 from users.models import User
 
 
@@ -51,12 +51,26 @@ def event(user, category):
 
 
 @pytest.fixture
-def ticket(event):
-    return Ticket.objects.create(
+def payement(event):
+    return Payement.objects.create(
         email_reception="emailtest@gmail.com",
         telephone_payement="437348787",
         event=event,
+        amount=event.prix_normal + event.prix_vip,
     )
+
+
+@pytest.fixture
+def ticket(event, payement):
+    ticket1 = Ticket.objects.create(
+        event=event,
+        payement=payement,
+    )
+    ticket2 = Ticket.objects.create(
+        event=event,
+        payement=payement,
+    )
+    return ticket1, ticket2
 
 
 @pytest.fixture
