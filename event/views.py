@@ -9,7 +9,7 @@ from django_filters.views import FilterView
 from .filter import EventFilter
 from .forms import ContactForm, EventForms, PayementForm
 from .models import Contact, Event, Ticket
-from .utils import save_ticket_pdf, send_ticket_by_email
+from .tasks import save_ticket_pdf, send_ticket_by_email
 
 
 class HomeView(ListView):
@@ -106,13 +106,6 @@ class DetailEventView(DetailView):
                     quantity_vip = int(data.get("quantity_vip", 0))
                     quantity_vvip = int(data.get("quantity_vvip", 0))
 
-                    if quantity_normal > event.normal_capacity:
-                        raise ValidationError("Pas assez de tickets Normaux disponibles.")
-                    if quantity_vip > event.vip_capacity:
-                        raise ValidationError("Pas assez de tickets VIP disponibles.")
-                    if quantity_vvip > event.vvip_capacity:
-                        raise ValidationError("Pas assez de tickets VVIP disponibles.")
-
                     payement = form.save(commit=False)
                     payement.event = event
                     payement.amount = (
@@ -128,37 +121,35 @@ class DetailEventView(DetailView):
                         ticket = Ticket.objects.create(
                             payement=payement, event=event, type_ticket="normal"
                         )
-                        save_ticket_pdf(ticket, event, payement)
+                        save_ticket_pdf.delay(ticket.id, event.id, payement.id)
                         tickets.append(ticket)
 
                     for _ in range(quantity_vip):
                         ticket = Ticket.objects.create(
                             payement=payement, event=event, type_ticket="vip"
                         )
-                        save_ticket_pdf(ticket, event, payement)
+                        save_ticket_pdf.delay(ticket.id, event.id, payement.id)
                         tickets.append(ticket)
 
                     for _ in range(quantity_vvip):
                         ticket = Ticket.objects.create(
                             payement=payement, event=event, type_ticket="vvip"
                         )
-                        save_ticket_pdf(ticket, event, payement)
+                        save_ticket_pdf.delay(ticket.id, event.id, payement.id)
                         tickets.append(ticket)
-                    print(tickets)
 
-                    send_ticket_by_email(payement, tickets)
+                    send_ticket_by_email.delay(payement.id)
 
                     messages.success(
                         request,
                         "Votre payement a été effectué avec succès.\n"
-                        "Vous recevrez le/les ticket(s) dans l'option de reception choisi.",
+                        "Vous recevrez le/les ticket(s) dans l'option de réception choisie.",
                     )
                     return redirect("event:event_detail", uid=event.uid)
             except ValidationError as e:
                 messages.error(request, str(e))
         else:
-            messages.error(request, "Une erreur s'est produite lors du payement.")
-            # Passez le formulaire avec ses erreurs au contexte
+            messages.error(request, "Une erreur s'est produite lors du paiement.")
             return self.render_to_response(self.get_context_data(form=form))
 
         return self.render_to_response(self.get_context_data())

@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 
 import environ
+import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -159,3 +162,66 @@ EMAIL_USE_TLS = True
 # EMAIL_HOST_PASSWORD = ''
 # EMAIL_USE_TLS = False
 # EMAIL_USE_SSL = False
+
+
+# Configuration de RabiitMQ
+CELERY_BROKER_URL = "amqp://guest:guest@localhost:5672//"  # RabbitMQ broker URL
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_RESULT_EXTENDED = True
+
+import os
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "debug.log"),
+            "formatter": "verbose",
+        },
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+        "celery": {
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+        "config": {
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}
+
+#  Configuration de sentry
+sentry_sdk.init(
+    dsn="https://46787407c9b7d4d646ec2c833aeeb26b@o4508716806963200.ingest.de.sentry.io/4508716810305616",
+    integrations=[DjangoIntegration(), CeleryIntegration()],
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+)

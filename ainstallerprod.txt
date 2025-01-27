@@ -1,0 +1,9 @@
+RabitMQ pour le message broker
+    sudo apt update
+    sudo apt install rabbitmq-server
+    sudo systemctl start rabbitmq-server
+    sudo systemctl enable rabbitmq-server
+
+GTK3 pour la generation du ticket en pdf
+    sudo apt update
+    sudo apt install libgtk-3-0 libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi7 libxml2-dev libxslt-dev python3-dev
