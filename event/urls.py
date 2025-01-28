@@ -7,6 +7,7 @@ from .views import (
     EventAddView,
     EventView,
     HomeView,
+    ScanCodeView,
     TicketView,
 )
 
@@ -19,4 +20,5 @@ urlpatterns = [
     path("event/detail/<uid>", DetailEventView.as_view(), name="event_detail"),
     path("event/add/", EventAddView.as_view(), name="event_add"),
     path("event/ticket/", TicketView.as_view(), name="ticket"),
+    path("event/<str:event_id>/scan/", ScanCodeView.as_view(), name="scan_code"),
 ]

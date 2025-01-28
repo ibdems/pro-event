@@ -1,8 +1,10 @@
 from django.contrib import messages
 from django.db import transaction
 from django.forms import ValidationError
-from django.http import Http404
-from django.shortcuts import redirect
+from django.http import Http404, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, TemplateView
 from django_filters.views import FilterView
 
@@ -187,3 +189,66 @@ class EventAddView(CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+
+class ScanCodeView(View):
+    def get(self, request, event_id):
+        """
+        Affichage de l'événement pour le scan.
+        """
+        event = get_object_or_404(Event, uid=event_id)
+        context = {
+            "event": event,
+            "total_capacity": event.total_capacity(),
+            "tickets_scanned": event.ticket_event.filter(scan_count__gt=0).count(),
+            "available_capacity": event.available_capacity(),
+        }
+        return render(request, "event/scan_ticket.html", context)
+
+    def post(self, request, event_id):
+        """
+        Vérification du ticket lors du scan.
+        """
+        code_ticket = request.POST.get("code_ticket")
+        try:
+            ticket = Ticket.objects.get(code_ticket=code_ticket)
+
+            # Vérifier si le ticket correspond à l'événement
+            if ticket.event.uid != event_id:
+                return JsonResponse(
+                    {"success": False, "message": "Ce ticket n'est pas valide pour cet événement."}
+                )
+
+            # Vérifier si l'événement est toujours actif
+            if not ticket.event.statut:
+                return JsonResponse(
+                    {"success": False, "message": "Cet événement n'est plus actif."}
+                )
+
+            # Vérifier si l'événement n'est pas terminé
+            if ticket.event.end_date < timezone.now():
+                return JsonResponse({"success": False, "message": "Cet événement est terminé."})
+
+            # Incrémenter le compteur de scan
+            ticket.scan_count += 1
+            ticket.save()
+
+            message = "Ticket valide."
+            if ticket.scan_count > 1:
+                message = f"Attention: Ticket déjà scanné {ticket.scan_count} fois."
+
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": message,
+                    "type_ticket": ticket.type_ticket,
+                    "scan_count": ticket.scan_count,
+                }
+            )
+
+        except Ticket.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Ticket invalide ou inexistant."})
+        except Exception:
+            return JsonResponse(
+                {"success": False, "message": "Une erreur est survenue lors de la vérification."}
+            )

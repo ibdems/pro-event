@@ -171,3 +171,8 @@ cython_debug/
 .pypirc
 
 /media
+
+.dockerignore
+Dockerfile
+compose.yaml
+README.Docker.md
