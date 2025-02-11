@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from celery import chord, group
 from django.contrib import messages
 from django.db import transaction
@@ -216,9 +218,11 @@ class ScanCodeView(View):
         try:
             ticket = Ticket.objects.get(code_ticket=code_ticket)
             print(f"ticket: {ticket}")
-            print(f"event_id: {event_id}")
-            print(f"ticket_uid: {ticket.event.uid}")
+
             # Vérifier si le ticket correspond à l'événement
+            event_id = UUID(event_id)
+            print(f"type(event_id): {type(event_id)}, value: {event_id}")
+            print(f"type(ticket.event.uid): {type(ticket.event.uid)}, value: {ticket.event.uid}")
             if ticket.event.uid != event_id:
                 return JsonResponse(
                     {"success": False, "message": "Ce ticket n'est pas valide pour cet événement."}

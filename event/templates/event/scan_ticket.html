@@ -54,6 +54,7 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
         }
 
         #reader {
@@ -64,31 +65,84 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .result-card {
+        /* Styles pour les alertes pop-up */
+        .alert-popup-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .alert-popup {
+            background: white;
             padding: 20px;
             border-radius: 10px;
-            margin-top: 20px;
-            animation: fadeIn 0.5s ease-in-out;
+            max-width: 90%;
+            width: 400px;
+            position: relative;
+            animation: slideDown 0.3s ease-out;
+            text-align: center;
         }
 
-        .success-card {
-            background-color: rgba(40, 167, 69, 0.1);
-            border: 1px solid var(--success-color);
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            color: #666;
         }
 
-        .error-card {
-            background-color: rgba(220, 53, 69, 0.1);
-            border: 1px solid var(--error-color);
+        .alert-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
         }
 
-        .warning-card {
-            background-color: rgba(255, 193, 7, 0.1);
-            border: 1px solid var(--warning-color);
+        .alert-message {
+            margin-bottom: 15px;
+        }
+
+        .timer-bar {
+            height: 4px;
+            background-color: #ddd;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            border-radius: 0 0 10px 10px;
+            width: 100%;
+        }
+
+        .timer-progress {
+            height: 100%;
+            background-color: var(--primary-blue);
+            border-radius: 0 0 10px 10px;
+            transition: width linear;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         @media (max-width: 768px) {
@@ -130,40 +184,100 @@
 
     <div class="scanner-container">
         <div id="reader"></div>
-        <div id="result" class="mt-4"></div>
     </div>
 
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Vérification de la bibliothèque
+        let isProcessing = false;
+        let scanner = null;
+
         if (typeof Html5QrcodeScanner === "undefined") {
             console.error("Erreur : La bibliothèque html5-qrcode ne s'est pas chargée correctement.");
             return;
         }
 
-        // Configuration du scanner
-        const html5QrCodeScanner = new Html5QrcodeScanner("reader", {
+        scanner = new Html5QrcodeScanner("reader", {
             fps: 10,
             qrbox: { width: 250, height: 250 }
         });
 
-        // Fonction de traitement du scan
+        function showAlert(data) {
+            // Désactiver temporairement le scanner
+            if (scanner) {
+                scanner.pause();
+            }
+
+            const container = document.createElement('div');
+            container.className = 'alert-popup-container';
+
+            let iconType = data.success ? (data.scan_count > 1 ? '⚠' : '✓') : '✗';
+            let colorClass = data.success ? (data.scan_count > 1 ? 'warning' : 'success') : 'danger';
+            let bgColor = data.success ? (data.scan_count > 1 ? '#ffc107' : '#28a745') : '#dc3545';
+
+            container.innerHTML = `
+                <div class="alert-popup">
+                    <button class="close-button">&times;</button>
+                    <div class="alert-icon" style="color: ${bgColor}">${iconType}</div>
+                    <div class="alert-message">
+                        <h4>${data.message}</h4>
+                        ${data.success ? `<p class="mb-0">Type de ticket: ${data.type_ticket}</p>` : ''}
+                    </div>
+                    <div class="timer-bar">
+                        <div class="timer-progress" style="background-color: ${bgColor}; width: 100%"></div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(container);
+
+            // Animation de la barre de progression
+            const progress = container.querySelector('.timer-progress');
+            progress.style.transition = 'width 5s linear';
+            setTimeout(() => {
+                progress.style.width = '0%';
+            }, 100);
+
+            // Gérer la fermeture manuelle
+            const closeButton = container.querySelector('.close-button');
+            closeButton.addEventListener('click', () => {
+                closeAlert(container);
+            });
+
+            // Fermeture automatique après 5 secondes
+            setTimeout(() => {
+                closeAlert(container);
+            }, 5000);
+        }
+
+        function closeAlert(container) {
+            container.style.opacity = '0';
+            setTimeout(() => {
+                container.remove();
+                // Réactiver le scanner
+                if (scanner) {
+                    scanner.resume();
+                }
+                isProcessing = false;
+            }, 300);
+        }
+
         async function onScanSuccess(decodedText, decodedResult) {
+            if (isProcessing) {
+                return;
+            }
+
+            isProcessing = true;
+
             try {
-                // Préparation des données
                 const formData = new FormData();
-                console.log(formData)
                 formData.append('code_ticket', decodedText);
 
-                // Récupération du token CSRF
                 const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
-
                 if (!csrfToken) {
                     throw new Error('Token CSRF non trouvé');
                 }
 
-                // Envoi de la requête
                 const response = await fetch(window.location.href, {
                     method: 'POST',
                     body: formData,
@@ -176,12 +290,9 @@
                     throw new Error(`Erreur HTTP! statut: ${response.status}`);
                 }
 
-                // Traitement de la réponse
                 const data = await response.json();
-                console.log(data)
-                showResult(data);
+                showAlert(data);
 
-                // Mise à jour des compteurs
                 if (data.success) {
                     const scannedCount = document.getElementById('scannedCount');
                     const remainingCount = document.getElementById('remainingCount');
@@ -193,36 +304,14 @@
                 }
             } catch (error) {
                 console.error("Erreur lors de la vérification du ticket:", error);
-                showResult({
+                showAlert({
                     success: false,
                     message: "Erreur lors de la vérification du ticket: " + error.message
                 });
             }
         }
 
-        // Fonction d'affichage du résultat
-        function showResult(data) {
-            const resultDiv = document.getElementById("result");
-            console.log(resultDiv)
-            let cardClass = data.success ? 'success-card' : 'error-card';
-            let icon = data.success ? '✓' : '✗';
-
-            if (data.success && data.scan_count > 1) {
-                cardClass = 'warning-card';
-                icon = '⚠';
-            }
-
-            resultDiv.className = `result-card ${cardClass}`;
-            resultDiv.innerHTML = `
-                <div class="text-${data.success ? 'success' : 'danger'}">
-                    <h4>${icon} ${data.message}</h4>
-                    ${data.success ? `<p class="mb-0">Type de ticket: ${data.type_ticket}</p>` : ''}
-                </div>
-            `;
-        }
-
-        // Démarrage du scanner
-        html5QrCodeScanner.render(onScanSuccess);
+        scanner.render(onScanSuccess);
     });
     </script>
 </body>
