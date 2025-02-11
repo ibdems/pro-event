@@ -1,6 +1,6 @@
+from celery import chord, group
 from django.contrib import messages
 from django.db import transaction
-from django.forms import ValidationError
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -11,7 +11,7 @@ from django_filters.views import FilterView
 from .filter import EventFilter
 from .forms import ContactForm, EventForms, PayementForm
 from .models import Contact, Event, Ticket
-from .tasks import save_ticket_pdf, send_ticket_by_email
+from .tasks import generate_and_save_ticket_pdf, send_ticket_by_email
 
 
 class HomeView(ListView):
@@ -104,10 +104,13 @@ class DetailEventView(DetailView):
                 with transaction.atomic():
                     data = form.cleaned_data
                     event = self.object
+
+                    # Récupération des quantités
                     quantity_normal = int(data.get("quantity_normal", 0))
                     quantity_vip = int(data.get("quantity_vip", 0))
                     quantity_vvip = int(data.get("quantity_vvip", 0))
 
+                    # Création du paiement
                     payement = form.save(commit=False)
                     payement.event = event
                     payement.amount = (
@@ -118,47 +121,46 @@ class DetailEventView(DetailView):
                     payement.quantity = quantity_normal + quantity_vip + quantity_vvip
                     payement.save()
 
-                    tickets = []
-                    for _ in range(quantity_normal):
-                        ticket = Ticket.objects.create(
-                            payement=payement, event=event, type_ticket="normal"
-                        )
-                        save_ticket_pdf.delay(ticket.id, event.id, payement.id)
-                        tickets.append(ticket)
+                    tasks = []
+                    ticket_types = [
+                        ("normal", quantity_normal),
+                        ("vip", quantity_vip),
+                        ("vvip", quantity_vvip),
+                    ]
 
-                    for _ in range(quantity_vip):
-                        ticket = Ticket.objects.create(
-                            payement=payement, event=event, type_ticket="vip"
-                        )
-                        save_ticket_pdf.delay(ticket.id, event.id, payement.id)
-                        tickets.append(ticket)
+                    # Création des tickets
+                    for ticket_type, quantity in ticket_types:
+                        for _ in range(quantity):
+                            ticket = Ticket.objects.create(
+                                payement=payement, event=event, type_ticket=ticket_type
+                            )
+                            tasks.append(
+                                generate_and_save_ticket_pdf.s(event.id, ticket.id, payement.id)
+                            )
 
-                    for _ in range(quantity_vvip):
-                        ticket = Ticket.objects.create(
-                            payement=payement, event=event, type_ticket="vvip"
-                        )
-                        save_ticket_pdf.delay(ticket.id, event.id, payement.id)
-                        tickets.append(ticket)
+                    def send_email_after_commit():
+                        print(f"No payement envoyer {payement.id} et type: {type(payement.id)}")
+                        callback = send_ticket_by_email.si(payement.id)
+                        chord(group(tasks))(callback)
 
-                    send_ticket_by_email.delay(payement.id)
+                    transaction.on_commit(send_email_after_commit)
 
                     messages.success(
                         request,
-                        "Votre payement a été effectué avec succès.\n"
+                        "Votre paiement a été effectué avec succès.\n"
                         "Vous recevrez le/les ticket(s) dans l'option de réception choisie.",
                     )
                     return redirect("event:event_detail", uid=event.uid)
-            except ValidationError as e:
-                messages.error(request, str(e))
-        else:
-            messages.error(request, "Une erreur s'est produite lors du paiement.")
-            return self.render_to_response(self.get_context_data(form=form))
 
-        return self.render_to_response(self.get_context_data())
+            except Exception as e:
+                messages.error(request, f"Une erreur est survenue : {e}")
+                return self.render_to_response(self.get_context_data(form=form))
+
+        messages.error(request, "Une erreur s'est produite lors du paiement.")
+        return self.render_to_response(self.get_context_data(form=form))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Ajoutez le formulaire au contexte si non inclus
         if "form" not in kwargs:
             context["form"] = PayementForm()
         return context
@@ -210,9 +212,12 @@ class ScanCodeView(View):
         Vérification du ticket lors du scan.
         """
         code_ticket = request.POST.get("code_ticket")
+        print(f"Code ticket {code_ticket}")
         try:
             ticket = Ticket.objects.get(code_ticket=code_ticket)
-
+            print(f"ticket: {ticket}")
+            print(f"event_id: {event_id}")
+            print(f"ticket_uid: {ticket.event.uid}")
             # Vérifier si le ticket correspond à l'événement
             if ticket.event.uid != event_id:
                 return JsonResponse(

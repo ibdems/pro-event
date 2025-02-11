@@ -192,9 +192,7 @@ class Ticket(models.Model):
         if not self.code_ticket:
             self.code_ticket = f"PE-TI-{uuid.uuid4().hex[:6]}".upper()
         if not self.qr_code:
-            qr = qrcode.make(
-                f"{self.event.title}\n Code:{self.code_ticket}\n Type de ticket: {self.type_ticket}"
-            )
+            qr = qrcode.make(self.code_ticket)
             buffer = BytesIO()
             qr.save(buffer, format="PNG")
             self.qr_code.save(f"qr_{self.code_ticket}.png", File(buffer), save=False)

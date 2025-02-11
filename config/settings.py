@@ -24,7 +24,7 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -165,11 +165,9 @@ EMAIL_USE_TLS = True
 
 
 # Configuration de Celery avec RabbitMQ comme broker
-CELERY_BROKER_URL = (
-    f"amqp://{os.getenv('RABBITMQ_USER')}:{os.getenv('RABBITMQ_PASSWORD')}@rabbitmq:5672/"
-)
-CELERY_RESULT_BACKEND = f"redis://:{os.getenv('REDIS_PASSWORD')}@redis:6379/0"
 
+CELERY_BROKER_URL = "amqp://proevent:proevent@localhost:5672//"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_EXTENDED = True

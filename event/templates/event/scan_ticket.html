@@ -111,6 +111,8 @@
         </div>
     </div>
 
+    {% csrf_token %}
+
     <div class="stats-container">
         <div class="stat-card">
             <small>Capacité Totale</small>
@@ -131,50 +133,77 @@
         <div id="result" class="mt-4"></div>
     </div>
 
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
-        const html5QrCode = new Html5Qrcode("reader");
-        const config = {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0
-        };
+    document.addEventListener("DOMContentLoaded", function () {
+        // Vérification de la bibliothèque
+        if (typeof Html5QrcodeScanner === "undefined") {
+            console.error("Erreur : La bibliothèque html5-qrcode ne s'est pas chargée correctement.");
+            return;
+        }
 
+        // Configuration du scanner
+        const html5QrCodeScanner = new Html5QrcodeScanner("reader", {
+            fps: 10,
+            qrbox: { width: 250, height: 250 }
+        });
+
+        // Fonction de traitement du scan
         async function onScanSuccess(decodedText, decodedResult) {
             try {
+                // Préparation des données
                 const formData = new FormData();
+                console.log(formData)
                 formData.append('code_ticket', decodedText);
 
+                // Récupération du token CSRF
+                const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+
+                if (!csrfToken) {
+                    throw new Error('Token CSRF non trouvé');
+                }
+
+                // Envoi de la requête
                 const response = await fetch(window.location.href, {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        'X-CSRFToken': csrfToken
                     }
                 });
 
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP! statut: ${response.status}`);
+                }
+
+                // Traitement de la réponse
                 const data = await response.json();
+                console.log(data)
                 showResult(data);
 
+                // Mise à jour des compteurs
                 if (data.success) {
-                    // Mettre à jour les statistiques
                     const scannedCount = document.getElementById('scannedCount');
                     const remainingCount = document.getElementById('remainingCount');
 
-                    scannedCount.textContent = parseInt(scannedCount.textContent) + 1;
-                    remainingCount.textContent = parseInt(remainingCount.textContent) - 1;
+                    if (scannedCount && remainingCount) {
+                        scannedCount.textContent = parseInt(scannedCount.textContent) + 1;
+                        remainingCount.textContent = parseInt(remainingCount.textContent) - 1;
+                    }
                 }
             } catch (error) {
                 console.error("Erreur lors de la vérification du ticket:", error);
                 showResult({
                     success: false,
-                    message: "Erreur lors de la vérification du ticket"
+                    message: "Erreur lors de la vérification du ticket: " + error.message
                 });
             }
         }
 
+        // Fonction d'affichage du résultat
         function showResult(data) {
             const resultDiv = document.getElementById("result");
+            console.log(resultDiv)
             let cardClass = data.success ? 'success-card' : 'error-card';
             let icon = data.success ? '✓' : '✗';
 
@@ -192,15 +221,9 @@
             `;
         }
 
-        // Démarrer le scanner
-        html5QrCode.start(
-            { facingMode: "environment" },
-            config,
-            onScanSuccess,
-            (error) => console.warn("Erreur de scan:", error)
-        ).catch((err) => {
-            console.error("Erreur lors de l'initialisation du scanner:", err);
-        });
+        // Démarrage du scanner
+        html5QrCodeScanner.render(onScanSuccess);
+    });
     </script>
 </body>
 </html>
