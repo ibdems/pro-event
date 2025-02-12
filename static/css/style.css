@@ -188,6 +188,6 @@ h6 {
 }
 
 .text-primary:hover {
-  transform: scale(1.1);
+  transform: scale(0.9);
   transition: transform 0.2s ease-in-out;
 }

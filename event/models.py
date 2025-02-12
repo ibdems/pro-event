@@ -118,7 +118,7 @@ class Event(models.Model):
                 "Vous devez definir un prix VIP si la capacité VIP est supérieur"
                 + "à 0 pour un événement payant"
             )
-        if self.vvip_capacity > 0 and self.vvip_capacity == 0 and self.type_access == "payant":
+        if self.vvip_capacity > 0 and self.prix_vvip == 0 and self.type_access == "payant":
             raise ValidationError(
                 "Vous devez definir un prix VVIP si la capacité VVIP est"
                 + " supérieur à 0 pour un événement payant"

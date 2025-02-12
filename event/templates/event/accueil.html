@@ -14,8 +14,8 @@ Accueil
       <p class="fs-5 mb-4">Avec ProEvent, transformez vos idées en événements mémorables. Organisation complète, tickets
         sécurisés, et services partenaires de qualité, tout en un !</p>
       <div class="d-flex flex-column flex-lg-row gap-3">
-        <a href="" class="btn btn-primary">Explorer les événements</a>
-        <a href="" class="btn btn-outline-primary">Demander un événement</a>
+        <a href="{% url 'event:event' %}" class="btn btn-primary">Explorer les événements</a>
+        <a href="" class="btn btn-outline-primary">Demander un service</a>
       </div>
     </div>
   </div>
@@ -26,25 +26,35 @@ Accueil
   <div class="container">
     <h2 class="text-primary text-center mb-5 scroll-animated">Pourquoi choisir ProEvent ?</h2>
     <div class="row g-4">
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="advantages-card p-4 scroll-animated">
           <i class="fas fa-calendar-check advantages-icon"></i>
           <h3 class="h4 mb-3">Organisation complète</h3>
-          <p class="mb-0">De la logistique à la gestion des invités, ProEvent s'occupe de tout pour un événement sans stress.</p>
+          <p class="mb-0">De la logistique à la gestion des invités, ProEvent s'occupe de tout pour un événement sans
+            stress.</p>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="advantages-card p-4 scroll-animated">
           <i class="fas fa-ticket-alt advantages-icon"></i>
           <h3 class="h4 mb-3">Tickets sécurisés</h3>
           <p class="mb-0">Vendez ou achetez des tickets en toute sécurité avec nos solutions digitales intégrées.</p>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="advantages-card p-4 scroll-animated">
           <i class="fas fa-handshake advantages-icon"></i>
           <h3 class="h4 mb-3">Partenaires fiables</h3>
-          <p class="mb-0">Nous collaborons avec les meilleurs lieux et services pour offrir des événements de qualité.</p>
+          <p class="mb-0">Nous collaborons avec les meilleurs lieux et services pour offrir des événements de qualité.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="advantages-card p-4 scroll-animated">
+          <i class="fas fa-handshake advantages-icon"></i>
+          <h3 class="h4 mb-3">Hotesse experimentées</h3>
+          <p class="mb-0">Nous collaborons avec les meilleurs lieux et services pour offrir des événements de qualité.
+          </p>
         </div>
       </div>
     </div>
@@ -58,28 +68,46 @@ Accueil
     <h2 class="text-primary text-center mb-5 scroll-animated">Les événements en vedette</h2>
     <div class="row">
       {% for event in events %}
-        <div class="col-md-4 mb-4">
-          <div class="event-card scroll-animated">
-            <div class="position-relative overflow-hidden">
-              <img src="{{ event.image.url }}" alt="Event {{ event.id }}" class="card-img-top">
-              <div class="event-date mt-2"> <i class="fas fa-calendar-days text-primary me-2"></i>{{ event.start_date }} - {{ event.end_date }}</div>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="event-card scroll-animated">
+          <div class="position-relative overflow-hidden">
+            <img src="{{ event.image.url }}" alt="Event {{ event.id }}" class="card-img-top" />
+            <!-- Type d'accès affiché sur l'image -->
+            <div class="event-date position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom">
+              <i class="fas fa-{% if event.type_access == 'gratuit'%}unlock-alt{% else %}lock
+            {% endif %}  me-2"></i> {{ event.type_access|title }}
             </div>
-            <div class="card-body">
-              <div class="event-location mb-2">
-                <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                {{ event.location }} <!-- Lieu de l'événement -->
+            <!-- Dates affichées sous l'image -->
+            <div class="event-date mt-2">
+              <i class="fas fa-calendar-days text-primary"></i>
+              {{ event.start_date }} - {{ event.end_date }}
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Lieu de l'événement -->
+            <div class="event-location mb-2 d-flex justify-content-between align-items-center">
+              <div>
+                <i class="fas fa-map-marker-alt text-primary"></i>
+                {{ event.location }}
               </div>
-              <h5 class="card-title mb-3">{{ event.title }}</h5> <!-- Titre de l'événement -->
-              <div class="d-flex justify-content-between align-items-center">
-                <a href="" class="btn btn-primary">Voir les détails</a> <!-- Lien vers les détails -->
-                <span class="text-primary fw-bold">{{ event.type_access }}</span> <!-- Type d'accès -->
-              </div>
+              <span class="badge bg-secondary">{{ event.category.name }}</span>
+            </div>
+
+            <!-- Titre et catégorie -->
+            <h5 class="card-title mb-2">{{ event.title }}</h5>
+            <!-- Lien et type d'accès -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <a href="{% url 'event:event_detail' event.uid %}" class="btn btn-primary">
+                Voir les détails
+              </a>
             </div>
           </div>
         </div>
-        {% if forloop.counter|divisibleby:3 %}
-          </div><div class="row"> <!-- Start a new row every 3 events -->
-        {% endif %}
+      </div>
+      {% if forloop.counter|divisibleby:3 %}
+    </div>
+    <div class="row"> <!-- Start a new row every 3 events -->
+      {% endif %}
       {% endfor %}
     </div>
   </div>

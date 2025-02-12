@@ -23,7 +23,21 @@ class HomeView(ListView):
 
     def get_queryset(self):
         qr = super().get_queryset()
-        return qr.filter(statut=True).order_by("-created_at")[:3]
+        return (
+            qr.filter(statut=True)
+            .only(
+                "uid",
+                "category",
+                "title",
+                "start_date",
+                "end_date",
+                "location",
+                "type_access",
+                "image",
+            )
+            .select_related("category")
+            .order_by("-created_at")[:3]
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -51,6 +65,19 @@ class EventView(FilterView, ListView):
         context = super().get_context_data(**kwargs)
         context["active_page"] = "event"
         return context
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.only(
+            "uid",
+            "category",
+            "title",
+            "start_date",
+            "end_date",
+            "location",
+            "type_access",
+            "image",
+        ).select_related("category")
 
     def get_ordering(self):
         order = super().get_ordering()
