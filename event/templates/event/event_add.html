@@ -7,161 +7,181 @@
         <div class="row">
             <div class="col-lg-8 col-md-10 mx-auto">
                 <div class="card card-body border-0 shadow p-4 p-lg-5">
-    <h1 class="h2">Ajouter un événement</h1>
-    <p class="font-small text-muted">Veuillez remplir le formulaire ci-dessous pour ajouter un événement.</p>
-    {% if form.non_field_errors %}
-        <div class="alert alert-danger text-black fw-bold">
-            {% for error in form.non_field_errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-        </div>
-    {% endif %}
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="category">Catégorie</label>
-                <select name="category" class="form-control" id="category">
-                    <option value="" disabled {% if not form.category.value %}selected{% endif %}>Choisir une catégorie</option>
-                    {% for category in form.category.field.queryset %}
-                        <option value="{{ category.id }}" {% if category.id == form.category.value %}selected{% endif %}>
-                            {{ category.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-                {% for error in form.category.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
+                    <h1 class="h2">Ajouter un événement</h1>
+                    <p class="font-small text-muted">Veuillez remplir le formulaire ci-dessous pour ajouter un
+                        événement.</p>
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger text-black fw-bold">
+                        {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category">Catégorie</label>
+                                <select name="category" class="form-control" id="category">
+                                    <option value="" disabled {% if not form.category.value %}selected{% endif %}>
+                                        Choisir une catégorie</option>
+                                    {% for category in form.category.field.queryset %}
+                                    <option value="{{ category.id }}" {% if category.id==form.category.value
+                                        %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% for error in form.category.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
 
-            <div class="col-md-6 mb-3">
-                <label for="title">Titre</label>
-                <input type="text" name="title" class="form-control" id="title" value="{{ form.title.value|default_if_none:'' }}">
-                {% for error in form.title.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="mb-3">
-            <label for="description">Description</label>
-            <textarea name="description" class="form-control" id="description">{{ form.description.value|default_if_none:'' }}</textarea>
-            {% for error in form.description.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-        </div>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="start_date">Date de début</label>
-                <input type="datetime-local" name="start_date" class="form-control" id="start_date" value="{{ form.start_date.value|default_if_none:'' }}">
-                {% for error in form.start_date.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="end_date">Date de fin</label>
-                <input type="datetime-local" name="end_date" class="form-control" id="end_date" value="{{ form.end_date.value|default_if_none:'' }}">
-                {% for error in form.end_date.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="mb-3">
-            <label for="location">Lieu</label>
-            <input type="text" name="location" class="form-control" id="location" value="{{ form.location.value|default_if_none:'' }}">
-            {% for error in form.location.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-        </div>
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <label for="normal_capacity">Capacité normale</label>
-                <input type="number" name="normal_capacity" class="form-control" id="normal_capacity" value="{{ form.normal_capacity.value|default_if_none:'' }}">
-                {% for error in form.normal_capacity.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
-            <div class="col-md-4 mb-3">
-                <label for="vip_capacity">Capacité VIP</label>
-                <input type="number" name="vip_capacity" class="form-control" id="vip_capacity" value="{{ form.vip_capacity.value|default_if_none:'' }}">
-                {% for error in form.vip_capacity.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
-            <div class="col-md-4 mb-3">
-                <label for="vvip_capacity">Capacité VVIP</label>
-                <input type="number" name="vvip_capacity" class="form-control" id="vvip_capacity" value="{{ form.vvip_capacity.value|default_if_none:'' }}">
-                {% for error in form.vvip_capacity.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <label for="prix_normal">Prix normal</label>
-                <input type="number" name="prix_normal" class="form-control" id="prix_normal" value="{{ form.prix_normal.value|default_if_none:'' }}">
-                {% for error in form.prix_normal.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
-            <div class="col-md-4 mb-3">
-                <label for="prix_vip">Prix VIP</label>
-                <input type="number" name="prix_vip" class="form-control" id="prix_vip" value="{{ form.prix_vip.value|default_if_none:'' }}">
-                {% for error in form.prix_vip.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
-            <div class="col-md-4 mb-3">
-                <label for="prix_vvip">Prix VVIP</label>
-                <input type="number" name="prix_vvip" class="form-control" id="prix_vvip" value="{{ form.prix_vvip.value|default_if_none:'' }}">
-                {% for error in form.prix_vvip.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="mb-3">
-            <label for="image">Image</label>
-            <input type="file" name="image" class="form-control" id="image" value="{{ form.image.value|default_if_none:'' }}">
-            {% for error in form.image.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-        </div>
-        <div class="mb-3">
-            <label for="type_event">Type d'événement</label>
-            <select name="type_event" class="form-control" id="type_event">
-                <option value="public" {% if form.type_event.value == "public" %}selected{% endif %}>Public</option>
-                <option value="private" {% if form.type_event.value == "private" %}selected{% endif %}>Privé</option>
-            </select>
-            {% for error in form.type_event.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-        </div>
-        <div class="mb-3">
-            <label for="partner">Partenaire</label>
-            <select name="partner" class="form-control" id="partner" multiple>
-                {% for partner in form.partner.field.queryset %}
-                    <option value="{{ partner.id }}" {% if partner.id in form.partner.value %}selected{% endif %}>
-                        {{ partner.name }}
-                    </option>
-                {% endfor %}
-            </select>
-            {% for error in form.partner.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-        </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="title">Titre</label>
+                                <input type="text" name="title" class="form-control" id="title"
+                                    value="{{ form.title.value|default_if_none:'' }}">
+                                {% for error in form.title.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description">Description</label>
+                            <textarea name="description" class="form-control"
+                                id="description">{{ form.description.value|default_if_none:'' }}</textarea>
+                            {% for error in form.description.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="start_date">Date de début</label>
+                                <input type="datetime-local" name="start_date" class="form-control" id="start_date"
+                                    value="{{ form.start_date.value|default_if_none:'' }}">
+                                {% for error in form.start_date.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="end_date">Date de fin</label>
+                                <input type="datetime-local" name="end_date" class="form-control" id="end_date"
+                                    value="{{ form.end_date.value|default_if_none:'' }}">
+                                {% for error in form.end_date.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location">Lieu</label>
+                            <input type="text" name="location" class="form-control" id="location"
+                                value="{{ form.location.value|default_if_none:'' }}">
+                            {% for error in form.location.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="normal_capacity">Capacité normale</label>
+                                <input type="number" name="normal_capacity" class="form-control" id="normal_capacity"
+                                    value="{{ form.normal_capacity.value|default_if_none:'' }}">
+                                {% for error in form.normal_capacity.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="vip_capacity">Capacité VIP</label>
+                                <input type="number" name="vip_capacity" class="form-control" id="vip_capacity"
+                                    value="{{ form.vip_capacity.value|default_if_none:'' }}">
+                                {% for error in form.vip_capacity.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="vvip_capacity">Capacité VVIP</label>
+                                <input type="number" name="vvip_capacity" class="form-control" id="vvip_capacity"
+                                    value="{{ form.vvip_capacity.value|default_if_none:'' }}">
+                                {% for error in form.vvip_capacity.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="prix_normal">Prix normal</label>
+                                <input type="number" name="prix_normal" class="form-control" id="prix_normal"
+                                    value="{{ form.prix_normal.value|default_if_none:'' }}">
+                                {% for error in form.prix_normal.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="prix_vip">Prix VIP</label>
+                                <input type="number" name="prix_vip" class="form-control" id="prix_vip"
+                                    value="{{ form.prix_vip.value|default_if_none:'' }}">
+                                {% for error in form.prix_vip.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="prix_vvip">Prix VVIP</label>
+                                <input type="number" name="prix_vvip" class="form-control" id="prix_vvip"
+                                    value="{{ form.prix_vvip.value|default_if_none:'' }}">
+                                {% for error in form.prix_vvip.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image">Image</label>
+                            <input type="file" name="image" class="form-control" id="image"
+                                value="{{ form.image.value|default_if_none:'' }}">
+                            {% for error in form.image.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="type_event">Type d'événement</label>
+                            <select name="type_event" class="form-control" id="type_event">
+                                <option value="public" {% if form.type_event.value=="public" %}selected{% endif %}>
+                                    Public</option>
+                                <option value="private" {% if form.type_event.value=="private" %}selected{% endif %}>
+                                    Privé</option>
+                            </select>
+                            {% for error in form.type_event.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="partner">Partenaire</label>
+                            <select name="partner" class="form-control" id="partner" multiple>
+                                {% for partner in form.partner.field.queryset %}
+                                <option value="{{ partner.id }}" {% if partner.id in form.partner.value %}selected{%
+                                    endif %}>
+                                    {{ partner.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% for error in form.partner.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
 
-        <div class="mb-3">
-            <label for="type_access">Type d'accès</label>
-            <select name="type_access" class="form-control" id="type_access">
-                <option value="gratuit" {% if form.type_access.value == "gratuit" %}selected{% endif %}>Gratuit</option>
-                <option value="payant" {% if form.type_access.value == "payant" %}selected{% endif %}>Payant</option>
-            </select>
-            {% for error in form.type_access.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-        </div>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
-    </form>
-</div>
+                        <div class="mb-3">
+                            <label for="type_access">Type d'accès</label>
+                            <select name="type_access" class="form-control" id="type_access">
+                                <option value="gratuit" {% if form.type_access.value=="gratuit" %}selected{% endif %}>
+                                    Gratuit</option>
+                                <option value="payant" {% if form.type_access.value=="payant" %}selected{% endif %}>
+                                    Payant</option>
+                            </select>
+                            {% for error in form.type_access.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Ajouter</button>
+                    </form>
+                </div>
 
             </div>
         </div>

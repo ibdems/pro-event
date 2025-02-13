@@ -12,7 +12,7 @@ from django_filters.views import FilterView
 
 from .filter import EventFilter
 from .forms import ContactForm, EventForms, PayementForm
-from .models import Contact, Event, Ticket
+from .models import Category, Contact, Event, Ticket
 from .tasks import generate_and_save_ticket_pdf, send_ticket_by_email
 
 
@@ -288,3 +288,12 @@ class ScanCodeView(View):
             return JsonResponse(
                 {"success": False, "message": "Une erreur est survenue lors de la vérification."}
             )
+
+
+class DemandeView(TemplateView):
+    template_name = "event/demande.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["categories"] = Category.objects.all()
+        return context

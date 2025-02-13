@@ -1,0 +1,235 @@
+{% extends "event/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card card-body border-0 shadow p-4 p-lg-5">
+                <form method="POST" enctype="multipart/form-data" id="serviceForm">
+                    {% csrf_token %}
+
+                    <!-- Progress Steps -->
+                    <div class="step-progress mb-5">
+                        <div class="step active">
+                            <div class="step-number">1</div>
+                            <div class="step-title">Services</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-title">Informations</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-title">Détails</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Service Selection -->
+                    <div class="step-container active" id="step1">
+                        <h3 class="mb-4">Sélectionnez vos services</h3>
+                        <div class="service-cards">
+                            <div class="service-card" data-service="event">
+                                <h4 class="mb-3">Organisation d'événement</h4>
+                                <p class="mb-0">Planification et gestion complète de votre événement</p>
+                            </div>
+                            <div class="service-card" data-service="ticket">
+                                <h4 class="mb-3">Vente de tickets</h4>
+                                <p class="mb-0">Gestion de la billetterie de votre événement</p>
+                            </div>
+                            <div class="service-card" data-service="hostess">
+                                <h4 class="mb-3">Service d'hôtesse</h4>
+                                <p class="mb-0">Personnel qualifié pour votre événement</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Basic Information -->
+                    <div class="step-container" id="step2">
+                        <h3 class="mb-4">Informations de base</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Prénom</label>
+                                <input type="text" name="first_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nom</label>
+                                <input type="text" name="last_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Contact</label>
+                                <input type="tel" name="contact" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Service Details -->
+                    <div class="step-container" id="step3">
+                        <!-- Event Organization Form -->
+                        <div id="eventForm" style="display: none;">
+                            <h3 class="mb-4">Détails de l'événement</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Titre de l'événement</label>
+                                    <input type="text" name="title" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Catégorie</label>
+                                    <select name="category" class="form-control">
+                                        {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-span-2">
+                                    <label class="form-label">Description</label>
+                                    <textarea name="description" class="form-control" rows="4"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date de début</label>
+                                    <input type="datetime-local" name="start_date" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date de fin</label>
+                                    <input type="datetime-local" name="end_date" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Lieu</label>
+                                    <input type="text" name="location" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Type d'événement</label>
+                                    <select name="type_event" class="form-control">
+                                        <option value="public">Public</option>
+                                        <option value="private">Privé</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Image de l'événement</label>
+                                    <input type="file" name="image" class="form-control" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hostess Service Form -->
+                        <div id="hostessForm" style="display: none;">
+                            <h3 class="mb-4">Service d'hôtesse</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Nombre d'hôtesses</label>
+                                    <input type="number" name="number_hotesse" class="form-control" min="1">
+                                </div>
+                                <div class="form-group col-span-2">
+                                    <label class="form-label">Besoins particuliers</label>
+                                    <textarea name="besoin" class="form-control" rows="4"
+                                        placeholder="Précisez vos besoins (tenue, langues parlées, origine...)"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date de début</label>
+                                    <input type="datetime-local" name="hostess_start_date" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date de fin</label>
+                                    <input type="datetime-local" name="hostess_end_date" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="buttons-container">
+                        <button type="button" class="btn btn-outline-primary" id="prevBtn"
+                            style="display: none;">Précédent</button>
+                        <button type="button" class="btn btn-primary" id="nextBtn">Suivant</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn"
+                            style="display: none;">Soumettre</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+    const totalSteps = 3;
+    const selectedServices = new Set();
+
+    function updateStep(step) {
+        document.querySelectorAll('.step-container').forEach(container => {
+            container.classList.remove('active');
+        });
+        document.querySelector(`#step${step}`).classList.add('active');
+
+        document.querySelectorAll('.step').forEach((stepEl, index) => {
+            if (index + 1 < step) {
+                stepEl.classList.add('completed');
+                stepEl.classList.remove('active');
+            } else if (index + 1 === step) {
+                stepEl.classList.add('active');
+                stepEl.classList.remove('completed');
+            } else {
+                stepEl.classList.remove('active', 'completed');
+            }
+        });
+
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+
+        prevBtn.style.display = step > 1 ? 'block' : 'none';
+        nextBtn.style.display = step < totalSteps ? 'block' : 'none';
+        submitBtn.style.display = step === totalSteps ? 'block' : 'none';
+    }
+
+    // Service card selection
+    document.querySelectorAll('.service-card').forEach(card => {
+        card.addEventListener('click', () => {
+            card.classList.toggle('selected');
+            const service = card.dataset.service;
+            if (selectedServices.has(service)) {
+                selectedServices.delete(service);
+            } else {
+                selectedServices.add(service);
+            }
+        });
+    });
+
+    // Navigation buttons
+    document.getElementById('prevBtn').addEventListener('click', () => {
+        if (currentStep > 1) {
+            currentStep--;
+            updateStep(currentStep);
+        }
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        if (currentStep < totalSteps) {
+            if (currentStep === 1 && selectedServices.size === 0) {
+                alert('Veuillez sélectionner au moins un service');
+                return;
+            }
+            currentStep++;
+            updateStep(currentStep);
+
+            if (currentStep === 3) {
+                // Show relevant forms based on selected services
+                document.getElementById('eventForm').style.display =
+                    selectedServices.has('event') ? 'block' : 'none';
+                document.getElementById('hostessForm').style.display =
+                    selectedServices.has('hostess') ? 'block' : 'none';
+            }
+        }
+    });
+
+    // Form submission
+    document.getElementById('serviceForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        // Add your form submission logic here
+    });
+</script>
+{% endblock content %}
