@@ -1,139 +1,136 @@
+.step-progress {
+    position: relative;
+}
+
+.progress {
+    height: 4px;
+}
+
+.progress-bar {
+    background-color: #010089;
+    transition: width 0.3s ease;
+}
+
+.step {
+    text-align: center;
+    z-index: 1;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    transition: all 0.3s ease;
+}
+.step.active .step-number,
+.step.completed .step-number {
+    background-color: #010089;
+    color: white;
+}
+
+.step-title {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.step.active .step-title,
+.step.completed .step-title {
+    color: #010089;
+}
+
 .step-container {
     display: none;
 }
 
 .step-container.active {
     display: block;
-    animation: fadeIn 0.6s ease-in-out;
-}
-
-.step-progress {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 3rem;
-}
-
-.step-progress::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #e5e5e5;
-    transform: translateY(-50%);
-    z-index: 1;
-}
-
-.step {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.step-number {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--bg-white);
-    border: 2px solid var(--text-black);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    transition: all var(--transition-speed);
-}
-
-.step.active .step-number {
-    background: var(--primary-blue);
-    border-color: var(--primary-blue);
-    color: var(--bg-white);
-}
-
-.step.completed .step-number {
-    background: var(--primary-blue);
-    border-color: var(--primary-blue);
-    color: var(--bg-white);
-}
-
-.step-title {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-black);
-}
-
-.service-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
 }
 
 .service-card {
-    border: 2px solid var(--text-black);
     padding: 1.5rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all var(--transition-speed);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .service-card:hover {
-    border-color: var(--primary-blue);
+    border-color: #010089;
     transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .service-card.selected {
-    border-color: var(--primary-blue);
-    background-color: rgba(1, 0, 137, 0.05);
+    border-color: #010089;
+    background-color: rgba(13, 110, 253, 0.05);
 }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+.selected-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #010089;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
 }
 
-.form-group {
-    margin-bottom: 1.5rem;
+.service-card.selected .selected-indicator {
+    opacity: 1;
+    transform: scale(1);
 }
 
-.buttons-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
-    gap: 1rem;
+.service-card h4 {
+    color: #344767;
+    margin-bottom: 0.75rem;
 }
 
+.service-card p {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+
+.text-danger {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Card styling */
+.card {
+    border-radius: 10px;
+}
+
+.card-body {
+    background-color: #fff;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
+    .service-card {
+        margin-bottom: 1rem;
+    }
+
     .step-title {
-        display: none;
-    }
-
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .buttons-container {
-        flex-direction: column;
+        font-size: 12px;
     }
 
     .btn {
         width: 100%;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+        margin-bottom: 0.5rem;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .buttons-container {
+        flex-direction: column;
     }
 }

@@ -2,7 +2,9 @@ from django import forms
 from django.contrib.admin import widgets
 from django.forms import ValidationError
 
-from .models import Category, Contact, Event, Partner, Payement
+from .models import Category, Contact, Event, InfoTicket, Partner, Payement
+
+# from demande.models import Demande, ServiceHotesse, Service, AnonymousUser
 
 
 class CategoryForms(forms.ModelForm):
@@ -39,16 +41,9 @@ class EventForms(forms.ModelForm):
             "start_date",
             "end_date",
             "location",
-            "normal_capacity",
-            "vip_capacity",
-            "vvip_capacity",
-            "prix_normal",
-            "prix_vip",
-            "prix_vvip",
             "image",
             "type_event",
             "partner",
-            "type_access",
         )
         widgets = {
             "start_date": forms.DateTimeInput(
@@ -58,6 +53,21 @@ class EventForms(forms.ModelForm):
                 format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local", "class": "form-control"}
             ),
         }
+
+
+class TicketForm(forms.ModelForm):
+    class Meta:
+        model = InfoTicket
+        fields = (
+            "event",
+            "normal_capacity",
+            "vip_capacity",
+            "vvip_capacity",
+            "prix_normal",
+            "prix_vip",
+            "prix_vvip",
+            "type_access",
+        )
 
 
 class EventForm(forms.ModelForm):
@@ -117,3 +127,38 @@ class PayementForm(forms.ModelForm):
             raise ValidationError("Les deux numéros de téléphone doivent être identiques.")
 
         return cleaned_data
+
+
+class DemandeForm(forms.ModelForm):
+    name_service = forms.CharField(max_length=150)
+    description_service = forms.Textarea(attrs={"rows": 4})
+    first_name = forms.CharField(max_length=60)
+    last_name = forms.CharField(max_length=40)
+    email = forms.EmailField()
+    contact = forms.CharField(max_length=20)
+    number_hotesse = forms.IntegerField()
+    start_date_hotesse = (
+        forms.DateTimeInput(
+            format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local", "class": "form-control"}
+        ),
+    )
+    end_date_hotesse = (
+        forms.DateTimeInput(
+            format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local", "class": "form-control"}
+        ),
+    )
+    besoin = forms.Textarea(attrs={"row": 4})
+
+    class Meta:
+        model = Event
+        fields = (
+            "category",
+            "title",
+            "description",
+            "start_date",
+            "end_date",
+            "location",
+            "image",
+            "type_event",
+            "partner",
+        )

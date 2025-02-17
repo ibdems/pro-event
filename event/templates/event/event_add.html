@@ -26,8 +26,7 @@
                                     <option value="" disabled {% if not form.category.value %}selected{% endif %}>
                                         Choisir une catégorie</option>
                                     {% for category in form.category.field.queryset %}
-                                    <option value="{{ category.id }}" {% if category.id==form.category.value
-                                        %}selected{% endif %}>
+                                    <option value="{{ category.id }}" {% if category.id == form.category.value %}selected{% endif %}>
                                         {{ category.name }}
                                     </option>
                                     {% endfor %}
@@ -143,21 +142,20 @@
                         <div class="mb-3">
                             <label for="type_event">Type d'événement</label>
                             <select name="type_event" class="form-control" id="type_event">
-                                <option value="public" {% if form.type_event.value=="public" %}selected{% endif %}>
+                                <option value="public" {% if form.type_event.value == "public" %}selected{% endif %}>
                                     Public</option>
-                                <option value="private" {% if form.type_event.value=="private" %}selected{% endif %}>
+                                <option value="private" {% if form.type_event.value == "private" %}selected{% endif %}>
                                     Privé</option>
                             </select>
                             {% for error in form.type_event.errors %}
-                            <div class="text-danger">{{ error }}</div>
+                                    <div class="text-danger">{{ error }}</div>
                             {% endfor %}
                         </div>
                         <div class="mb-3">
                             <label for="partner">Partenaire</label>
                             <select name="partner" class="form-control" id="partner" multiple>
                                 {% for partner in form.partner.field.queryset %}
-                                <option value="{{ partner.id }}" {% if partner.id in form.partner.value %}selected{%
-                                    endif %}>
+                                <option value="{{ partner.id }}" {% if partner.id in form.partner.value %}selected{% endif %}>
                                     {{ partner.name }}
                                 </option>
                                 {% endfor %}
@@ -170,9 +168,9 @@
                         <div class="mb-3">
                             <label for="type_access">Type d'accès</label>
                             <select name="type_access" class="form-control" id="type_access">
-                                <option value="gratuit" {% if form.type_access.value=="gratuit" %}selected{% endif %}>
+                                <option value="gratuit" {% if form.type_access.value == "gratuit" %}selected{% endif %}>
                                     Gratuit</option>
-                                <option value="payant" {% if form.type_access.value=="payant" %}selected{% endif %}>
+                                <option value="payant" {% if form.type_access.value == "payant" %}selected{% endif %}>
                                     Payant</option>
                             </select>
                             {% for error in form.type_access.errors %}

@@ -43,10 +43,13 @@
             class="card-img-top"
           />
           <!-- Type d'accès affiché sur l'image -->
-          <div class="event-date position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom">
-            <i class="fas fa-{% if event.type_access == 'gratuit'%}unlock-alt{% else %}lock
-            {% endif %}  me-2"></i> {{ event.type_access|title }}
-          </div>
+           {% if event.infoticket_event %}
+             <div class="event-date position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom">
+                <i class="fas fa-{% if event.infoticket_event.type_access == 'gratuit'%}unlock-alt{% else %}lock
+                {% endif %}  me-2"></i> {{ event.infoticket_event.type_access|title }}
+              </div>
+           {% endif %}
+
           <!-- Dates affichées sous l'image -->
           <div class="event-date mt-2">
             <i class="fas fa-calendar-days text-primary"></i>

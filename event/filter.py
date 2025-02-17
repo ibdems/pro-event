@@ -1,7 +1,7 @@
 from django import forms
 from django_filters import CharFilter, ChoiceFilter, FilterSet, ModelChoiceFilter
 
-from .models import Category, Event
+from .models import Category, Event, InfoTicket
 
 
 class EventFilter(FilterSet):
@@ -20,7 +20,7 @@ class EventFilter(FilterSet):
     )
     type_access = ChoiceFilter(
         field_name="type_access",
-        choices=Event._meta.get_field("type_access").choices,
+        choices=InfoTicket._meta.get_field("type_access").choices,
         empty_label="Trier par type d'accès",
         widget=forms.Select(attrs={"class": "form-control"}),
     )

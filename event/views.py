@@ -3,6 +3,7 @@ from uuid import UUID
 from celery import chord, group
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Prefetch
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -12,7 +13,7 @@ from django_filters.views import FilterView
 
 from .filter import EventFilter
 from .forms import ContactForm, EventForms, PayementForm
-from .models import Category, Contact, Event, Ticket
+from .models import Category, Contact, Event, InfoTicket, Ticket
 from .tasks import generate_and_save_ticket_pdf, send_ticket_by_email
 
 
@@ -32,10 +33,12 @@ class HomeView(ListView):
                 "start_date",
                 "end_date",
                 "location",
-                "type_access",
                 "image",
             )
             .select_related("category")
+            .prefetch_related(
+                Prefetch("infoticket_event", queryset=InfoTicket.objects.only("type_access"))
+            )
             .order_by("-created_at")[:3]
         )
 
@@ -68,16 +71,21 @@ class EventView(FilterView, ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.only(
-            "uid",
-            "category",
-            "title",
-            "start_date",
-            "end_date",
-            "location",
-            "type_access",
-            "image",
-        ).select_related("category")
+        return (
+            qs.only(
+                "uid",
+                "category",
+                "title",
+                "start_date",
+                "end_date",
+                "location",
+                "image",
+            )
+            .select_related("category")
+            .prefetch_related(
+                Prefetch("infoticket_event", queryset=InfoTicket.objects.only("type_access"))
+            )
+        )
 
     def get_ordering(self):
         order = super().get_ordering()
@@ -111,6 +119,7 @@ class TicketView(TemplateView):
         return context
 
 
+# views.py
 class DetailEventView(DetailView):
     pk_url_kwarg = "uid"
     model = Event
@@ -119,7 +128,7 @@ class DetailEventView(DetailView):
 
     def get_object(self, queryset=None):
         return (
-            Event.objects.select_related("category", "user")
+            Event.objects.select_related("category", "user", "infoticket_event")
             .prefetch_related("partner")
             .get(uid=self.kwargs.get("uid"))
         )
@@ -135,40 +144,46 @@ class DetailEventView(DetailView):
                     event = self.object
 
                     # Récupération des quantités
-                    quantity_normal = int(data.get("quantity_normal", 0))
-                    quantity_vip = int(data.get("quantity_vip", 0))
-                    quantity_vvip = int(data.get("quantity_vvip", 0))
+                    quantities = {
+                        "normal": int(data.get("quantity_normal", 0)),
+                        "vip": int(data.get("quantity_vip", 0)),
+                        "vvip": int(data.get("quantity_vvip", 0)),
+                    }
+
+                    # Vérification de la disponibilité pour chaque type
+                    for type_ticket, quantite in quantities.items():
+                        if quantite > 0 and not event.verifier_disponibilite(type_ticket, quantite):
+                            dispo = event.get_disponibilite()[type_ticket]["disponibles"]
+                            messages.error(
+                                request,
+                                f"Il ne reste que {dispo} tickets {type_ticket} disponibles",
+                            )
+                            return redirect("event:event_detail", uid=event.uid)
 
                     # Création du paiement
                     payement = form.save(commit=False)
                     payement.event = event
+                    info_ticket = event.infoticket_event
                     payement.amount = (
-                        (quantity_normal * event.prix_normal)
-                        + (quantity_vip * event.prix_vip)
-                        + (quantity_vvip * event.prix_vvip)
+                        (quantities["normal"] * info_ticket.prix_normal)
+                        + (quantities["vip"] * info_ticket.prix_vip)
+                        + (quantities["vvip"] * info_ticket.prix_vvip)
                     )
-                    payement.quantity = quantity_normal + quantity_vip + quantity_vvip
+                    payement.quantity = sum(quantities.values())
                     payement.save()
 
-                    tasks = []
-                    ticket_types = [
-                        ("normal", quantity_normal),
-                        ("vip", quantity_vip),
-                        ("vvip", quantity_vvip),
-                    ]
-
                     # Création des tickets
-                    for ticket_type, quantity in ticket_types:
-                        for _ in range(quantity):
+                    tasks = []
+                    for type_ticket, quantite in quantities.items():
+                        for _ in range(quantite):
                             ticket = Ticket.objects.create(
-                                payement=payement, event=event, type_ticket=ticket_type
+                                payement=payement, event=event, type_ticket=type_ticket
                             )
                             tasks.append(
                                 generate_and_save_ticket_pdf.s(event.id, ticket.id, payement.id)
                             )
 
                     def send_email_after_commit():
-                        print(f"No payement envoyer {payement.id} et type: {type(payement.id)}")
                         callback = send_ticket_by_email.si(payement.id)
                         chord(group(tasks))(callback)
 
@@ -176,13 +191,13 @@ class DetailEventView(DetailView):
 
                     messages.success(
                         request,
-                        "Votre paiement a été effectué avec succès.\n"
+                        "Votre paiement a été effectué avec succès. "
                         "Vous recevrez le/les ticket(s) dans l'option de réception choisie.",
                     )
                     return redirect("event:event_detail", uid=event.uid)
 
             except Exception as e:
-                messages.error(request, f"Une erreur est survenue : {e}")
+                messages.error(request, f"Une erreur est survenue : {str(e)}")
                 return self.render_to_response(self.get_context_data(form=form))
 
         messages.error(request, "Une erreur s'est produite lors du paiement.")
@@ -190,6 +205,12 @@ class DetailEventView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        event = self.object
+
+        # Ajouter les informations de disponibilité au contexte
+        context["disponibilite"] = event.get_disponibilite()
+        context["nombre_ticket_dispo"] = event.total_tickets_disponibles()
+
         if "form" not in kwargs:
             context["form"] = PayementForm()
         return context
@@ -290,10 +311,7 @@ class ScanCodeView(View):
             )
 
 
-class DemandeView(TemplateView):
-    template_name = "event/demande.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["categories"] = Category.objects.all()
-        return context
+class DemandeView(View):
+    def get(self, request):
+        categories = Category.objects.all()
+        return render(request, "event/demande.html", {"categories": categories})

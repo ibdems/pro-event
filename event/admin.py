@@ -3,7 +3,7 @@ from django.db import models
 from django.forms import Textarea
 from django.utils.html import format_html
 
-from .models import Category, Event, Partner, Payement, Ticket
+from .models import Category, Event, InfoTicket, Partner, Payement, Ticket
 
 
 @admin.register(Category)
@@ -41,17 +41,11 @@ class EventAdmin(admin.ModelAdmin):
         "category",
         "start_date",
         "type_event",
-        "type_access",
-        "total_capacity",
-        "prix_normal",
-        "prix_vip",
-        "prix_vvip",
-        "available_capacity",
         "statut",
     )
-    list_filter = ("type_event", "type_access", "statut", "category", "start_date")
+    list_filter = ("type_event", "statut", "category", "start_date")
     search_fields = ("title", "description", "location", "user__email")
-    readonly_fields = ("uid", "created_at", "update_at")
+    readonly_fields = ("uid", "created_at", "updated_at")
     filter_horizontal = ("partner",)
     # form = EventForms
     list_per_page = 10
@@ -69,10 +63,15 @@ class EventAdmin(admin.ModelAdmin):
         ),
         (
             "Détails de l'événement",
-            {"fields": ("start_date", "end_date", "location", "type_event", "type_access")},
+            {
+                "fields": (
+                    "start_date",
+                    "end_date",
+                    "location",
+                    "type_event",
+                )
+            },
         ),
-        ("Capacité", {"fields": ("normal_capacity", "vip_capacity", "vvip_capacity")}),
-        ("Prix", {"fields": ("prix_normal", "prix_vip", "prix_vvip")}),
         ("Partenaires et statut", {"fields": ("partner", "statut")}),
     )
     actions = ["activate_event", "deactivate_event"]
@@ -96,6 +95,23 @@ class EventAdmin(admin.ModelAdmin):
     deactivate_event.short_description = "Désactiver les événements sélectionnés"
 
 
+@admin.register(InfoTicket)
+class InfoTicketAdmin(admin.ModelAdmin):
+    list_display = (
+        "event",
+        "type_access",
+        "normal_capacity",
+        "prix_normal",
+        "vip_capacity",
+        "prix_vip",
+        "vvip_capacity",
+        "prix_vvip",
+        "total_capacity",
+    )
+    list_filter = ("type_access",)
+    exclude = ("uid", "created_at", "updated_at")
+
+
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
     list_display = (
@@ -109,7 +125,7 @@ class TicketAdmin(admin.ModelAdmin):
     )
     list_filter = ("created_at", "event")
     search_fields = ("code_ticket", "payement")
-    readonly_fields = ("code_ticket", "qr_code", "created_at", "update_at", "scan_count")
+    readonly_fields = ("code_ticket", "qr_code", "created_at", "updated_at", "scan_count")
     list_per_page = 10
 
     fieldsets = (
@@ -141,7 +157,7 @@ class PayementAdmin(admin.ModelAdmin):
     )
     list_filter = ("created_at",)
     search_fields = ("reference_payement",)
-    readonly_fields = ("reference_payement", "created_at", "update_at")
+    readonly_fields = ("reference_payement", "created_at", "updated_at")
 
     # ticket_count.short_description = "Nombre de tickets"
 

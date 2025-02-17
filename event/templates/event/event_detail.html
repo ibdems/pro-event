@@ -45,7 +45,7 @@
           </div>
           <div class="col-lg-3 col-6 col-md-4 mb-3">
             <i class="fas fa-users text-primary fa-2x"></i>
-            <p class="mb-0 text-muted">{{ event.total_capacity }} personnes</p>
+            <p class="mb-0 text-muted">{{ event.infoticket_event.total_capacity }} personnes</p>
           </div>
           <div class="col-lg-3 col-6 col-md-4 mb-3">
             <i class="fas fa-folder-open text-primary fa-2x"></i>
@@ -53,7 +53,7 @@
           </div>
           <div class="col-lg-3 col-6 col-md-4 mb-3">
             <i class="fas fa-unlock text-primary fa-2x"></i>
-            <p class="mb-0 text-muted">Type d'accès : {{ event.type_access|title }}</p>
+            <p class="mb-0 text-muted">Type d'accès : {{ event.infoticket_event.type_access|title }}</p>
           </div>
         </div>
 
@@ -83,88 +83,100 @@
       </div>
 
       <!-- Colonne tickets - 4 colonnes par défaut -->
-      <div id="tickets-section" class="col-12 col-lg-4 order-2">
-        <div>
-          <h4 class="text-primary mb-3">Tickets disponibles</h4>
-          <div class="ticket-section">
-            <div class="ticket-cards">
-              <!-- Ticket Normal -->
-              <div class="ticket-card border p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <span><i class="fas fa-ticket-alt text-primary me-2"></i>Ticket Normal</span>
-                  <span class="fs-5 fw-bold">{{ event.prix_normal|floatformat:2 }} GNF</span>
+       {% if event.infoticket_event %}
+          <div id="tickets-section" class="col-12 col-lg-4 order-2">
+            <div>
+              <h4 class="text-primary mb-3">Tickets disponibles</h4>
+              <div class="ticket-section">
+                <div class="ticket-cards">
+                  <!-- Ticket Normal -->
+                   {% if event.get_disponibilite.normal.disponibles > 0 %}
+                      <div class="ticket-card border p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <span><i class="fas fa-ticket-alt text-primary me-2"></i>Ticket Normal ({{event.get_disponibilite.normal.disponibles}})</span>
+                          <span class="fs-5 fw-bold">{{ event.infoticket_event.prix_normal|floatformat:2 }} GNF</span>
+                        </div>
+                        <div class="quantity-controls d-flex align-items-center justify-content-between">
+                          <button class="btn-quantity minus" data-type="normal">
+                            <i class="fas fa-minus"></i>
+                          </button>
+                          <span class="quantity-display" id="normal-quantity">0</span>
+                          <button class="btn-quantity plus" data-type="normal">
+                            <i class="fas fa-plus"></i>
+                          </button>
+                        </div>
+                      </div>
+                   {% endif %}
+
+
+                  <!-- Ticket VIP -->
+                  {% if event.infoticket_event.prix_vip > 0 %}
+                    {% if event.get_disponibilite.vip.disponibles > 0 %}
+                        <div class="ticket-card border p-3 mb-3">
+                          <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>
+                              <i class="fas fa-star text-warning me-2"></i>
+                              Ticket VIP ({{event.get_disponibilite.vip.disponibles}})
+                            </span>
+                            <span class="fs-5 fw-bold">{{ event.infoticket_event.prix_vip|floatformat:2 }} GNF</span>
+                          </div>
+                          <div class="quantity-controls d-flex align-items-center justify-content-between">
+                            <button class="btn-quantity minus" data-type="vip">
+                              <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="quantity-display" id="vip-quantity">0</span>
+                            <button class="btn-quantity plus" data-type="vip">
+                              <i class="fas fa-plus"></i>
+                            </button>
+                          </div>
+                        </div>
+                    {% endif %}
+
+                  {% endif %}
+
+                  <!-- Ticket VVIP -->
+                  {% if event.infoticket_event.prix_vvip > 0 %}
+                    {% if event.get_disponibilite.vvip.disponibles %}
+                      <div class="ticket-card border p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <span>
+                            <i class="fas fa-crown text-warning me-2"></i>
+                            Ticket VVIP ({{event.get_disponibilite.vvip.disponibles}})
+                          </span>
+                          <span class="fs-5 fw-bold">{{ event.infoticket_event.prix_vvip|floatformat:2 }} GNF</span>
+                        </div>
+                        <div class="quantity-controls d-flex align-items-center justify-content-between">
+                          <button class="btn-quantity minus" data-type="vvip">
+                            <i class="fas fa-minus"></i>
+                          </button>
+                          <span class="quantity-display" id="vvip-quantity">0</span>
+                          <button class="btn-quantity plus" data-type="vvip">
+                            <i class="fas fa-plus"></i>
+                          </button>
+                        </div>
+                      </div>
+                    {% endif %}
+
+                  {% endif %}
                 </div>
-                <div class="quantity-controls d-flex align-items-center justify-content-between">
-                  <button class="btn-quantity minus" data-type="normal">
-                    <i class="fas fa-minus"></i>
-                  </button>
-                  <span class="quantity-display" id="normal-quantity">0</span>
-                  <button class="btn-quantity plus" data-type="normal">
-                    <i class="fas fa-plus"></i>
-                  </button>
+
+                <!-- Bouton Acheter -->
+                <div class="text-center mt-4">
+                  {% if event.total_tickets_disponibles > 0 %}
+                    <button id="buyTicketsBtn" class="btn btn-primary btn-lg w-100" disabled>
+                      <i class="fas fa-shopping-cart me-2"></i> Acheter un ticket
+                    </button>
+                  {% else %}
+                    <button class="btn btn-secondary btn-lg w-100" disabled>
+                      <i class="fas fa-ban me-2"></i> Événement complet
+                    </button>
+                  {% endif %}
                 </div>
               </div>
-
-              <!-- Ticket VIP -->
-              {% if event.prix_vip > 0 %}
-              <div class="ticket-card border p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <span>
-                    <i class="fas fa-star text-warning me-2"></i>
-                    Ticket VIP
-                  </span>
-                  <span class="fs-5 fw-bold">{{ event.prix_vip|floatformat:2 }} GNF</span>
-                </div>
-                <div class="quantity-controls d-flex align-items-center justify-content-between">
-                  <button class="btn-quantity minus" data-type="vip">
-                    <i class="fas fa-minus"></i>
-                  </button>
-                  <span class="quantity-display" id="vip-quantity">0</span>
-                  <button class="btn-quantity plus" data-type="vip">
-                    <i class="fas fa-plus"></i>
-                  </button>
-                </div>
-              </div>
-              {% endif %}
-
-              <!-- Ticket VVIP -->
-              {% if event.prix_vvip > 0 %}
-              <div class="ticket-card border p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <span>
-                    <i class="fas fa-crown text-warning me-2"></i>
-                    Ticket VVIP
-                  </span>
-                  <span class="fs-5 fw-bold">{{ event.prix_vvip|floatformat:2 }} GNF</span>
-                </div>
-                <div class="quantity-controls d-flex align-items-center justify-content-between">
-                  <button class="btn-quantity minus" data-type="vvip">
-                    <i class="fas fa-minus"></i>
-                  </button>
-                  <span class="quantity-display" id="vvip-quantity">0</span>
-                  <button class="btn-quantity plus" data-type="vvip">
-                    <i class="fas fa-plus"></i>
-                  </button>
-                </div>
-              </div>
-              {% endif %}
-            </div>
-
-            <!-- Bouton Acheter -->
-            <div class="text-center mt-4">
-              {% if event.available_capacity > 0 %}
-                <button id="buyTicketsBtn" class="btn btn-primary btn-lg w-100" disabled>
-                  <i class="fas fa-shopping-cart me-2"></i> Acheter un ticket
-                </button>
-              {% else %}
-                <button class="btn btn-secondary btn-lg w-100" disabled>
-                  <i class="fas fa-ban me-2"></i> Événement complet
-                </button>
-              {% endif %}
             </div>
           </div>
-        </div>
-      </div>
+       {% endif %}
+
 
       <!-- Colonne formulaire de paiement - initialement cachée -->
       <div id="payment-section" class="col-12 col-lg-4 order-3 d-none">
@@ -179,6 +191,7 @@
           <form method='POST'>
             <!-- Informations personnelles -->
              {% csrf_token %}
+            <input type="hidden" name="event" value="{{event.id}}">
             <div class="mb-3">
               <label class="form-label">Nom complet</label>
               <input type="text" class="form-control" name="nom_complet" required value="{{ form.nom_complet.value|default_if_none:'' }}">
@@ -283,9 +296,9 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const tickets = {
-        normal: { price: {{ event.prix_normal }}, quantity: 0 },
-        vip: { price: {{ event.prix_vip }}, quantity: 0 },
-        vvip: { price: {{ event.prix_vvip }}, quantity: 0 }
+        normal: { price: {{ event.infoticket_event.prix_normal }}, quantity: 0 },
+        vip: { price: {{ event.infoticket_event.prix_vip }}, quantity: 0 },
+        vvip: { price: {{ event.infoticket_event.prix_vvip }}, quantity: 0 }
     };
 
     const normalInput = document.getElementById('quantity-normal-input');
