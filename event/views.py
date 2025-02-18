@@ -13,7 +13,7 @@ from django_filters.views import FilterView
 
 from .filter import EventFilter
 from .forms import ContactForm, EventForms, PayementForm
-from .models import Category, Contact, Event, InfoTicket, Ticket
+from .models import Contact, Event, InfoTicket, Ticket
 from .tasks import generate_and_save_ticket_pdf, send_ticket_by_email
 
 
@@ -309,9 +309,3 @@ class ScanCodeView(View):
             return JsonResponse(
                 {"success": False, "message": "Une erreur est survenue lors de la vérification."}
             )
-
-
-class DemandeView(View):
-    def get(self, request):
-        categories = Category.objects.all()
-        return render(request, "event/demande.html", {"categories": categories})

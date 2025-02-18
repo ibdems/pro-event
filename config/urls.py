@@ -8,6 +8,7 @@ urlpatterns = [
     path("proevent/", admin.site.urls),
     path("accounts/", include("users.urls")),
     path("", include("event.urls")),
+    path("", include("demande.urls")),
     path("", include("admin_volt.urls")),
 ] + debug_toolbar_urls()
 

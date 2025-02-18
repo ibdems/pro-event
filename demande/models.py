@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from django.db import models
 
-from event.models import Event
+from event.models import Event, InfoTicket
 from users.models import User
 
 
@@ -10,6 +10,7 @@ from users.models import User
 class Service(models.Model):
     name = models.CharField(max_length=150)
     description = models.TextField()
+    accronyme = models.CharField(max_length=20)
 
     def __str__(self):
         return self.name
@@ -40,6 +41,9 @@ class Demande(models.Model):
     service = models.ManyToManyField(Service)
     event = models.OneToOneField(
         Event, on_delete=models.CASCADE, blank=True, null=True, related_name="event_demande"
+    )
+    ticket = models.OneToOneField(
+        InfoTicket, on_delete=models.CASCADE, blank=True, null=True, related_name="ticket_demande"
     )
     anonymous_user = models.OneToOneField(
         AnonymousUser,

@@ -3,17 +3,39 @@
 
 {% block content %}
 <div class="container py-5">
-    <div class="row">
+    <div class="row mt-5">
         <div class="col-lg-10 mx-auto">
             <div class="card card-body border-0 shadow p-4 p-lg-5">
                 <h1 class="h2">Faire une demande</h1>
-                    <p class="font-small text-muted">Veuillez completer les differents champs de chaque
-                        étape pour effectuer votre demande.</p>
+                <p class="font-small text-muted">Veuillez completer les differents champs de chaque
+                    étape pour effectuer votre demande.</p>
+
+                {% if messages %}
+                  {% for message in messages %}
+                    <div class="alert alert-success text-black fw-bold mb-4">
+                        {{message}}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+                <!-- Afficher les erreurs générales -->
                 {% if form.non_field_errors %}
                 <div class="alert alert-danger text-black fw-bold mb-4">
                     {% for error in form.non_field_errors %}
                     <li>{{ error }}</li>
                     {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if event_forms.errors or ticket_forms.errors or service_hotesse_forms.errors %}
+                <div class="alert alert-danger mb-4">
+                    Des erreurs ont été détectées dans l'étape 2. Veuillez vérifier les champs en rouge.
+                </div>
+                {% endif %}
+
+                <!-- Erreurs de l'étape 3 -->
+                {% if not user.is_authenticated and anonymous_user_forms.errors %}
+                <div class="alert alert-danger mb-4">
+                    Des erreurs ont été détectées dans l'étape 3. Veuillez vérifier les champs en rouge.
                 </div>
                 {% endif %}
 
@@ -41,39 +63,25 @@
                         </div>
                     </div>
 
-                    <!-- Step 1: Service Selection -->
+                    <!-- Step 1: Services -->
                     <div class="step-container active" id="step1">
                         <h3 class="mb-4">Sélectionnez vos services</h3>
                         <div class="row g-4">
+                            {% for service in services %}
                             <div class="col-12 col-md-4">
-                                <div class="service-card h-100" data-service="event">
+                                <div class="service-card h-100" data-service="{{ service.accronyme|lower }}">
                                     <div class="selected-indicator">
                                         <i class="fas fa-check-circle"></i>
                                     </div>
-                                    <h4 class="mb-3">Organisation d'événement</h4>
-                                    <p class="mb-0">Planification et gestion complète de votre événement</p>
+                                    <h4 class="mb-3">{{ service.name }}</h4>
+                                    <p class="mb-0">{{ service.description }}</p>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4">
-                                <div class="service-card h-100" data-service="ticket">
-                                    <div class="selected-indicator">
-                                        <i class="fas fa-check-circle"></i>
-                                    </div>
-                                    <h4 class="mb-3">Vente de tickets</h4>
-                                    <p class="mb-0">Gestion de la billetterie de votre événement</p>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <div class="service-card h-100" data-service="hostess">
-                                    <div class="selected-indicator">
-                                        <i class="fas fa-check-circle"></i>
-                                    </div>
-                                    <h4 class="mb-3">Service d'hôtesse</h4>
-                                    <p class="mb-0">Personnel qualifié pour votre événement</p>
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
+
+                    <input type="hidden" name="selected_services" id="selectedServices">
 
                     <!-- Step 2: Service Details -->
                     <div class="step-container" id="step2">
@@ -84,9 +92,9 @@
                                 <div class="col-md-6">
                                     <label class="form-label">Titre de l'événement</label>
                                     <input type="text" name="title" class="form-control">
-                                    {% for error in form.title.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                    {% endfor %}
+                                    {% if errors.event.title %}
+                                    <div class="text-danger">{{ errors.event.title }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Catégorie</label>
@@ -99,18 +107,30 @@
                                 <div class="col-12">
                                     <label class="form-label">Description</label>
                                     <textarea name="description" class="form-control" rows="4"></textarea>
+                                    {% if errors.event.description %}
+                                    <div class="text-danger">{{ errors.event.description }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Date de début</label>
                                     <input type="datetime-local" name="start_date" class="form-control">
+                                    {% if errors.event.start_date %}
+                                    <div class="text-danger">{{ errors.event.start_date }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Date de fin</label>
                                     <input type="datetime-local" name="end_date" class="form-control">
+                                    {% if errors.event.end_date %}
+                                    <div class="text-danger">{{ errors.event.end_date }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Lieu</label>
                                     <input type="text" name="location" class="form-control">
+                                    {% if errors.event.location %}
+                                    <div class="text-danger">{{ errors.event.location }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Type d'événement</label>
@@ -122,33 +142,58 @@
                                 <div class="col-12">
                                     <label class="form-label">Image de l'événement</label>
                                     <input type="file" name="image" class="form-control" accept="image/*">
+                                    {% if errors.event.image %}
+                                    <div class="text-danger">{{ errors.event.image }}</div>
+                                    {% endif %}
                                 </div>
+                            </div>
+                        </div>
 
-                                <!-- Ticket Section -->
-                                <h4 class="col-12 mt-4">Configuration des tickets</h4>
+                        <!-- Ticket Section -->
+                        <div id="ticketForm" style="display: none;">
+                            <h4 class="col-12 mt-4">Details des tickets</h4>
+                            <div class="row">
                                 <div class="col-md-6">
                                     <label class="form-label">Capacité Normal</label>
                                     <input type="number" name="normal_capacity" class="form-control" min="0">
+                                    {% if errors.ticket.normal_capacity %}
+                                    <div class="text-danger">{{ errors.ticket.normal_capacity }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Prix Normal</label>
                                     <input type="number" name="prix_normal" class="form-control" min="0">
+                                    {% if errors.ticket.prix_normal %}
+                                    <div class="text-danger">{{ errors.ticket.prix_normal }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Capacité VIP</label>
                                     <input type="number" name="vip_capacity" class="form-control" min="0">
+                                    {% if errors.ticket.vip_capacity %}
+                                    <div class="text-danger">{{ errors.ticket.vip_capacity }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Prix VIP</label>
                                     <input type="number" name="prix_vip" class="form-control" min="0">
+                                    {% if errors.ticket.prix_vip %}
+                                    <div class="text-danger">{{ errors.ticket.prix_vip }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Capacité VVIP</label>
                                     <input type="number" name="vvip_capacity" class="form-control" min="0">
+                                    {% if errors.ticket.vvip_capacity %}
+                                    <div class="text-danger">{{ errors.ticket.vvip_capacity }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Prix VVIP</label>
                                     <input type="number" name="prix_vvip" class="form-control" min="0">
+                                    {% if errors.ticket.prix_vvip %}
+                                    <div class="text-danger">{{ errors.ticket.prix_vvip }}</div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -157,22 +202,34 @@
                         <div id="hostessForm" style="display: none;">
                             <h3 class="mb-4">Service d'hôtesse</h3>
                             <div class="row g-4">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label class="form-label">Nombre d'hôtesses</label>
                                     <input type="number" name="number_hotesse" class="form-control" min="1">
+                                    {% if errors.hostess.number_hotesse %}
+                                    <div class="text-danger">{{ errors.hostess.number_hotesse }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Date de début</label>
+                                    <input type="datetime-local" name="start_date_hotesse" class="form-control">
+                                    {% if errors.hostess.start_date_hotesse %}
+                                    <div class="text-danger">{{ errors.hostess.start_date_hotesse }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Date de fin</label>
+                                    <input type="datetime-local" name="end_date_hotesse" class="form-control">
+                                    {% if errors.hostess.end_date_hotesse %}
+                                    <div class="text-danger">{{ errors.hostess.end_date_hotesse }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label">Besoins particuliers</label>
                                     <textarea name="besoin" class="form-control" rows="4"
                                         placeholder="Précisez vos besoins (tenue, langues parlées, origine...)"></textarea>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Date de début</label>
-                                    <input type="datetime-local" name="start_date_hotesse" class="form-control">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Date de fin</label>
-                                    <input type="datetime-local" name="end_date_hotesse" class="form-control">
+                                    {% if errors.hostess.besoin %}
+                                    <div class="text-danger">{{ errors.hostess.besoin }}</div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -186,30 +243,30 @@
                             <div class="col-md-6">
                                 <label class="form-label">Prénom</label>
                                 <input type="text" name="first_name" class="form-control" required>
-                                {% for error in form.first_name.errors %}
-                                <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
+                                {% if errors.anonymous_user.first_name %}
+                                <div class="text-danger">{{ errors.anonymous_user.first_name }}</div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Nom</label>
                                 <input type="text" name="last_name" class="form-control" required>
-                                {% for error in form.last_name.errors %}
-                                <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
+                                {% if errors.anonymous_user.last_name %}
+                                <div class="text-danger">{{ errors.anonymous_user.last_name }}</div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Email</label>
                                 <input type="email" name="email" class="form-control" required>
-                                {% for error in form.email.errors %}
-                                <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
+                                {% if errors.anonymous_user.email %}
+                                <div class="text-danger">{{ errors.anonymous_user.email }}</div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Contact</label>
                                 <input type="tel" name="contact" class="form-control" required>
-                                {% for error in form.contact.errors %}
-                                <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
+                                {% if errors.anonymous_user.contact %}
+                                <div class="text-danger">{{ errors.anonymous_user.contact }}</div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -278,6 +335,7 @@
             } else {
                 selectedServices.add(service);
             }
+            document.getElementById('selectedServices').value = Array.from(selectedServices).join(',');
         });
     });
 
@@ -300,7 +358,9 @@
 
             if (currentStep === 2) {
                 document.getElementById('eventForm').style.display =
-                    selectedServices.has('event') ? 'block' : 'none';
+                    selectedServices.has('event') || selectedServices.has('ticket') ? 'block' : 'none';
+                document.getElementById('ticketForm').style.display =
+                    selectedServices.has('ticket') ? 'block' : 'none';
                 document.getElementById('hostessForm').style.display =
                     selectedServices.has('hostess') ? 'block' : 'none';
             }

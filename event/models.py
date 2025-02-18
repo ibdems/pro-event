@@ -230,7 +230,7 @@ class Ticket(models.Model):
         Payement, on_delete=models.DO_NOTHING, related_name="ticket_payement"
     )
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="ticket_event")
-    ticket = models.ForeignKey(InfoTicket, on_delete=models.CASCADE, related_name="ticket_info")
+    # ticket = models.ForeignKey(InfoTicket, on_delete=models.CASCADE, related_name="ticket_info")
     type_ticket = models.CharField(max_length=20, choices=type_choices, default="normal")
     scan_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now)

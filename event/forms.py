@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.admin import widgets
 from django.forms import ValidationError
 
 from .models import Category, Contact, Event, InfoTicket, Partner, Payement
@@ -55,7 +54,7 @@ class EventForms(forms.ModelForm):
         }
 
 
-class TicketForm(forms.ModelForm):
+class TicketForms(forms.ModelForm):
     class Meta:
         model = InfoTicket
         fields = (
@@ -68,16 +67,6 @@ class TicketForm(forms.ModelForm):
             "prix_vvip",
             "type_access",
         )
-
-
-class EventForm(forms.ModelForm):
-    class Meta:
-        model = Event
-        fields = "__all__"
-        widgets = {
-            "start_date": widgets.AdminSplitDateTime(),
-            "end_date": widgets.AdminSplitDateTime(),
-        }
 
 
 class ContactForm(forms.ModelForm):
@@ -127,38 +116,3 @@ class PayementForm(forms.ModelForm):
             raise ValidationError("Les deux numéros de téléphone doivent être identiques.")
 
         return cleaned_data
-
-
-class DemandeForm(forms.ModelForm):
-    name_service = forms.CharField(max_length=150)
-    description_service = forms.Textarea(attrs={"rows": 4})
-    first_name = forms.CharField(max_length=60)
-    last_name = forms.CharField(max_length=40)
-    email = forms.EmailField()
-    contact = forms.CharField(max_length=20)
-    number_hotesse = forms.IntegerField()
-    start_date_hotesse = (
-        forms.DateTimeInput(
-            format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local", "class": "form-control"}
-        ),
-    )
-    end_date_hotesse = (
-        forms.DateTimeInput(
-            format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local", "class": "form-control"}
-        ),
-    )
-    besoin = forms.Textarea(attrs={"row": 4})
-
-    class Meta:
-        model = Event
-        fields = (
-            "category",
-            "title",
-            "description",
-            "start_date",
-            "end_date",
-            "location",
-            "image",
-            "type_event",
-            "partner",
-        )
