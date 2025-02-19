@@ -50,7 +50,9 @@ class Partner(models.Model):
 class Event(models.Model):
     type_choices = (("public", "Public"), ("private", "Privé"))
     uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="event_user")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="event_user", null=True, blank=True
+    )
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     title = models.CharField(max_length=150)
     description = models.TextField()

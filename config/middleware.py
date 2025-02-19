@@ -26,6 +26,7 @@ class SessionTimeoutMiddleware:
             reverse("password_reset"),
             reverse("password_reset_done"),
             reverse("password_reset_complete"),
+            reverse("demande"),
         ]
 
         # Si l'URL appartient à un namespace exclu ou fait partie des URLs spécifiques, ignorer

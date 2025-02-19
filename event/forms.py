@@ -26,11 +26,6 @@ class EventForms(forms.ModelForm):
         queryset=Partner.objects.all(), required=False, widget=forms.CheckboxSelectMultiple
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["start_date"].input_formats = ["%Y-%m-%dT%H:%M"]
-        self.fields["end_date"].input_formats = ["%Y-%m-%dT%H:%M"]
-
     class Meta:
         model = Event
         fields = (
@@ -58,7 +53,6 @@ class TicketForms(forms.ModelForm):
     class Meta:
         model = InfoTicket
         fields = (
-            "event",
             "normal_capacity",
             "vip_capacity",
             "vvip_capacity",

@@ -12,7 +12,7 @@ class AnonymousUserForms(forms.ModelForm):
 class ServiceHotesseForms(forms.ModelForm):
     class Meta:
         model = ServiceHotesse
-        fields = ("number_hotesse", "start_date", "end_date", "besoin")
+        fields = ("number_hotesse", "start_date_service", "end_date_service", "besoin")
 
 
 class DemandeForms(forms.ModelForm):

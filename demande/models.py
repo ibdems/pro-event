@@ -28,8 +28,8 @@ class AnonymousUser(models.Model):
 
 class ServiceHotesse(models.Model):
     number_hotesse = models.IntegerField()
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    start_date_service = models.DateTimeField()
+    end_date_service = models.DateTimeField()
     besoin = models.TextField()  # Besoin particuliers (tenue, langue parles, ethnique.....)
 
     def __str__(self):
@@ -62,3 +62,4 @@ class Demande(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, blank=True, null=True, related_name="user_demande"
     )
+    is_accepted = models.BooleanField(default=False)

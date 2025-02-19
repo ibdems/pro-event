@@ -12,82 +12,118 @@ class DemandeView(View):
     def get(self, request):
         categories = Category.objects.all()
         services = Service.objects.all()
-        anonymous_user_forms = AnonymousUserForms()
-        service_hotesse_forms = ServiceHotesseForms()
-        event_forms = EventForms()
-        ticket_forms = TicketForms()
         context = {
             "categories": categories,
             "services": services,
-            "anonymous_user_forms": anonymous_user_forms,
-            "service_hotesse_forms": service_hotesse_forms,
-            "event_forms": event_forms,
-            "ticket_forms": ticket_forms,
+            "anonymous_user_forms": AnonymousUserForms(),
+            "service_hotesse_forms": ServiceHotesseForms(),
+            "event_forms": EventForms(),
+            "ticket_forms": TicketForms(),
         }
         return render(request, "event/demande.html", context)
 
     def post(self, request):
+        print(request.POST)
         selected_services = request.POST.getlist("selected_services")
-        anonymous_user_form = AnonymousUserForms(request.POST)
-        service_hotesse_form = ServiceHotesseForms(request.POST)
-        ticket_info_form = TicketForms(request.POST)
-        event_form = EventForms(request.POST)
+        forms_data = {
+            "anonymous_user": AnonymousUserForms(request.POST),
+            "event": EventForms(request.POST),
+            "ticket": TicketForms(request.POST),
+            "hostess": ServiceHotesseForms(request.POST),
+        }
 
-        # Initialisation des instances à None
-        event_instance = None
-        ticket_instance = None
-        hostess_instance = None
-        anonymous_user_instance = None
+        # Initialisation des instances
+        instances = {"event": None, "ticket": None, "hostess": None, "anonymous_user": None}
 
-        # Création des instances selon le choix des services
-        if "event" in selected_services and event_form.is_valid():
-            event_instance = event_form.save()
+        # Validation des formulaires en fonction des services sélectionnés
+        is_valid = True
 
-        if "ticket" in selected_services and event_form.is_valid() and ticket_info_form.is_valid():
-            event_instance = event_form.save()
-            ticket_instance = ticket_info_form.save(commit=False)
-            ticket_instance.event = event_instance
-            ticket_instance.save()
+        # Validation du formulaire utilisateur anonyme si non authentifié
+        if not request.user.is_authenticated:
+            if not forms_data["anonymous_user"].is_valid():
+                is_valid = False
+            else:
+                instances["anonymous_user"] = forms_data["anonymous_user"].save(commit=False)
 
-        if "hostess" in selected_services and service_hotesse_form.is_valid():
-            hostess_instance = service_hotesse_form.save()
+        # Validation des formulaires pour chaque service sélectionné
+        if "event" in selected_services:
+            if not forms_data["event"].is_valid():
+                print(forms_data["event"].errors)  # Affiche les erreurs de validation
+                is_valid = False
+            else:
+                instances["event"] = forms_data["event"].save(commit=False)
+                instances["event"].statut = False
 
-        if not request.user.is_authenticated and anonymous_user_form.is_valid():
-            anonymous_user_instance = anonymous_user_form.save()
+        if "ticket" in selected_services:
+            if not forms_data["event"].is_valid() or not forms_data["ticket"].is_valid():
+                print(f" {forms_data["event"].errors}, {forms_data["ticket"].errors}")
+                is_valid = False
+            else:
 
-        if event_instance or ticket_instance or hostess_instance or anonymous_user_instance:
-            demande_instance = Demande.objects.create(
-                event=event_instance,
-                ticket=ticket_instance,
-                service_hotesse=hostess_instance,
-                anonymous_user=anonymous_user_instance,
+                instances["event"] = forms_data["event"].save(commit=False)
+                instances["event"].statut = False
+                instances["ticket"] = forms_data["ticket"].save(commit=False)
+                instances["ticket"].event = instances["event"]
+                print(instances["ticket"])
+
+        if "hostess" in selected_services:
+            if not forms_data["hostess"].is_valid():
+                is_valid = False
+            else:
+                instances["hostess"] = forms_data["hostess"].save(commit=False)
+
+        # Si tous les formulaires requis sont valides, on sauvegarde les instances
+        if is_valid and any(instances.values()):
+            # Sauvegarde des instances
+            for instance in instances.values():
+                if instance:
+                    instance.save()
+
+            # Liaison du ticket à l'événement si nécessaire
+            if instances["ticket"] and instances["event"]:
+                instances["ticket"].event = instances["event"]
+                instances["ticket"].save()
+
+            # Création de la demande
+            demande = Demande.objects.create(
+                event=instances["event"],
+                ticket=instances["ticket"],
+                service_hotesse=instances["hostess"],
+                anonymous_user=instances["anonymous_user"],
                 user=request.user if request.user.is_authenticated else None,
             )
+
+            # Ajout des services sélectionnés
             if selected_services:
                 services = Service.objects.filter(accronyme__in=selected_services)
-                demande_instance.service.set(services)
+                demande.service.set(services)
+
             messages.success(
                 request,
-                "Votre demandé à bien été effectuer. Vous recevrez un mail pour "
-                "la suite de notre accord. Merci pour la confiance.",
+                "Votre demande a bien été effectuée. Vous recevrez un email pour "
+                "la suite de notre accord. Merci pour votre confiance.",
             )
             return redirect("demande")
 
-        # Si le formulaire n'est pas valide, on recharge le formulaire avec les erreurs
-        categories = Category.objects.all()
-        services = Service.objects.all()
+        # En cas d'erreur, on retourne le formulaire avec les erreurs
+        messages.error(
+            request,
+            "Une erreur est survenue lors de la création de votre demande. "
+            "Veuillez vérifier les informations saisies.",
+        )
+
         context = {
-            "categories": categories,
-            "services": services,
-            "anonymous_user_forms": anonymous_user_form,
-            "service_hotesse_forms": service_hotesse_form,
-            "event_forms": event_form,
-            "ticket_forms": ticket_info_form,
+            "categories": Category.objects.all(),
+            "services": Service.objects.all(),
+            "anonymous_user_forms": forms_data["anonymous_user"],
+            "service_hotesse_forms": forms_data["hostess"],
+            "event_forms": forms_data["event"],
+            "ticket_forms": forms_data["ticket"],
             "errors": {
-                "event": event_form.errors,
-                "ticket": ticket_info_form.errors,
-                "hostess": service_hotesse_form.errors,
-                "anonymous_user": anonymous_user_form.errors,
+                "event": forms_data["event"].errors,
+                "ticket": forms_data["ticket"].errors,
+                "hostess": forms_data["hostess"].errors,
+                "anonymous_user": forms_data["anonymous_user"].errors,
             },
         }
         return render(request, "event/demande.html", context)
