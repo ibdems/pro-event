@@ -83,7 +83,14 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": env.db(),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "db_proevent",
+        "USER": "proevent",
+        "PASSWORD": "proevent",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
+    }
 }
 
 
