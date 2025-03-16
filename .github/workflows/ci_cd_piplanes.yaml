@@ -1,4 +1,4 @@
-name: Piplenes CI/CD ProEvent
+name: Pipelines CI/CD ProEvent
 
 on:
   push:
@@ -12,16 +12,20 @@ on:
 jobs:
   check_syntaxes:
     runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DJANGO_SETTINGS_MODULE: config.settings
+
     strategy:
       matrix:
-       python-version: [3.12]
+        python-version: [3.12]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
@@ -30,7 +34,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Check lint code with flak8
+      - name: Debug environment variables
+        run: env | sort
+
+      - name: Check lint code with flake8
         run: |
           pip install flake8
           flake8 . --max-line-length=100
