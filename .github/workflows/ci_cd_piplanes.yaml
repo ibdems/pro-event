@@ -71,7 +71,7 @@ jobs:
       # Étape 3 : Installer les dépendances nécessaires pour les tests
       - name: Install dependencies
         run: |
-          make install_dev  # Commande personnalisée pour installer les dépendances de développement
+          make install
 
       # Étape 4 : Exécuter les tests unitaires
       - name: Run tests
