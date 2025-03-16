@@ -1,91 +1,79 @@
-name: Pipelines CI/CD ProEvent
+# Nom de la pipeline
+name: ProEvent CI/CD Pipeline
 
+# Déclenchement de la pipeline
 on:
+  # Lors d'un push dans n'importe quelle branche
   push:
     branches:
       - "*"
+  # Lors de la création ou la modification d'une pull request
   pull_request:
     branches:
       - "*"
 
+# Définition des jobs
 jobs:
-  check_syntaxes:
+  # Job 1 : Vérifier la syntaxe du code avec flake8
+  check_syntaxe:
+    # Définir l'environnement sur lequel le job s'exécute
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.12]
+        python-version: [3.12]  # Permet d'ajouter d'autres versions Python à tester si nécessaire
 
     steps:
+      # Étape 1 : Télécharger le code source
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
-      - name: Créer le fichier .env
-        run: |
-          echo "${{ secrets.ENV_FILE }}" | tr -d '\r' > .env
-
-      - name: Vérifier le fichier .env
-        run: cat .env | grep -E '^[A-Z_]+='
-
-      - name: Charger les variables d'environnement
-        run: |
-          export $(grep -v '^#' .env | xargs)
-
+      # Étape 2 : Configurer Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: "3.12"
 
+      # Étape 3 : Installer les dépendances
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Debug environment variables
-        run: env | sort
-
+      # Étape 4 : Analyser le code avec flake8
       - name: Check lint code with flake8
         run: |
           pip install flake8
-          flake8 . --max-line-length=100
+          flake8 . --max-line-length=85
 
+  # Job 2 : Lancer les tests unitaires
   test:
     runs-on: ubuntu-latest
-    needs: check_syntaxes
+    needs: check_syntaxe  # Le job "test" dépend du succès de "check_syntaxe"
     services:
-      postgres:
+      postgres:  # Configurer un service PostgreSQL pour les tests
         image: postgres:15.8
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgre
           POSTGRES_DB: task_test
         ports:
-          - 5432:5432
-
+          - 5432:5432  # Port exposé
     steps:
-      - uses: actions/checkout@v4
+      # Étape 1 : Télécharger le code source
+      - uses: actions/checkout@v2
 
+      # Étape 2 : Configurer Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: "3.12"
 
+      # Étape 3 : Installer les dépendances nécessaires pour les tests
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          make install_dev  # Commande personnalisée pour installer les dépendances de développement
 
-      - name: Charger les variables d'environnement
+      # Étape 4 : Exécuter les tests unitaires
+      - name: Run tests
         run: |
-          export $(grep -v '^#' .env | xargs)
-
-      - name: Attendre PostgreSQL
-        run: |
-          until pg_isready -h localhost -p 5432 -U postgres; do
-            echo "En attente de PostgreSQL..."
-            sleep 2
-          done
-
-      - name: Appliquer les migrations Django
-        run: python manage.py migrate
-
-      - name: Exécuter les tests unitaires
-        run: pytest --disable-warnings
+          make test  # Commande personnalisée pour exécuter les tests unitaires
