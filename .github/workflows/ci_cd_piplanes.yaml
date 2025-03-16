@@ -53,8 +53,8 @@ jobs:
       postgres:  # Configurer un service PostgreSQL pour les tests
         image: postgres:15.8
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgre
+          POSTGRES_USER: proevent
+          POSTGRES_PASSWORD: proevent
           POSTGRES_DB: task_test
         ports:
           - 5432:5432  # Port exposé
