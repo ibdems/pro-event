@@ -26,6 +26,10 @@ jobs:
       - name: Vérifier le fichier .env
         run: cat .env | grep -E '^[A-Z_]+='
 
+      - name: Charger les variables d'environnement
+        run: |
+          export $(grep -v '^#' .env | xargs)
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -44,35 +48,44 @@ jobs:
           pip install flake8
           flake8 . --max-line-length=100
 
-    # Job 2 : Lancer les tests unitaires
   test:
     runs-on: ubuntu-latest
-    needs: check_syntaxes # Le job "test" dépend du succès de "check_syntaxe"
+    needs: check_syntaxes
     services:
-      postgres:  # Configurer un service PostgreSQL pour les tests
+      postgres:
         image: postgres:15.8
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgre
           POSTGRES_DB: task_test
         ports:
-          - 5432:5432  # Port exposé
-    steps:
-      # Étape 1 : Télécharger le code source
-      - uses: actions/checkout@v2
+          - 5432:5432
 
-      # Étape 2 : Configurer Python
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      # Étape 3 : Installer les dépendances nécessaires pour les tests
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
-      # Étape 4 : Exécuter les tests unitaires
-      - name: Run tests
+      - name: Charger les variables d'environnement
         run: |
-          pytest test
+          export $(grep -v '^#' .env | xargs)
+
+      - name: Attendre PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "En attente de PostgreSQL..."
+            sleep 2
+          done
+
+      - name: Appliquer les migrations Django
+        run: python manage.py migrate
+
+      - name: Exécuter les tests unitaires
+        run: pytest --disable-warnings
