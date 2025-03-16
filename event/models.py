@@ -61,7 +61,7 @@ class Event(models.Model):
     location = models.CharField(max_length=150)
     image = models.ImageField(upload_to="event_images/", blank=True, null=True)
     type_event = models.CharField(max_length=10, choices=type_choices, default="public")
-    partner = models.ManyToManyField(Partner, related_name="event_partner")
+    partner = models.ManyToManyField(Partner, related_name="event_partner", blank=True, null=True)
     statut = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
