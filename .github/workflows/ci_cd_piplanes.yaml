@@ -44,5 +44,35 @@ jobs:
           pip install flake8
           flake8 . --max-line-length=100
 
-      - name: Run Tests
-        run: pytest --disable-warnings
+    # Job 2 : Lancer les tests unitaires
+  test:
+    runs-on: ubuntu-latest
+    needs: check_syntaxe  # Le job "test" dépend du succès de "check_syntaxe"
+    services:
+      postgres:  # Configurer un service PostgreSQL pour les tests
+        image: postgres:15.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgre
+          POSTGRES_DB: task_test
+        ports:
+          - 5432:5432  # Port exposé
+    steps:
+      # Étape 1 : Télécharger le code source
+      - uses: actions/checkout@v2
+
+      # Étape 2 : Configurer Python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.12"
+
+      # Étape 3 : Installer les dépendances nécessaires pour les tests
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      # Étape 4 : Exécuter les tests unitaires
+      - name: Run tests
+        run: |
+          pytest test
