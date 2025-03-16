@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "*"
-
   pull_request:
     branches:
       - "*"
@@ -12,10 +11,6 @@ on:
 jobs:
   check_syntaxes:
     runs-on: ubuntu-latest
-    env:
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      DJANGO_SETTINGS_MODULE: config.settings
-
     strategy:
       matrix:
         python-version: [3.12]
@@ -23,6 +18,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Créer le fichier .env
+        run: |
+          echo "${{ secrets.ENV_FILE }}" | tr -d '\r' > .env
+
+      - name: Vérifier le fichier .env
+        run: cat .env | grep -E '^[A-Z_]+='
 
       - name: Set up Python
         uses: actions/setup-python@v4
