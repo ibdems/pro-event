@@ -43,7 +43,7 @@ jobs:
       - name: Check lint code with flake8
         run: |
           pip install flake8
-          flake8 . --max-line-length=85
+          flake8 . --max-line-length=100
 
   # Job 2 : Lancer les tests unitaires
   test:
