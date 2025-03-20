@@ -1,0 +1,258 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Contacts{% endblock title %}
+
+{% block page_title %}Gestion des Contacts{% endblock page_title %}
+
+{% block content %}
+<div class="contact-management">
+    <!-- Actions bar -->
+    <div class="actions-bar mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <h2 class="section-title mb-0">Liste des messages de contact</h2>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-success" id="btn-export-excel">
+                        <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" id="btn-export-pdf">
+                        <i class="fas fa-file-pdf me-2"></i>Exporter PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card dashboard-card mb-4">
+        <div class="card-header">
+            <h5 class="card-title">Filtres</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{% url 'dashboard:contact_list' %}" class="row g-3">
+                <div class="col-md-4">
+                    <label for="date_from" class="form-label">Date (début)</label>
+                    <input type="date" class="form-control" id="date_from" name="date_from" value="{{ request.GET.date_from }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="date_to" class="form-label">Date (fin)</label>
+                    <input type="date" class="form-control" id="date_to" name="date_to" value="{{ request.GET.date_to }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Recherche</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Nom, email, sujet..." value="{{ request.GET.search }}">
+                </div>
+                <div class="col-12 mt-3 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-2"></i>Filtrer
+                    </button>
+                    <a href="{% url 'dashboard:contact_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-redo me-2"></i>Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tableau des contacts -->
+    <div class="card dashboard-card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle datatable">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" class="check-all form-check-input"></th>
+                            <th>Expéditeur</th>
+                            <th>Sujet</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contact in contacts %}
+                        <tr>
+                            <td><input type="checkbox" class="contact-check form-check-input" value="{{ contact.id }}"></td>
+                            <td>
+                                <div class="sender-info">
+                                    <span class="sender-name">{{ contact.name }}</span>
+                                    <small class="d-block text-muted">{{ contact.email }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                {{ contact.subject }}
+                            </td>
+                            <td>
+                                <div class="message-preview">
+                                    {{ contact.message|truncatechars:70 }}
+                                </div>
+                            </td>
+                            <td>{{ contact.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'dashboard:contact_detail' id=contact.id %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Voir le message">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="mailto:{{ contact.email }}" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Répondre par email">
+                                        <i class="fas fa-reply"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-contact-btn" data-contact-id="{{ contact.id }}" data-bs-toggle="tooltip" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="empty-state">
+                                    <i class="fas fa-envelope-open fa-3x mb-3 text-muted"></i>
+                                    <h5>Aucun message de contact trouvé</h5>
+                                    <p class="text-muted">Il n'y a pas de messages correspondant à vos critères.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions en masse -->
+    <div class="bulk-actions mt-3">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <span class="selected-count">0 élément(s) sélectionné(s)</span>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <button type="button" class="btn btn-outline-danger btn-bulk-delete" disabled>
+                    <i class="fas fa-trash me-2"></i>Supprimer la sélection
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation pour la suppression d'un contact -->
+<div class="modal fade" id="deleteContactModal" tabindex="-1" aria-labelledby="deleteContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteContactModalLabel">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer ce message de contact ?</p>
+                <p class="text-danger">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteContactForm" method="post" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation pour la suppression en masse -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkDeleteModalLabel">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer les <span id="bulkDeleteCount">0</span> message(s) sélectionné(s) ?</p>
+                <p class="text-danger">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="bulkDeleteForm" method="post" action="{% url 'dashboard:contact_bulk_delete' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="contact_ids" id="bulkDeleteIds">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // DataTables
+        $('.datatable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json'
+            },
+            order: [[4, 'desc']], // Trier par date (5ème colonne) par défaut
+            columnDefs: [
+                { orderable: false, targets: [0, 5] } // Désactiver le tri pour la colonne de checkbox et d'actions
+            ]
+        });
+
+        // Gestion des checkboxes
+        $('.check-all').click(function() {
+            $('.contact-check').prop('checked', $(this).prop('checked'));
+            updateBulkActions();
+        });
+
+        $('.contact-check').click(function() {
+            updateBulkActions();
+        });
+
+        function updateBulkActions() {
+            const selectedCount = $('.contact-check:checked').length;
+            $('.selected-count').text(selectedCount + ' élément(s) sélectionné(s)');
+
+            if (selectedCount > 0) {
+                $('.btn-bulk-delete').prop('disabled', false);
+            } else {
+                $('.btn-bulk-delete').prop('disabled', true);
+            }
+        }
+
+        // Suppression individuelle
+        $('.delete-contact-btn').click(function() {
+            const contactId = $(this).data('contact-id');
+            $('#deleteContactForm').attr('action', `/dashboard/contacts/${contactId}/delete/`);
+            $('#deleteContactModal').modal('show');
+        });
+
+        // Suppression en masse
+        $('.btn-bulk-delete').click(function() {
+            const selectedIds = $('.contact-check:checked').map(function() {
+                return $(this).val();
+            }).get().join(',');
+
+            $('#bulkDeleteCount').text($('.contact-check:checked').length);
+            $('#bulkDeleteIds').val(selectedIds);
+            $('#bulkDeleteModal').modal('show');
+        });
+
+        // Export Excel
+        $('#btn-export-excel').click(function() {
+            alert('Fonctionnalité d\'export Excel à implémenter');
+        });
+
+        // Export PDF
+        $('#btn-export-pdf').click(function() {
+            alert('Fonctionnalité d\'export PDF à implémenter');
+        });
+
+        // Activer les tooltips Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
+{% endblock extra_js %}

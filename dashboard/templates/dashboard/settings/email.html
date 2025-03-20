@@ -1,0 +1,505 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Configuration Email{% endblock title %}
+
+{% block page_title %}Configuration Email{% endblock page_title %}
+
+{% block content %}
+<div class="settings-page">
+    <!-- Fil d'Ariane -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:settings_general' %}">Paramètres</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Configuration Email</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Menu de navigation des paramètres -->
+        <div class="col-lg-3 mb-4">
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cogs me-2"></i>Paramètres
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="settings-nav">
+                        <a href="{% url 'dashboard:settings_general' %}" class="settings-nav-item">
+                            <i class="fas fa-sliders-h me-2"></i>Paramètres généraux
+                        </a>
+                        <a href="{% url 'dashboard:settings_email' %}" class="settings-nav-item active">
+                            <i class="fas fa-envelope me-2"></i>Configuration email
+                        </a>
+                        <a href="{% url 'dashboard:settings_payment' %}" class="settings-nav-item">
+                            <i class="fas fa-credit-card me-2"></i>Méthodes de paiement
+                        </a>
+                        <a href="{% url 'dashboard:settings_seo' %}" class="settings-nav-item">
+                            <i class="fas fa-chart-line me-2"></i>SEO & Intégrations
+                        </a>
+                        <a href="{% url 'dashboard:settings_backup' %}" class="settings-nav-item">
+                            <i class="fas fa-database me-2"></i>Sauvegarde & Restauration
+                        </a>
+                        <a href="{% url 'dashboard:settings_system' %}" class="settings-nav-item">
+                            <i class="fas fa-server me-2"></i>Informations système
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenu des paramètres -->
+        <div class="col-lg-9">
+            <div class="card dashboard-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-envelope me-2"></i>Configuration du serveur de messagerie
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="email-settings-form">
+                        {% csrf_token %}
+
+                        <div class="alert alert-info mb-4">
+                            <h6><i class="fas fa-info-circle me-2"></i>Information</h6>
+                            <p class="mb-0">La configuration correcte du serveur de messagerie est essentielle pour l'envoi d'emails tels que les confirmations de réservation, les notifications et les réinitialisations de mot de passe.</p>
+                        </div>
+
+                        <!-- Configuration du serveur SMTP -->
+                        <div class="settings-section mb-4">
+                            <h6 class="settings-section-title">Configuration du serveur SMTP</h6>
+
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="use_smtp" name="use_smtp" {% if email_settings.use_smtp %}checked{% endif %}>
+                                    <label class="form-check-label" for="use_smtp">Utiliser un serveur SMTP personnalisé</label>
+                                </div>
+                                <div class="form-text">Si désactivé, le système utilisera la configuration par défaut de Django.</div>
+                            </div>
+
+                            <div id="smtp-settings" {% if not email_settings.use_smtp %}style="display: none;"{% endif %}>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="smtp_host" class="form-label">Hôte SMTP</label>
+                                        <input type="text" class="form-control" id="smtp_host" name="smtp_host" value="{{ email_settings.smtp_host }}">
+                                        <div class="form-text">Exemple: smtp.gmail.com, smtp.mailgun.org</div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="smtp_port" class="form-label">Port SMTP</label>
+                                        <input type="number" class="form-control" id="smtp_port" name="smtp_port" value="{{ email_settings.smtp_port|default:587 }}">
+                                        <div class="form-text">Ports courants: 25, 465 (SSL), 587 (TLS)</div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="smtp_username" class="form-label">Nom d'utilisateur SMTP</label>
+                                        <input type="text" class="form-control" id="smtp_username" name="smtp_username" value="{{ email_settings.smtp_username }}">
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="smtp_password" class="form-label">Mot de passe SMTP</label>
+                                        <input type="password" class="form-control" id="smtp_password" name="smtp_password" value="{{ email_settings.smtp_password }}">
+                                        <div class="form-text">Pour Gmail, utilisez un "mot de passe d'application" spécifique.</div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="smtp_encryption" class="form-label">Chiffrement</label>
+                                        <select class="form-select" id="smtp_encryption" name="smtp_encryption">
+                                            <option value="none" {% if email_settings.smtp_encryption == 'none' %}selected{% endif %}>Aucun</option>
+                                            <option value="ssl" {% if email_settings.smtp_encryption == 'ssl' %}selected{% endif %}>SSL</option>
+                                            <option value="tls" {% if email_settings.smtp_encryption == 'tls' or not email_settings.smtp_encryption %}selected{% endif %}>TLS</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="smtp_timeout" class="form-label">Timeout (secondes)</label>
+                                        <input type="number" class="form-control" id="smtp_timeout" name="smtp_timeout" value="{{ email_settings.smtp_timeout|default:30 }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paramètres d'envoi des emails -->
+                        <div class="settings-section mb-4">
+                            <h6 class="settings-section-title">Paramètres d'envoi</h6>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="default_from_email" class="form-label">Email expéditeur par défaut</label>
+                                    <input type="email" class="form-control" id="default_from_email" name="default_from_email" value="{{ email_settings.default_from_email }}">
+                                    <div class="form-text">L'adresse email qui apparaîtra comme expéditeur des emails.</div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="default_from_name" class="form-label">Nom expéditeur par défaut</label>
+                                    <input type="text" class="form-control" id="default_from_name" name="default_from_name" value="{{ email_settings.default_from_name }}">
+                                    <div class="form-text">Le nom qui apparaîtra comme expéditeur des emails.</div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="admin_email" class="form-label">Email administrateur</label>
+                                    <input type="email" class="form-control" id="admin_email" name="admin_email" value="{{ email_settings.admin_email }}">
+                                    <div class="form-text">L'adresse qui recevra les notifications administratives.</div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="reply_to_email" class="form-label">Email de réponse (Reply-To)</label>
+                                    <input type="email" class="form-control" id="reply_to_email" name="reply_to_email" value="{{ email_settings.reply_to_email }}">
+                                    <div class="form-text">Adresse email à laquelle les réponses seront envoyées.</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="email_debug_mode" name="email_debug_mode" {% if email_settings.email_debug_mode %}checked{% endif %}>
+                                    <label class="form-check-label" for="email_debug_mode">Mode debug</label>
+                                </div>
+                                <div class="form-text">Si activé, les emails ne seront pas réellement envoyés mais enregistrés dans les logs.</div>
+                            </div>
+                        </div>
+
+                        <!-- Options de notifications -->
+                        <div class="settings-section mb-4">
+                            <h6 class="settings-section-title">Options de notifications</h6>
+
+                            <div class="settings-checks">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="send_welcome_email" name="send_welcome_email" {% if email_settings.send_welcome_email %}checked{% endif %}>
+                                            <label class="form-check-label" for="send_welcome_email">
+                                                Email de bienvenue aux nouveaux utilisateurs
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="send_ticket_confirmation" name="send_ticket_confirmation" {% if email_settings.send_ticket_confirmation %}checked{% endif %}>
+                                            <label class="form-check-label" for="send_ticket_confirmation">
+                                                Confirmation de réservation de ticket
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="send_event_reminder" name="send_event_reminder" {% if email_settings.send_event_reminder %}checked{% endif %}>
+                                            <label class="form-check-label" for="send_event_reminder">
+                                                Rappels d'événements (24h avant)
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="send_request_status_update" name="send_request_status_update" {% if email_settings.send_request_status_update %}checked{% endif %}>
+                                            <label class="form-check-label" for="send_request_status_update">
+                                                Mise à jour du statut des demandes
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="send_admin_notification" name="send_admin_notification" {% if email_settings.send_admin_notification %}checked{% endif %}>
+                                            <label class="form-check-label" for="send_admin_notification">
+                                                Notifications administrateur pour nouvelles actions
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="include_social_links" name="include_social_links" {% if email_settings.include_social_links %}checked{% endif %}>
+                                            <label class="form-check-label" for="include_social_links">
+                                                Inclure les liens réseaux sociaux dans les emails
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Test d'email -->
+                        <div class="settings-section">
+                            <h6 class="settings-section-title">Test d'envoi d'email</h6>
+
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="test_email" class="form-label">Adresse email de test</label>
+                                    <input type="email" class="form-control" id="test_email" name="test_email">
+                                    <div class="form-text">Un email de test sera envoyé à cette adresse.</div>
+                                </div>
+
+                                <div class="col-md-4 mb-3 d-flex align-items-end">
+                                    <button type="button" class="btn btn-info w-100" id="send-test-email">
+                                        <i class="fas fa-paper-plane me-2"></i>Envoyer un email de test
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="{% url 'dashboard:settings_general' %}" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modèles d'emails -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-alt me-2"></i>Modèles d'emails
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-4">Personnalisez les emails envoyés automatiquement par le système. Vous pouvez modifier le contenu et la mise en forme de chaque modèle.</p>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Modèle</th>
+                                    <th>Description</th>
+                                    <th>Dernière modification</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Bienvenue</td>
+                                    <td>Email envoyé aux nouveaux utilisateurs lors de leur inscription</td>
+                                    <td>{{ email_templates.welcome.last_modified|date:"d/m/Y H:i"|default:"Jamais" }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:email_template_edit' template='welcome' %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Réinitialisation de mot de passe</td>
+                                    <td>Email envoyé lors d'une demande de réinitialisation de mot de passe</td>
+                                    <td>{{ email_templates.password_reset.last_modified|date:"d/m/Y H:i"|default:"Jamais" }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:email_template_edit' template='password_reset' %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Confirmation de ticket</td>
+                                    <td>Email envoyé après l'achat d'un ticket</td>
+                                    <td>{{ email_templates.ticket_confirmation.last_modified|date:"d/m/Y H:i"|default:"Jamais" }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:email_template_edit' template='ticket_confirmation' %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Rappel d'événement</td>
+                                    <td>Email envoyé 24h avant un événement</td>
+                                    <td>{{ email_templates.event_reminder.last_modified|date:"d/m/Y H:i"|default:"Jamais" }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:email_template_edit' template='event_reminder' %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Mise à jour de demande</td>
+                                    <td>Email envoyé lors de la mise à jour du statut d'une demande</td>
+                                    <td>{{ email_templates.request_update.last_modified|date:"d/m/Y H:i"|default:"Jamais" }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:email_template_edit' template='request_update' %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Notification de contact</td>
+                                    <td>Email envoyé à l'admin lors de la réception d'un nouveau message</td>
+                                    <td>{{ email_templates.contact_notification.last_modified|date:"d/m/Y H:i"|default:"Jamais" }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:email_template_edit' template='contact_notification' %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Confirmation de contact</td>
+                                    <td>Email de confirmation envoyé après un message de contact</td>
+                                    <td>{{ email_templates.contact_confirmation.last_modified|date:"d/m/Y H:i"|default:"Jamais" }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:email_template_edit' template='contact_confirmation' %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de test d'email -->
+<div class="modal fade" id="testEmailModal" tabindex="-1" aria-labelledby="testEmailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="testEmailModalLabel">Envoi d'email de test</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="test-email-loading">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                        <p>Envoi de l'email de test en cours...</p>
+                    </div>
+                </div>
+                <div id="test-email-success" style="display: none;">
+                    <div class="text-center">
+                        <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                        <h5>Email envoyé avec succès!</h5>
+                        <p>Un email de test a été envoyé à l'adresse spécifiée.</p>
+                        <p>Veuillez vérifier votre boîte de réception (et éventuellement le dossier spam).</p>
+                    </div>
+                </div>
+                <div id="test-email-error" style="display: none;">
+                    <div class="text-center">
+                        <i class="fas fa-times-circle text-danger fa-3x mb-3"></i>
+                        <h5>Échec de l'envoi</h5>
+                        <p>L'email de test n'a pas pu être envoyé.</p>
+                        <div class="alert alert-danger">
+                            <p class="mb-0" id="error-message">Une erreur s'est produite.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+    /* Style pour le menu de navigation des paramètres */
+    .settings-nav {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .settings-nav-item {
+        padding: 12px 15px;
+        color: #495057;
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .settings-nav-item:hover {
+        background-color: #f8f9fa;
+        color: #0d6efd;
+    }
+
+    .settings-nav-item.active {
+        background-color: #e9ecef;
+        color: #0d6efd;
+        font-weight: 500;
+        border-left: 3px solid #0d6efd;
+    }
+
+    /* Style pour les sections de paramètres */
+    .settings-section {
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 20px;
+    }
+
+    .settings-section:last-child {
+        border-bottom: none;
+    }
+
+    .settings-section-title {
+        margin-bottom: 15px;
+        font-weight: 600;
+        color: #495057;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed #e9ecef;
+    }
+
+    /* Styles pour les alertes */
+    .alert-info {
+        background-color: #cff4fc;
+        border-color: #b6effb;
+        color: #055160;
+    }
+
+    /* Style pour les form-switch */
+    .form-switch .form-check-input {
+        width: 2.5em;
+        margin-left: -2.8em;
+        height: 1.25em;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Gestion de l'affichage des paramètres SMTP
+        $('#use_smtp').change(function() {
+            if($(this).is(':checked')) {
+                $('#smtp-settings').slideDown();
+            } else {
+                $('#smtp-settings').slideUp();
+            }
+        });
+
+        // Gestion de l'envoi d'email de test
+        $('#send-test-email').click(function() {
+            var testEmail = $('#test_email').val();
+            if (!testEmail) {
+                alert('Veuillez entrer une adresse email de test.');
+                return;
+            }
+
+            // Afficher le modal
+            $('#testEmailModal').modal('show');
+            $('#test-email-loading').show();
+            $('#test-email-success').hide();
+            $('#test-email-error').hide();
+
+            // Simuler l'envoi d'email (à remplacer par un appel AJAX réel)
+            setTimeout(function() {
+                // Simulation de succès (à remplacer par le résultat de l'appel AJAX)
+                var success = Math.random() > 0.3; // 70% de chance de succès pour la démonstration
+
+                $('#test-email-loading').hide();
+
+                if (success) {
+                    $('#test-email-success').show();
+                } else {
+                    $('#test-email-error').show();
+                    $('#error-message').text('Connexion au serveur SMTP impossible. Veuillez vérifier vos paramètres.');
+                }
+            }, 2000);
+        });
+    });
+</script>
+{% endblock extra_js %}

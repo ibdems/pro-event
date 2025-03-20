@@ -1,0 +1,397 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Utilisateurs{% endblock title %}
+
+{% block page_title %}Gestion des Utilisateurs{% endblock page_title %}
+
+{% block content %}
+<div class="users-management">
+    <!-- Fil d'Ariane -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Tableau de bord</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Utilisateurs</li>
+        </ol>
+    </nav>
+
+    <!-- Actions bar -->
+    <div class="actions-bar mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2"></i>Liste des utilisateurs
+                    <span class="badge bg-primary ms-2">{{ users|length }}</span>
+                </h5>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#exportModal">
+                    <i class="fas fa-file-export me-2"></i>Exporter
+                </button>
+                <a href="{% url 'dashboard:user_add' %}" class="btn btn-success">
+                    <i class="fas fa-user-plus me-2"></i>Nouvel utilisateur
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="filter-section card dashboard-card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-filter me-2"></i>Filtres
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get" id="filterForm">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="filter-email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="filter-email" name="email" value="{{ request.GET.email|default:'' }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="filter-role" class="form-label">Rôle</label>
+                        <select class="form-select" id="filter-role" name="role">
+                            <option value="">Tous les rôles</option>
+                            <option value="admin" {% if request.GET.role == 'admin' %}selected{% endif %}>Administrateur</option>
+                            <option value="organizer" {% if request.GET.role == 'organizer' %}selected{% endif %}>Organisateur</option>
+                            <option value="user" {% if request.GET.role == 'user' %}selected{% endif %}>Utilisateur</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="filter-status" class="form-label">Statut</label>
+                        <select class="form-select" id="filter-status" name="is_active">
+                            <option value="">Tous les statuts</option>
+                            <option value="1" {% if request.GET.is_active == '1' %}selected{% endif %}>Actif</option>
+                            <option value="0" {% if request.GET.is_active == '0' %}selected{% endif %}>Inactif</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="filter-date-joined" class="form-label">Inscrit après</label>
+                        <input type="date" class="form-control" id="filter-date-joined" name="date_joined_after" value="{{ request.GET.date_joined_after|default:'' }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="filter-last-login" class="form-label">Dernière connexion après</label>
+                        <input type="date" class="form-control" id="filter-last-login" name="last_login_after" value="{{ request.GET.last_login_after|default:'' }}">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end mb-3">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-search me-2"></i>Filtrer
+                        </button>
+                        <a href="{% url 'dashboard:user_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo me-2"></i>Réinitialiser
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des utilisateurs -->
+    <div class="card dashboard-card mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover datatable" id="users-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Utilisateur</th>
+                            <th scope="col">Nom complet</th>
+                            <th scope="col">Rôle</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td class="text-center">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm me-2">
+                                        <div class="avatar-circle bg-light text-primary">
+                                            <span>{{ user.email|slice:":1"|upper }}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'dashboard:user_detail' user.pk %}" class="text-body fw-medium">
+                                            {{ user.email }}
+                                        </a>
+                                        <p class="text-muted mb-0 small">
+                                            {% if user.first_name or user.last_name %}
+                                                {{ user.first_name }} {{ user.last_name }}
+                                            {% else %}
+                                                <span class="text-muted">Utilisateur</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if user.first_name or user.last_name %}
+                                    {{ user.first_name }} {{ user.last_name }}
+                                {% else %}
+                                    <span class="text-muted">Non renseigné</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex">
+                                    {% if user.is_superuser %}
+                                        <span class="badge bg-danger me-1">Admin</span>
+                                    {% endif %}
+                                    {% if user.is_staff and not user.is_superuser %}
+                                        <span class="badge bg-primary me-1">Organisateur</span>
+                                    {% endif %}
+                                    {% if not user.is_staff and not user.is_superuser %}
+                                        <span class="badge bg-secondary me-1">Utilisateur</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                {% if user.is_active %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'dashboard:user_detail' user.pk %}">
+                                                <i class="fas fa-eye me-2"></i>Voir
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'dashboard:user_edit' user.pk %}">
+                                                <i class="fas fa-edit me-2"></i>Modifier
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ user.pk }}">
+                                                <i class="fas fa-trash-alt me-2"></i>Supprimer
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <h5>Aucun utilisateur trouvé</h5>
+                                    <p class="text-muted">Il n'y a actuellement aucun utilisateur correspondant à votre recherche.</p>
+                                    <a href="{% url 'dashboard:user_add' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus me-2"></i>Ajouter un utilisateur
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Pagination">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item"><a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a></li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Modal de suppression -->
+{% for user in users %}
+<div class="modal fade" id="deleteUserModal{{ user.pk }}" tabindex="-1" aria-labelledby="deleteUserModalLabel{{ user.pk }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteUserModalLabel{{ user.pk }}">Confirmation de suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ user.email }}</strong> ?</p>
+                <p class="text-danger">Cette action est irréversible et supprimera toutes les données associées à cet utilisateur.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form method="post" action="{% url 'dashboard:user_delete' user.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Modal d'exportation -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exportModalLabel">Exporter les utilisateurs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="exportForm" method="get" action="{% url 'dashboard:user_export' %}">
+                    <div class="mb-3">
+                        <label for="export-format" class="form-label">Format</label>
+                        <select class="form-select" id="export-format" name="format">
+                            <option value="csv">CSV</option>
+                            <option value="excel">Excel</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Colonnes à exporter</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="export-email" name="fields" value="email" checked>
+                                    <label class="form-check-label" for="export-email">Email</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="export-full-name" name="fields" value="full_name" checked>
+                                    <label class="form-check-label" for="export-full-name">Nom complet</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="export-role" name="fields" value="role" checked>
+                                    <label class="form-check-label" for="export-role">Rôle</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="export-status" name="fields" value="is_active" checked>
+                                    <label class="form-check-label" for="export-status">Statut</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="export-date-joined" name="fields" value="date_joined" checked>
+                                    <label class="form-check-label" for="export-date-joined">Date d'inscription</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="export-last-login" name="fields" value="last_login" checked>
+                                    <label class="form-check-label" for="export-last-login">Dernière connexion</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="export-current-filter" name="apply_filters" value="1" checked>
+                        <label class="form-check-label" for="export-current-filter">
+                            Appliquer les filtres actuels
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('exportForm').submit();">Exporter</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: white;
+        text-align: center;
+        line-height: 40px;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        padding: 30px;
+        text-align: center;
+    }
+
+    #users-table th, #users-table td {
+        vertical-align: middle;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Configuration DataTable
+        $('#users-table').DataTable({
+            "paging": false,  // Désactiver la pagination DataTable car nous utilisons celle de Django
+            "ordering": true,
+            "info": false,
+            "searching": false,  // Désactiver la recherche DataTable car nous utilisons notre propre formulaire
+            "language": {
+                "emptyTable": "Aucun utilisateur trouvé"
+            },
+            "columnDefs": [
+                { "orderable": false, "targets": [5] }  // Désactiver le tri sur la colonne Actions
+            ]
+        });
+
+        // Gestion du modal de suppression
+        {% for user in users %}
+        $('#deleteUserModal{{ user.pk }}').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const userId = button.data('user-id');
+            const email = button.data('email');
+
+            $('#deleteUserModalLabel{{ user.pk }}').text('Confirmation de suppression de ' + email);
+            $('#deleteUserModal{{ user.pk }} form').attr('action', '{% url "dashboard:user_delete" pk=user.pk %}');
+        });
+        {% endfor %}
+    });
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,606 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Détail du Ticket{% endblock title %}
+
+{% block page_title %}Détail du Ticket #{{ ticket.reference }}{% endblock page_title %}
+
+{% block content %}
+<div class="ticket-detail">
+    <!-- Fil d'Ariane -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:ticket_list' %}">Tickets</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Ticket #{{ ticket.reference }}</li>
+        </ol>
+    </nav>
+
+    <!-- Actions bar -->
+    <div class="actions-bar mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <span class="badge {% if ticket.is_paid %}bg-success{% elif ticket.is_cancelled %}bg-danger{% else %}bg-warning{% endif %} status-badge">
+                    {% if ticket.is_paid %}
+                    <i class="fas fa-check-circle me-1"></i> Payé
+                    {% elif ticket.is_cancelled %}
+                    <i class="fas fa-times-circle me-1"></i> Annulé
+                    {% else %}
+                    <i class="fas fa-clock me-1"></i> En attente
+                    {% endif %}
+                </span>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="btn-group">
+                    <a href="{% url 'dashboard:ticket_print' reference=ticket.reference %}" class="btn btn-primary me-2" target="_blank">
+                        <i class="fas fa-print me-2"></i>Imprimer
+                    </a>
+                    <a href="mailto:{{ ticket.email }}" class="btn btn-success me-2">
+                        <i class="fas fa-envelope me-2"></i>Contacter
+                    </a>
+                    {% if not ticket.is_paid and not ticket.is_cancelled %}
+                    <form method="post" action="{% url 'dashboard:ticket_mark_paid' reference=ticket.reference %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-success me-2" onclick="return confirm('Êtes-vous sûr de vouloir marquer ce ticket comme payé ?');">
+                            <i class="fas fa-check me-2"></i>Marquer comme payé
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% if not ticket.is_cancelled %}
+                    <form method="post" action="{% url 'dashboard:ticket_cancel' reference=ticket.reference %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger me-2" onclick="return confirm('Êtes-vous sûr de vouloir annuler ce ticket ?');">
+                            <i class="fas fa-times me-2"></i>Annuler
+                        </button>
+                    </form>
+                    {% endif %}
+                    <a href="{% url 'dashboard:ticket_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informations principales -->
+        <div class="col-lg-8">
+            <!-- Ticket virtuel -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-ticket-alt me-2"></i>Aperçu du Ticket</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="virtual-ticket">
+                        <div class="virtual-ticket-header">
+                            <div class="ticket-logo">
+                                <img src="{% static 'img/logo.png' %}" alt="Pro-Event Logo">
+                            </div>
+                            <div class="ticket-type {% if ticket.type_ticket == 'normal' %}standard{% elif ticket.type_ticket == 'vip' %}vip{% else %}vvip{% endif %}">
+                                {% if ticket.type_ticket == 'normal' %}STANDARD{% elif ticket.type_ticket == 'vip' %}VIP{% else %}VVIP{% endif %}
+                            </div>
+                        </div>
+                        <div class="virtual-ticket-body">
+                            <div class="ticket-event-info">
+                                <h4 class="ticket-event-title">{{ ticket.event.title }}</h4>
+                                <div class="ticket-event-date">{{ ticket.event.date_event|date:"d/m/Y H:i" }}</div>
+                                <div class="ticket-event-location">{{ ticket.event.location }}</div>
+                            </div>
+                            <div class="ticket-customer-info">
+                                <div class="ticket-customer-name">{{ ticket.first_name }} {{ ticket.last_name }}</div>
+                                <div class="ticket-ref">Réf: {{ ticket.reference }}</div>
+                                <div class="ticket-price">{{ ticket.price|floatformat:0 }} FCFA</div>
+                            </div>
+                            <div class="ticket-qr">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ ticket.reference }}" alt="QR Code">
+                            </div>
+                        </div>
+                        <div class="virtual-ticket-footer">
+                            <div class="ticket-note">Ce ticket est nominatif et non transférable.</div>
+                            {% if ticket.is_paid %}
+                            <div class="ticket-status paid">PAYÉ</div>
+                            {% elif ticket.is_cancelled %}
+                            <div class="ticket-status cancelled">ANNULÉ</div>
+                            {% else %}
+                            <div class="ticket-status pending">EN ATTENTE</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations sur l'événement -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-calendar-alt me-2"></i>Informations sur l'événement</h5>
+                </div>
+                <div class="card-body">
+                    <div class="event-header mb-3">
+                        {% if ticket.event.image_event %}
+                        <div class="event-image">
+                            <img src="{{ ticket.event.image_event.url }}" alt="{{ ticket.event.title }}">
+                        </div>
+                        {% endif %}
+                        <div class="event-main-info">
+                            <h4>{{ ticket.event.title }}</h4>
+                            <div class="event-meta">
+                                <span><i class="fas fa-map-marker-alt me-1"></i>{{ ticket.event.location }}</span>
+                                <span><i class="fas fa-calendar me-1"></i>{{ ticket.event.date_event|date:"d/m/Y H:i" }}</span>
+                                <span><i class="fas fa-tag me-1"></i>{{ ticket.event.category.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tickets-stats">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-value">{{ ticket_stats.total_sold }}</div>
+                                    <div class="stat-label">Tickets vendus</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-value">{{ ticket_stats.tickets_left }}</div>
+                                    <div class="stat-label">Tickets restants</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-value">{{ ticket_stats.revenue|floatformat:0 }} FCFA</div>
+                                    <div class="stat-label">Revenus générés</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="event-actions mt-3">
+                        <a href="{% url 'dashboard:event_edit' uid=ticket.event.uid %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit me-1"></i>Modifier l'événement
+                        </a>
+                        <a href="{% url 'event:detail' slug=ticket.event.slug %}" target="_blank" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-eye me-1"></i>Voir la page publique
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique du ticket -->
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-history me-2"></i>Historique du ticket</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Ticket créé</h6>
+                                <p class="timeline-date">{{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+                                <p class="timeline-text">Réservation effectuée pour {{ ticket.first_name }} {{ ticket.last_name }}.</p>
+                            </div>
+                        </div>
+
+                        {% if ticket.is_paid %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Paiement effectué</h6>
+                                <p class="timeline-date">{{ ticket.payment_date|date:"d/m/Y H:i" }}</p>
+                                <p class="timeline-text">Paiement reçu d'un montant de {{ ticket.price|floatformat:0 }} FCFA.</p>
+                            </div>
+                        </div>
+                        {% elif ticket.is_cancelled %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-danger">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Ticket annulé</h6>
+                                <p class="timeline-date">{{ ticket.cancelled_date|date:"d/m/Y H:i" }}</p>
+                                <p class="timeline-text">Le ticket a été annulé.</p>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">En attente de paiement</h6>
+                                <p class="timeline-text">Le paiement est en attente de confirmation.</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations latérales -->
+        <div class="col-lg-4">
+            <!-- Informations sur l'acheteur -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-user me-2"></i>Informations sur l'acheteur</h5>
+                </div>
+                <div class="card-body">
+                    <div class="buyer-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Nom complet</div>
+                            <div class="detail-value">{{ ticket.first_name }} {{ ticket.last_name }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">
+                                <a href="mailto:{{ ticket.email }}">{{ ticket.email }}</a>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Téléphone</div>
+                            <div class="detail-value">{{ ticket.contact }}</div>
+                        </div>
+                        {% if ticket.user %}
+                        <hr>
+                        <div class="detail-item">
+                            <div class="detail-label">Compte</div>
+                            <div class="detail-value">
+                                <span class="badge bg-info">Utilisateur enregistré</span>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{% url 'dashboard:user_detail' pk=ticket.user.id %}" class="btn btn-sm btn-outline-primary w-100">
+                                <i class="fas fa-eye me-1"></i>Voir le profil utilisateur
+                            </a>
+                        </div>
+                        {% else %}
+                        <hr>
+                        <div class="detail-item">
+                            <div class="detail-label">Compte</div>
+                            <div class="detail-value">
+                                <span class="badge bg-secondary">Achat anonyme</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Détails du ticket -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Détails du ticket</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Référence</span>
+                            <span class="badge bg-primary">{{ ticket.reference }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Type de ticket</span>
+                            <span class="badge {% if ticket.type_ticket == 'normal' %}bg-secondary{% elif ticket.type_ticket == 'vip' %}bg-success{% else %}bg-warning{% endif %}">
+                                {% if ticket.type_ticket == 'normal' %}Standard{% elif ticket.type_ticket == 'vip' %}VIP{% else %}VVIP{% endif %}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Prix</span>
+                            <span>{{ ticket.price|floatformat:0 }} FCFA</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Statut</span>
+                            <span class="badge {% if ticket.is_paid %}bg-success{% elif ticket.is_cancelled %}bg-danger{% else %}bg-warning{% endif %}">
+                                {% if ticket.is_paid %}Payé{% elif ticket.is_cancelled %}Annulé{% else %}En attente{% endif %}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Date d'achat</span>
+                            <span>{{ ticket.created_at|date:"d/m/Y H:i" }}</span>
+                        </li>
+                        {% if ticket.is_paid %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Date de paiement</span>
+                            <span>{{ ticket.payment_date|date:"d/m/Y H:i" }}</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Carte de notes -->
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
+                </div>
+                <div class="card-body">
+                    <form id="notesForm" class="notes-form">
+                        <div class="mb-3">
+                            <textarea class="form-control" id="ticket-notes" rows="4" placeholder="Ajouter des notes sur ce ticket..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-save me-1"></i>Enregistrer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+    /* Style pour le badge de statut */
+    .status-badge {
+        font-size: 1rem;
+        padding: 8px 15px;
+    }
+
+    /* Styles pour le ticket virtuel */
+    .virtual-ticket {
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .virtual-ticket-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-bottom: 1px dashed #dee2e6;
+    }
+
+    .ticket-logo img {
+        height: 40px;
+    }
+
+    .ticket-type {
+        font-weight: 700;
+        font-size: 1.2rem;
+        padding: 5px 15px;
+        border-radius: 20px;
+        color: white;
+    }
+
+    .ticket-type.standard {
+        background-color: #6c757d;
+    }
+
+    .ticket-type.vip {
+        background-color: #28a745;
+    }
+
+    .ticket-type.vvip {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .virtual-ticket-body {
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .ticket-event-info {
+        flex: 2;
+    }
+
+    .ticket-event-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .ticket-event-date, .ticket-event-location {
+        font-size: 1rem;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+
+    .ticket-customer-info {
+        flex: 1;
+        text-align: center;
+        padding: 0 15px;
+    }
+
+    .ticket-customer-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .ticket-ref, .ticket-price {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+
+    .ticket-qr {
+        flex: 1;
+        text-align: right;
+    }
+
+    .ticket-qr img {
+        max-width: 100px;
+        height: auto;
+    }
+
+    .virtual-ticket-footer {
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px dashed #dee2e6;
+        background-color: #f8f9fa;
+    }
+
+    .ticket-note {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .ticket-status {
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .ticket-status.paid {
+        color: #28a745;
+    }
+
+    .ticket-status.cancelled {
+        color: #dc3545;
+    }
+
+    .ticket-status.pending {
+        color: #ffc107;
+    }
+
+    /* Styles pour les détails de l'acheteur */
+    .detail-item {
+        margin-bottom: 12px;
+    }
+
+    .detail-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 2px;
+        font-weight: 500;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+    }
+
+    /* Styles pour les statistiques */
+    .stat-card {
+        text-align: center;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        height: 100%;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    /* Styles pour l'image de l'événement */
+    .event-header {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .event-image {
+        width: 100px;
+        height: 100px;
+        margin-right: 20px;
+        flex-shrink: 0;
+    }
+
+    .event-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .event-main-info h4 {
+        margin: 0 0 10px 0;
+        font-weight: 600;
+    }
+
+    .event-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    /* Timeline pour l'historique */
+    .timeline {
+        position: relative;
+        padding-left: 40px;
+        margin-bottom: 20px;
+    }
+
+    .timeline:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 19px;
+        height: 100%;
+        width: 2px;
+        background-color: #e9ecef;
+    }
+
+    .timeline-item {
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -40px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        z-index: 1;
+    }
+
+    .timeline-content {
+        padding-bottom: 15px;
+    }
+
+    .timeline-title {
+        margin: 0 0 5px 0;
+        font-weight: 600;
+    }
+
+    .timeline-date {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 8px;
+    }
+
+    .timeline-text {
+        margin-bottom: 0;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Gestion du formulaire de notes
+        $('#notesForm').submit(function(e) {
+            e.preventDefault();
+            const notes = $('#ticket-notes').val();
+
+            // Simuler l'enregistrement des notes
+            // À remplacer par un appel AJAX réel
+            setTimeout(function() {
+                alert('Notes enregistrées avec succès !');
+            }, 500);
+        });
+    });
+</script>
+{% endblock extra_js %}

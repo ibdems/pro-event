@@ -1,0 +1,330 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Tickets{% endblock title %}
+
+{% block page_title %}Gestion des Tickets{% endblock page_title %}
+
+{% block content %}
+<div class="ticket-management">
+    <!-- Actions bar -->
+    <div class="actions-bar mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <h2 class="section-title mb-0">Liste des tickets</h2>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-success" id="btn-export-excel">
+                        <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" id="btn-export-pdf">
+                        <i class="fas fa-file-pdf me-2"></i>Exporter PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card dashboard-card mb-4">
+        <div class="card-header">
+            <h5 class="card-title">Filtres</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{% url 'dashboard:ticket_list' %}" class="row g-3">
+                <div class="col-md-3">
+                    <label for="event" class="form-label">Événement</label>
+                    <select name="event" id="event" class="form-select">
+                        <option value="">Tous les événements</option>
+                        {% for event in events %}
+                        <option value="{{ event.id }}" {% if request.GET.event == event.id|stringformat:"i" %}selected{% endif %}>
+                            {{ event.title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="type" class="form-label">Type de ticket</label>
+                    <select name="type" id="type" class="form-select">
+                        <option value="">Tous les types</option>
+                        <option value="normal" {% if request.GET.type == 'normal' %}selected{% endif %}>Standard</option>
+                        <option value="vip" {% if request.GET.type == 'vip' %}selected{% endif %}>VIP</option>
+                        <option value="vvip" {% if request.GET.type == 'vvip' %}selected{% endif %}>VVIP</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Statut</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">Tous les statuts</option>
+                        <option value="paid" {% if request.GET.status == 'paid' %}selected{% endif %}>Payé</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>En attente</option>
+                        <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Annulé</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="date" class="form-label">Date d'achat</label>
+                    <input type="date" class="form-control" id="date" name="date" value="{{ request.GET.date }}">
+                </div>
+                <div class="col-12 mt-3 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-2"></i>Filtrer
+                    </button>
+                    <a href="{% url 'dashboard:ticket_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-redo me-2"></i>Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Résumé des ventes -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-primary">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div class="stats-info ms-3">
+                            <h6 class="stats-title">Total de tickets</h6>
+                            <h3 class="stats-value">{{ total_tickets }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-success">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stats-info ms-3">
+                            <h6 class="stats-title">Revenus totaux</h6>
+                            <h3 class="stats-value">{{ total_revenue|floatformat:0 }} FCFA</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-info">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stats-info ms-3">
+                            <h6 class="stats-title">Taux de conversion</h6>
+                            <h3 class="stats-value">{{ conversion_rate|floatformat:1 }}%</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-warning">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stats-info ms-3">
+                            <h6 class="stats-title">Ticket moyen</h6>
+                            <h3 class="stats-value">{{ average_ticket|floatformat:0 }} FCFA</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des tickets -->
+    <div class="card dashboard-card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle datatable">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Événement</th>
+                            <th>Acheteur</th>
+                            <th>Type</th>
+                            <th>Prix</th>
+                            <th>Statut</th>
+                            <th>Date d'achat</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary">{{ ticket.reference }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'event:detail' slug=ticket.event.slug %}" target="_blank" class="event-link">
+                                    {{ ticket.event.title }}
+                                </a>
+                            </td>
+                            <td>
+                                <div class="buyer-info">
+                                    <span class="buyer-name">{{ ticket.first_name }} {{ ticket.last_name }}</span>
+                                    <small class="d-block text-muted">{{ ticket.email }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                {% if ticket.type_ticket == 'normal' %}
+                                <span class="badge bg-secondary">Standard</span>
+                                {% elif ticket.type_ticket == 'vip' %}
+                                <span class="badge bg-success">VIP</span>
+                                {% elif ticket.type_ticket == 'vvip' %}
+                                <span class="badge bg-warning">VVIP</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ticket.price|floatformat:0 }} FCFA</td>
+                            <td>
+                                {% if ticket.is_paid %}
+                                <span class="badge bg-success">Payé</span>
+                                {% elif ticket.is_cancelled %}
+                                <span class="badge bg-danger">Annulé</span>
+                                {% else %}
+                                <span class="badge bg-warning">En attente</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'dashboard:ticket_detail' reference=ticket.reference %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'dashboard:ticket_print' reference=ticket.reference %}" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="Imprimer">
+                                        <i class="fas fa-print"></i>
+                                    </a>
+                                    {% if not ticket.is_paid %}
+                                    <button type="button" class="btn btn-sm btn-outline-success mark-paid-btn" data-ticket-reference="{{ ticket.reference }}" data-bs-toggle="tooltip" title="Marquer comme payé">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% if not ticket.is_cancelled %}
+                                    <button type="button" class="btn btn-sm btn-outline-danger cancel-ticket-btn" data-ticket-reference="{{ ticket.reference }}" data-bs-toggle="tooltip" title="Annuler">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="empty-state">
+                                    <i class="fas fa-ticket-alt fa-3x mb-3 text-muted"></i>
+                                    <h5>Aucun ticket trouvé</h5>
+                                    <p class="text-muted">Il n'y a pas de tickets correspondant à vos critères.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour marquer un ticket comme payé -->
+<div class="modal fade" id="markPaidModal" tabindex="-1" aria-labelledby="markPaidModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="markPaidModalLabel">Confirmer le paiement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir marquer ce ticket comme payé ?</p>
+                <p>Cette action enverra une confirmation de paiement à l'acheteur.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="markPaidForm" method="post" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">Confirmer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour annuler un ticket -->
+<div class="modal fade" id="cancelTicketModal" tabindex="-1" aria-labelledby="cancelTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelTicketModalLabel">Confirmer l'annulation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir annuler ce ticket ?</p>
+                <p class="text-danger">Cette action libérera la place et enverra une notification d'annulation à l'acheteur.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="cancelTicketForm" method="post" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Confirmer l'annulation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // DataTables
+        $('.datatable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json'
+            },
+            order: [[6, 'desc']], // Trier par date d'achat (7ème colonne) par défaut
+            columnDefs: [
+                { orderable: false, targets: [7] } // Désactiver le tri pour la colonne d'actions
+            ]
+        });
+
+        // Marquer comme payé
+        $('.mark-paid-btn').click(function() {
+            const reference = $(this).data('ticket-reference');
+            $('#markPaidForm').attr('action', `/dashboard/tickets/${reference}/mark-paid/`);
+            $('#markPaidModal').modal('show');
+        });
+
+        // Annuler un ticket
+        $('.cancel-ticket-btn').click(function() {
+            const reference = $(this).data('ticket-reference');
+            $('#cancelTicketForm').attr('action', `/dashboard/tickets/${reference}/cancel/`);
+            $('#cancelTicketModal').modal('show');
+        });
+
+        // Export Excel
+        $('#btn-export-excel').click(function() {
+            alert('Fonctionnalité d\'export Excel à implémenter');
+        });
+
+        // Export PDF
+        $('#btn-export-pdf').click(function() {
+            alert('Fonctionnalité d\'export PDF à implémenter');
+        });
+
+        // Activer les tooltips Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
+{% endblock extra_js %}

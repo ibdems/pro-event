@@ -1,0 +1,263 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Modifier l'utilisateur - {{ user.email }}{% endblock title %}
+
+{% block page_title %}Modifier l'utilisateur{% endblock page_title %}
+
+{% block content %}
+<div class="user-edit">
+    <!-- Fil d'Ariane -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:user_list' %}">Utilisateurs</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:user_detail' pk=user.id %}">{{ user.email }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Modifier</li>
+        </ol>
+    </nav>
+
+    <!-- Formulaire d'édition -->
+    <div class="card dashboard-card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-user-edit me-2"></i>Modifier l'utilisateur
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="post" id="user-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <!-- Informations de base -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">Nom d'utilisateur</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.username.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Le nom d'utilisateur doit être unique.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">Prénom</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.first_name.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">Nom</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.last_name.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Rôles et permissions -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Statut</label>
+                            <div class="form-check form-switch">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Utilisateur actif</label>
+                            </div>
+                            <div class="form-text">Si désactivé, l'utilisateur ne pourra pas se connecter.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Rôle</label>
+                            <div class="form-check form-switch">
+                                {{ form.is_staff }}
+                                <label class="form-check-label" for="{{ form.is_staff.id_for_label }}">Organisateur</label>
+                            </div>
+                            <div class="form-text">Les organisateurs peuvent créer et gérer des événements.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                {{ form.is_superuser }}
+                                <label class="form-check-label" for="{{ form.is_superuser.id_for_label }}">Administrateur</label>
+                            </div>
+                            <div class="form-text">Les administrateurs ont accès à toutes les fonctionnalités.</div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Attention</h6>
+                            <p class="mb-0">Accordez les permissions d'administration avec parcimonie.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Changement de mot de passe -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="changePassword">
+                                <label class="form-check-label" for="changePassword">
+                                    Changer le mot de passe
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="passwordFields" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ password_form.password1.id_for_label }}" class="form-label">Nouveau mot de passe</label>
+                                {{ password_form.password1 }}
+                                {% if password_form.password1.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in password_form.password1.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    <ul>
+                                        <li>Le mot de passe ne peut pas être trop similaire aux autres informations personnelles.</li>
+                                        <li>Le mot de passe doit contenir au moins 8 caractères.</li>
+                                        <li>Le mot de passe ne peut pas être un mot de passe couramment utilisé.</li>
+                                        <li>Le mot de passe ne peut pas être entièrement numérique.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ password_form.password2.id_for_label }}" class="form-label">Confirmer le mot de passe</label>
+                                {{ password_form.password2 }}
+                                {% if password_form.password2.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in password_form.password2.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">Entrez le même mot de passe que précédemment, pour vérification.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <a href="{% url 'dashboard:user_detail' pk=user.id %}" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+    /* Styles pour les champs de formulaire */
+    .form-control, .form-select {
+        border-radius: 0.375rem;
+        border: 1px solid #ced4da;
+        padding: 0.5rem 0.75rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Style pour le formulaire */
+    #user-form .form-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    /* Style pour les form-switch */
+    .form-switch .form-check-input {
+        width: 2.5em;
+        margin-left: -2.8em;
+        height: 1.25em;
+    }
+
+    /* Style pour les alertes */
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffecb5;
+        color: #664d03;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Gestion de l'affichage des champs de mot de passe
+        $('#changePassword').change(function() {
+            if($(this).is(':checked')) {
+                $('#passwordFields').slideDown();
+            } else {
+                $('#passwordFields').slideUp();
+                // Réinitialiser les champs de mot de passe
+                $('#{{ password_form.password1.id_for_label }}').val('');
+                $('#{{ password_form.password2.id_for_label }}').val('');
+            }
+        });
+
+        // Si des erreurs sont présentes dans le formulaire de mot de passe, afficher les champs
+        {% if password_form.errors %}
+        $('#changePassword').prop('checked', true);
+        $('#passwordFields').show();
+        {% endif %}
+    });
+</script>
+{% endblock extra_js %}

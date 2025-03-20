@@ -1,0 +1,257 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Ajouter un Événement{% endblock title %}
+
+{% block page_title %}Ajouter un Événement{% endblock page_title %}
+
+{% block content %}
+<div class="event-form-container">
+    <!-- Fil d'Ariane -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:event_list' %}">Événements</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Ajouter un événement</li>
+        </ol>
+    </nav>
+
+    <!-- Formulaire d'ajout d'événement -->
+    <div class="card dashboard-card">
+        <div class="card-header">
+            <h5 class="card-title">Informations de l'événement</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <!-- Section d'informations générales -->
+                <div class="form-section mb-4">
+                    <h6 class="form-section-title">Informations générales</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ event_form.title.id_for_label }}" class="form-label">Titre de l'événement *</label>
+                            {{ event_form.title }}
+                            {% if event_form.title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ event_form.title.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ event_form.category.id_for_label }}" class="form-label">Catégorie *</label>
+                            {{ event_form.category }}
+                            {% if event_form.category.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ event_form.category.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ event_form.date_event.id_for_label }}" class="form-label">Date et heure *</label>
+                            {{ event_form.date_event }}
+                            {% if event_form.date_event.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ event_form.date_event.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ event_form.location.id_for_label }}" class="form-label">Lieu *</label>
+                            {{ event_form.location }}
+                            {% if event_form.location.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ event_form.location.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ event_form.description.id_for_label }}" class="form-label">Description *</label>
+                            {{ event_form.description }}
+                            {% if event_form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ event_form.description.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section configuration de l'événement -->
+                <div class="form-section mb-4">
+                    <h6 class="form-section-title">Configuration de l'événement</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ event_form.type_event.id_for_label }}" class="form-label">Type d'événement</label>
+                            <div class="form-check">
+                                {{ event_form.type_event }}
+                                <label class="form-check-label" for="{{ event_form.type_event.id_for_label }}">
+                                    Événement privé (sur invitation uniquement)
+                                </label>
+                            </div>
+                            {% if event_form.type_event.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ event_form.type_event.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ event_form.statut.id_for_label }}" class="form-label">Statut</label>
+                            <div class="form-check">
+                                {{ event_form.statut }}
+                                <label class="form-check-label" for="{{ event_form.statut.id_for_label }}">
+                                    Activer immédiatement
+                                </label>
+                            </div>
+                            {% if event_form.statut.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ event_form.statut.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ event_form.partner.id_for_label }}" class="form-label">Partenaires</label>
+                            {{ event_form.partner }}
+                            {% if event_form.partner.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ event_form.partner.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ event_form.image_event.id_for_label }}" class="form-label">Image de l'événement</label>
+                            {{ event_form.image_event }}
+                            {% if event_form.image_event.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ event_form.image_event.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Format recommandé: 1200x600px, JPG ou PNG, max 2MB</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section billetterie -->
+                <div class="form-section mb-4">
+                    <h6 class="form-section-title">Configuration de la billetterie</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="{{ ticket_form.capacite_normal.id_for_label }}" class="form-label">Capacité (Standard)</label>
+                            {{ ticket_form.capacite_normal }}
+                            {% if ticket_form.capacite_normal.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ ticket_form.capacite_normal.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ ticket_form.capacite_vip.id_for_label }}" class="form-label">Capacité (VIP)</label>
+                            {{ ticket_form.capacite_vip }}
+                            {% if ticket_form.capacite_vip.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ ticket_form.capacite_vip.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ ticket_form.capacite_vvip.id_for_label }}" class="form-label">Capacité (VVIP)</label>
+                            {{ ticket_form.capacite_vvip }}
+                            {% if ticket_form.capacite_vvip.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ ticket_form.capacite_vvip.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ ticket_form.price_normal.id_for_label }}" class="form-label">Prix (Standard)</label>
+                            <div class="input-group">
+                                {{ ticket_form.price_normal }}
+                                <span class="input-group-text">FCFA</span>
+                            </div>
+                            {% if ticket_form.price_normal.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ ticket_form.price_normal.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ ticket_form.price_vip.id_for_label }}" class="form-label">Prix (VIP)</label>
+                            <div class="input-group">
+                                {{ ticket_form.price_vip }}
+                                <span class="input-group-text">FCFA</span>
+                            </div>
+                            {% if ticket_form.price_vip.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ ticket_form.price_vip.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ ticket_form.price_vvip.id_for_label }}" class="form-label">Prix (VVIP)</label>
+                            <div class="input-group">
+                                {{ ticket_form.price_vvip }}
+                                <span class="input-group-text">FCFA</span>
+                            </div>
+                            {% if ticket_form.price_vvip.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ ticket_form.price_vvip.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="form-actions mt-4 d-flex justify-content-between">
+                    <a href="{% url 'dashboard:event_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Créer l'événement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    // Améliorer l'apparence des champs de formulaire
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ajouter les classes Bootstrap aux champs du formulaire
+        const formControls = document.querySelectorAll('input, textarea, select');
+        formControls.forEach(element => {
+            if (element.tagName === 'SELECT') {
+                element.classList.add('form-select');
+            } else if (element.type === 'checkbox') {
+                element.classList.add('form-check-input');
+            } else {
+                element.classList.add('form-control');
+            }
+        });
+
+        // Select2 pour les sélecteurs multiples
+        if ($.fn.select2) {
+            $('#id_partner').select2({
+                placeholder: 'Sélectionnez les partenaires',
+                allowClear: true,
+                theme: 'bootstrap-5'
+            });
+        }
+
+        // Validation de formulaire côté client
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    });
+</script>
+{% endblock extra_js %}
