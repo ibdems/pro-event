@@ -162,7 +162,7 @@
 
                 <!-- Bouton Acheter -->
                 <div class="text-center mt-4">
-                  {% if event.total_tickets_disponibles > 0 %}
+                  {% if nombre_ticket_dispo > 0 %}
                     <button id="buyTicketsBtn" class="btn btn-primary btn-lg w-100" disabled>
                       <i class="fas fa-shopping-cart me-2"></i> Acheter un ticket
                     </button>
@@ -350,34 +350,33 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateOrderSummary() {
       const summary = document.getElementById('order-summary');
       let total = 0;
-      let totalTickets = 0; // Nombre total de tickets
+      let totalTickets = 0;
       let html = '';
 
       Object.entries(tickets).forEach(([type, data]) => {
           if (data.quantity > 0) {
               const subtotal = data.price * data.quantity;
               total += subtotal;
-              totalTickets += data.quantity; // Ajoutez la quantité au total
+              totalTickets += data.quantity;
               html += `
                   <div class="d-flex justify-content-between mb-2">
                       <span>Ticket ${type.toUpperCase()} x${data.quantity}</span>
                       <span>${subtotal.toLocaleString()} GNF</span>
                   </div>
+                  <input type="hidden" name="quantity_${type}" value="${data.quantity}">
               `;
           }
       });
 
-      // Ajoutez le total des tickets dans le récapitulatif
       html += `
           <div class="border-top pt-2 mt-2">
               <div class="d-flex justify-content-between">
                   <span>Nombre de tickets</span>
-                  <input type='text' name='quantite' class="text-primary border-0 text-end" value='${totalTickets}' readonly/>
+                  <span class="text-primary">${totalTickets}</span>
               </div>
           </div>
       `;
 
-      // Ajoutez le montant total
       html += `
           <div class="border-top pt-2 mt-2">
               <div class="d-flex justify-content-between">

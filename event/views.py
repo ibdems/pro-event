@@ -249,11 +249,29 @@ class ScanCodeView(View):
         Affichage de l'événement pour le scan.
         """
         event = get_object_or_404(Event, uid=event_id)
+        disponibilite = event.get_disponibilite()
+        tickets_scannes = event.ticket_event.filter(scan_count__gt=0).count()
+
+        if disponibilite:
+            total_capacite = (
+                disponibilite["normal"]["capacite"]
+                + disponibilite["vip"]["capacite"]
+                + disponibilite["vvip"]["capacite"]
+            )
+            tickets_disponibles = (
+                disponibilite["normal"]["disponibles"]
+                + disponibilite["vip"]["disponibles"]
+                + disponibilite["vvip"]["disponibles"]
+            )
+        else:
+            total_capacite = 0
+            tickets_disponibles = 0
+
         context = {
             "event": event,
-            "total_capacity": event.total_capacity(),
-            "tickets_scanned": event.ticket_event.filter(scan_count__gt=0).count(),
-            "available_capacity": event.available_capacity(),
+            "total_capacity": total_capacite,
+            "tickets_scanned": tickets_scannes,
+            "available_capacity": tickets_disponibles,
         }
         return render(request, "event/scan_ticket.html", context)
 
@@ -286,18 +304,26 @@ class ScanCodeView(View):
             if ticket.event.end_date < timezone.now():
                 return JsonResponse({"success": False, "message": "Cet événement est terminé."})
 
+            # Vérifier si le ticket a déjà été scanné
+            if ticket.scan_count > 0:
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "message": f"Attention: Ce ticket a déjà été scanné"
+                        f" {ticket.scan_count} fois.",
+                        "type_ticket": ticket.type_ticket,
+                        "scan_count": ticket.scan_count,
+                    }
+                )
+
             # Incrémenter le compteur de scan
             ticket.scan_count += 1
             ticket.save()
 
-            message = "Ticket valide."
-            if ticket.scan_count > 1:
-                message = f"Attention: Ticket déjà scanné {ticket.scan_count} fois."
-
             return JsonResponse(
                 {
                     "success": True,
-                    "message": message,
+                    "message": "Ticket valide.",
                     "type_ticket": ticket.type_ticket,
                     "scan_count": ticket.scan_count,
                 }

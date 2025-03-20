@@ -28,7 +28,7 @@ def test_create_event(event, category, user):
     assert event.category == category
     assert event.user == user
     assert event.total_capacity() == 170
-    assert event.available_capacity() == 170
+    assert event.total_tickets_disponibles() == 170
     assert event.prix_normal == 23000
 
 
@@ -44,7 +44,7 @@ def test_create_ticket(ticket, event, payement):
     ticket1, ticket2 = ticket
     assert ticket1.code_ticket.startswith("PE-TI-")
     assert ticket1.event == event
-    assert event.available_capacity() == 168
+    assert event.total_tickets_disponibles() == 168
     assert ticket1.qr_code is not None
     assert ticket1.qr_code.name.startswith("qr_")
     assert ticket1.qr_code.path.endswith(".png")

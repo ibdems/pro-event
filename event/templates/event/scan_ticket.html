@@ -294,10 +294,13 @@
                 showAlert(data);
 
                 if (data.success) {
+                    // Mettre à jour les compteurs de tickets scannés et de places restantes
+                    // Cette mise à jour est effectuée uniquement lorsque le scan est réussi
                     const scannedCount = document.getElementById('scannedCount');
                     const remainingCount = document.getElementById('remainingCount');
 
                     if (scannedCount && remainingCount) {
+                        // Mettre à jour les compteurs uniquement pour les nouveaux scans
                         scannedCount.textContent = parseInt(scannedCount.textContent) + 1;
                         remainingCount.textContent = parseInt(remainingCount.textContent) - 1;
                     }

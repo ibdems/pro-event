@@ -242,7 +242,7 @@ class Ticket(models.Model):
         return self.event.title
 
     def save(self, *args, **kwargs):
-        if self.event.available_capacity() <= 0:
+        if self.event.total_tickets_disponibles() <= 0:
             raise ValidationError("Plus de places disponibles pour cet événement.")
         if not self.code_ticket:
             self.code_ticket = f"PE-TI-{uuid.uuid4().hex[:6]}".upper()
