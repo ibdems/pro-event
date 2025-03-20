@@ -3,7 +3,7 @@ from django.db import models
 from django.forms import Textarea
 from django.utils.html import format_html
 
-from .models import Category, Event, InfoTicket, Partner, Payement, Ticket
+from .models import Category, Contact, Event, InfoTicket, Partner, Payement, Ticket
 
 
 @admin.register(Category)
@@ -165,3 +165,32 @@ class PayementAdmin(admin.ModelAdmin):
         if obj:
             return self.readonly_fields + ("amount",)
         return self.readonly_fields
+
+
+@admin.register(Contact)
+class ContactAdmin(admin.ModelAdmin):
+    list_display = ("name", "email", "subject", "created_at", "is_read")
+    list_filter = ("is_read", "created_at")
+    search_fields = ("name", "email", "subject", "message")
+    readonly_fields = ("created_at",)
+    list_per_page = 20
+    date_hierarchy = "created_at"
+
+    fieldsets = (
+        ("Informations de contact", {"fields": ("name", "email", "subject")}),
+        ("Message", {"fields": ("message", "is_read")}),
+        ("Métadonnées", {"fields": ("created_at",), "classes": ("collapse",)}),
+    )
+
+    formfield_overrides = {
+        models.TextField: {"widget": Textarea(attrs={"rows": 5, "style": "width: 100%;"})},
+    }
+
+    def save_model(self, request, obj, form, change):
+        if change and "is_read" in form.changed_data and obj.is_read:
+            obj.is_read = True
+        super().save_model(request, obj, form, change)
+
+    def has_add_permission(self, request):
+        # Désactiver la création de contacts depuis l'administration
+        return False

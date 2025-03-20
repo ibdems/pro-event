@@ -258,4 +258,17 @@ class Ticket(models.Model):
 
 
 class Contact(models.Model):
-    pass
+    name = models.CharField(max_length=100, verbose_name="Nom", null=True)
+    email = models.EmailField(verbose_name="Email", null=True)
+    subject = models.CharField(max_length=200, verbose_name="Objet", null=True)
+    message = models.TextField(verbose_name="Message", null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    is_read = models.BooleanField(default=False, verbose_name="Lu", null=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.subject}"
+
+    class Meta:
+        verbose_name = "Contact"
+        verbose_name_plural = "Contacts"
+        ordering = ["-created_at"]
