@@ -130,6 +130,7 @@
     text-decoration: none;
     border-radius: var(--border-radius);
     transition: all var(--transition-speed);
+    position: relative;
 }
 
 .nav-item a:hover {
@@ -525,6 +526,8 @@
     letter-spacing: 0.5px;
     padding: 0.75rem 1rem;
     border-top: none;
+    color: black;
+    text-align: center;
 }
 
 .table tbody td {
@@ -644,4 +647,178 @@
 
 .dashboard-overview {
     animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Submenu in sidebar */
+.nav-submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    padding-left: 10px;
+    list-style: none;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-submenu-item {
+    margin-bottom: 2px;
+}
+
+.nav-submenu-item a {
+    padding: 0.5rem 1rem 0.5rem 2rem;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: all var(--transition-speed);
+}
+
+.nav-submenu-item a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding-left: 2.2rem;
+}
+
+.nav-submenu-item.active a {
+    background-color: var(--primary-color);
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Parent menu items with submenu */
+.nav-item.has-submenu > a {
+    position: relative;
+}
+
+.nav-item.open .nav-submenu {
+    max-height: 500px;
+    opacity: 1;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* Toggle submenu icon */
+.nav-item .toggle-submenu {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    z-index: 5;
+}
+
+.nav-item.open .toggle-submenu {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.nav-item.has-submenu > a {
+    padding-right: 40px;
+}
+
+/* Menu item active states */
+.nav-item.active > a {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.nav-item.active .nav-submenu-item:not(.active) a {
+    background-color: transparent;
+    font-weight: normal;
+}
+
+.nav-item.active .nav-submenu-item:not(.active) a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.nav-item:not(.active) > a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Collapsed sidebar submenu */
+.sidebar-collapsed .nav-submenu {
+    margin-left: 5px;
+    position: absolute;
+    left: var(--sidebar-collapsed-width);
+    top: 0;
+    width: 200px;
+    background: linear-gradient(135deg, #091c3c, #1e3d7c);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    box-shadow: var(--box-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-speed), visibility var(--transition-speed);
+}
+
+.sidebar-collapsed .nav-item:hover .nav-submenu {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Nouvelle structure de menu */
+.nav-item-header {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.nav-item-header .menu-link {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: all var(--transition-speed);
+}
+
+.nav-item-header .menu-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.nav-item.active .nav-item-header .menu-link {
+    background-color: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.submenu-toggle {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    padding: 0;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+
+.submenu-toggle:hover {
+    color: #fff;
+}
+
+.nav-item.open .submenu-toggle .toggle-submenu {
+    transform: rotate(90deg);
+}
+
+.toggle-submenu {
+    transition: transform 0.3s ease;
 }

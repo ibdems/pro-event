@@ -1,434 +1,505 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
-
-{% block title %}Profil Utilisateur - {{ user.email }}{% endblock title %}
-
-{% block page_title %}Profil Utilisateur{% endblock page_title %}
-
+{% block title %}
+    Profil
+    Utilisateur - {{ user.email }}
+{% endblock title %}
+{% block page_title %}
+    Profil
+    Utilisateur
+{% endblock page_title %}
 {% block content %}
-<div class="user-profile">
-    <!-- Fil d'Ariane -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Tableau de bord</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'dashboard:user_list' %}">Utilisateurs</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ user.email }}</li>
-        </ol>
-    </nav>
-
-    <!-- Actions bar -->
-    <div class="actions-bar mb-4">
-        <div class="row align-items-center">
-            <div class="col-md-6 mb-3 mb-md-0">
-                <h5 class="mb-0">
-                    <i class="fas fa-user me-2"></i>{{ user.get_full_name|default:user.email }}
-                    {% if user.is_superuser %}
-                    <span class="badge bg-danger ms-2">Admin</span>
-                    {% elif user.is_staff %}
-                    <span class="badge bg-success ms-2">Organisateur</span>
-                    {% else %}
-                    <span class="badge bg-info ms-2">Utilisateur</span>
-                    {% endif %}
-
-                    {% if user.is_active %}
-                    <span class="badge bg-success ms-1">Actif</span>
-                    {% else %}
-                    <span class="badge bg-danger ms-1">Inactif</span>
-                    {% endif %}
-                </h5>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <div class="btn-group">
-                    <a href="{% url 'dashboard:user_edit' pk=user.id %}" class="btn btn-primary me-2">
-                        <i class="fas fa-edit me-2"></i>Modifier
-                    </a>
-                    {% if user.is_active %}
-                    <form method="post" action="{% url 'dashboard:user_deactivate' pk=user.id %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-warning me-2" onclick="return confirm('Êtes-vous sûr de vouloir désactiver cet utilisateur ?');">
-                            <i class="fas fa-ban me-2"></i>Désactiver
-                        </button>
-                    </form>
-                    {% else %}
-                    <form method="post" action="{% url 'dashboard:user_activate' pk=user.id %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success me-2" onclick="return confirm('Êtes-vous sûr de vouloir activer cet utilisateur ?');">
-                            <i class="fas fa-check-circle me-2"></i>Activer
-                        </button>
-                    </form>
-                    {% endif %}
-                    <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                        <i class="fas fa-trash me-2"></i>Supprimer
-                    </button>
-                    <a href="{% url 'dashboard:user_list' %}" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left me-2"></i>Retour
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contenu principal -->
-    <div class="row">
-        <!-- Informations du profil -->
-        <div class="col-lg-4 mb-4">
-            <div class="card dashboard-card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-id-card me-2"></i>Informations du profil
+    <div class="user-profile">
+        <!-- Fil d'Ariane -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:home' %}">Tableau de bord</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:user_list' %}">Utilisateurs</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ user.email }}</li>
+            </ol>
+        </nav>
+        <!-- Actions bar -->
+        <div class="actions-bar mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>{{
+                        user.get_full_name|default:user.email }}
+                        {% if user.is_superuser %}
+                            <span class="badge bg-danger ms-2">Admin</span>
+                        {% elif user.is_staff %}
+                            <span class="badge bg-success ms-2">Organisateur</span>
+                        {% else %}
+                            <span class="badge bg-info ms-2">Utilisateur</span>
+                        {% endif %}
+                        {% if user.is_active %}
+                            <span class="badge bg-success ms-1">Actif</span>
+                        {% else %}
+                            <span class="badge bg-danger ms-1">Inactif</span>
+                        {% endif %}
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <div class="avatar-circle-large mx-auto bg-{% cycle 'primary' 'success' 'info' 'warning' 'danger' %}">
-                            {{ user.email|first|upper }}
-                        </div>
-                        <h5 class="mt-3 mb-1">{{ user.email }}</h5>
-                        <p class="text-muted mb-0">{{ user.email }}</p>
-                    </div>
-
-                    <div class="profile-details">
-                        <div class="detail-item">
-                            <div class="detail-label">ID</div>
-                            <div class="detail-value">{{ user.id }}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Nom complet</div>
-                            <div class="detail-value">{{ user.get_full_name|default:"Non renseigné" }}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">{{ user.email }}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Rôle</div>
-                            <div class="detail-value">
-                                {% if user.is_superuser %}
-                                Administrateur
-                                {% elif user.is_staff %}
-                                Organisateur
-                                {% else %}
-                                Utilisateur standard
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Statut</div>
-                            <div class="detail-value">
-                                {% if user.is_active %}
-                                <span class="text-success">Actif</span>
-                                {% else %}
-                                <span class="text-danger">Inactif</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Date d'inscription</div>
-                            <div class="detail-value">{{ user.date_joined|date:"d/m/Y H:i" }}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Dernière connexion</div>
-                            <div class="detail-value">
-                                {% if user.last_login %}
-                                {{ user.last_login|date:"d/m/Y H:i" }}
-                                {% else %}
-                                <span class="text-muted">Jamais connecté</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <a href="mailto:{{ user.email }}" class="btn btn-outline-primary w-100">
-                            <i class="fas fa-envelope me-2"></i>Envoyer un email
+                <div class="col-md-6 text-md-end">
+                    <div class="btn-group">
+                        <a href="{% url 'dashboard:user_edit' pk=user.id %}"
+                           class="btn btn-primary me-2">
+                            <i class="fas fa-edit me-2"></i>Modifier
+                        </a>
+                        {% if user.is_active %}
+                            <form method="post"
+                                  action="{% url 'dashboard:user_deactivate' pk=user.id %}"
+                                  class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="btn btn-warning me-2"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir désactiver cet utilisateur ?');">
+                                    <i class="fas fa-ban me-2"></i>Désactiver
+                                </button>
+                            </form>
+                        {% else %}
+                            <form method="post"
+                                  action="{% url 'dashboard:user_activate' pk=user.id %}"
+                                  class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="btn btn-success me-2"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir activer cet utilisateur ?');">
+                                    <i class="fas fa-check-circle me-2"></i>Activer
+                                </button>
+                            </form>
+                        {% endif %}
+                        <button type="button"
+                                class="btn btn-danger me-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-2"></i>Supprimer
+                        </button>
+                        <a href="{% url 'dashboard:user_list' %}"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour
                         </a>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Onglets d'information -->
-        <div class="col-lg-8">
-            <div class="card dashboard-card mb-4">
-                <div class="card-header">
-                    <ul class="nav nav-tabs card-header-tabs" id="userTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab" aria-controls="events" aria-selected="true">
-                                <i class="fas fa-calendar-alt me-2"></i>Événements
-                                <span class="badge bg-primary ms-1">{{ events|length }}</span>
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tickets" type="button" role="tab" aria-controls="tickets" aria-selected="false">
-                                <i class="fas fa-ticket-alt me-2"></i>Tickets
-                                <span class="badge bg-primary ms-1">{{ tickets|length }}</span>
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab" aria-controls="requests" aria-selected="false">
-                                <i class="fas fa-file-alt me-2"></i>Demandes
-                                <span class="badge bg-primary ms-1">{{ demandes|length }}</span>
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab" aria-controls="activity" aria-selected="false">
-                                <i class="fas fa-history me-2"></i>Activité
-                            </button>
-                        </li>
-                    </ul>
+        <!-- Contenu principal -->
+        <div class="row">
+            <!-- Informations du profil -->
+            <div class="col-lg-4 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-id-card me-2"></i>Informations du profil
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="avatar-circle-large mx-auto bg-{% cycle 'primary' 'success' 'info' 'warning' 'danger' %}">
+                                {{ user.email|first|upper }}
+                            </div>
+                            <h5 class="mt-3 mb-1">{{ user.email }}</h5>
+                            <p class="text-muted mb-0">{{ user.email }}</p>
+                        </div>
+                        <div class="profile-details">
+                            <div class="detail-item">
+                                <div class="detail-label">ID</div>
+                                <div class="detail-value">{{ user.id }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Nom complet</div>
+                                <div class="detail-value">{{ user.get_full_name|default:"Non renseigné" }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Email</div>
+                                <div class="detail-value">{{ user.email }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Rôle</div>
+                                <div class="detail-value">
+                                    {% if user.is_superuser %}
+                                        Administrateur
+                                    {% elif user.is_staff
+                                        %}
+                                        Organisateur
+                                    {% else %}
+                                        Utilisateur standard
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Statut</div>
+                                <div class="detail-value">
+                                    {% if user.is_active %}
+                                        <span class="text-success">Actif</span>
+                                    {% else %}
+                                        <span class="text-danger">Inactif</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Date d'inscription</div>
+                                <div class="detail-value">{{ user.date_joined|date:"d/m/Y H:i" }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Dernière connexion</div>
+                                <div class="detail-value">
+                                    {% if user.last_login %}
+                                        {{ user.last_login|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                        <span class="text-muted">Jamais connecté</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <a href="mailto:{{ user.email }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-envelope me-2"></i>Envoyer un email
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="tab-content" id="userTabsContent">
-                        <!-- Onglet Événements -->
-                        <div class="tab-pane fade show active" id="events" role="tabpanel" aria-labelledby="events-tab">
-                            {% if events %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Titre</th>
-                                            <th>Date</th>
-                                            <th>Lieu</th>
-                                            <th>Catégorie</th>
-                                            <th>Statut</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for event in events %}
-                                        <tr>
-                                            <td>
-                                                <a href="{% url 'dashboard:event_detail' uid=event.uid %}" class="text-decoration-none">
-                                                    {{ event.title }}
-                                                </a>
-                                            </td>
-                                            <td>{{ event.date_event|date:"d/m/Y H:i" }}</td>
-                                            <td>{{ event.location }}</td>
-                                            <td>{{ event.category.name }}</td>
-                                            <td>
-                                                {% if event.is_published %}
-                                                <span class="badge bg-success">Publié</span>
-                                                {% else %}
-                                                <span class="badge bg-warning">Brouillon</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="{% url 'dashboard:event_detail' uid=event.uid %}" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="{% url 'event:detail' slug=event.slug %}" target="_blank" class="btn btn-sm btn-outline-info">
-                                                        <i class="fas fa-external-link-alt"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="empty-state">
-                                <i class="fas fa-calendar-alt fa-3x mb-3 text-muted"></i>
-                                <h6>Aucun événement</h6>
-                                <p class="text-muted">Cet utilisateur n'a créé aucun événement</p>
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Onglet Tickets -->
-                        <div class="tab-pane fade" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">
-                            {% if tickets %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Référence</th>
-                                            <th>Événement</th>
-                                            <th>Type</th>
-                                            <th>Prix</th>
-                                            <th>Date d'achat</th>
-                                            <th>Statut</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for ticket in tickets %}
-                                        <tr>
-                                            <td>{{ ticket.reference }}</td>
-                                            <td>
-                                                <a href="{% url 'dashboard:event_detail' uid=ticket.event.uid %}" class="text-decoration-none">
-                                                    {{ ticket.event.title }}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <span class="badge {% if ticket.type_ticket == 'normal' %}bg-secondary{% elif ticket.type_ticket == 'vip' %}bg-success{% else %}bg-warning{% endif %}">
-                                                    {% if ticket.type_ticket == 'normal' %}Standard{% elif ticket.type_ticket == 'vip' %}VIP{% else %}VVIP{% endif %}
-                                                </span>
-                                            </td>
-                                            <td>{{ ticket.price|floatformat:0 }} FCFA</td>
-                                            <td>{{ ticket.created_at|date:"d/m/Y" }}</td>
-                                            <td>
-                                                {% if ticket.is_paid %}
-                                                <span class="badge bg-success">Payé</span>
-                                                {% elif ticket.is_cancelled %}
-                                                <span class="badge bg-danger">Annulé</span>
-                                                {% else %}
-                                                <span class="badge bg-warning">En attente</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="{% url 'dashboard:ticket_detail' reference=ticket.reference %}" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="{% url 'dashboard:ticket_print' reference=ticket.reference %}" target="_blank" class="btn btn-sm btn-outline-info">
-                                                        <i class="fas fa-print"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="empty-state">
-                                <i class="fas fa-ticket-alt fa-3x mb-3 text-muted"></i>
-                                <h6>Aucun ticket</h6>
-                                <p class="text-muted">Cet utilisateur n'a acheté aucun ticket</p>
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Onglet Demandes -->
-                        <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
-                            {% if demandes %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Référence</th>
-                                            <th>Service</th>
-                                            <th>Date</th>
-                                            <th>Statut</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for demande in demandes %}
-                                        <tr>
-                                            <td>{{ demande.reference }}</td>
-                                            <td>{{ demande.service_type }}</td>
-                                            <td>{{ demande.created_at|date:"d/m/Y" }}</td>
-                                            <td>
-                                                {% if demande.status == 'pending' %}
-                                                <span class="badge bg-warning">En attente</span>
-                                                {% elif demande.status == 'accepted' %}
-                                                <span class="badge bg-success">Acceptée</span>
-                                                {% elif demande.status == 'rejected' %}
-                                                <span class="badge bg-danger">Rejetée</span>
-                                                {% else %}
-                                                <span class="badge bg-secondary">{{ demande.status }}</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{% url 'dashboard:demande_detail' reference=demande.reference %}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="empty-state">
-                                <i class="fas fa-file-alt fa-3x mb-3 text-muted"></i>
-                                <h6>Aucune demande</h6>
-                                <p class="text-muted">Cet utilisateur n'a fait aucune demande de service</p>
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Onglet Activité -->
-                        <div class="tab-pane fade" id="activity" role="tabpanel" aria-labelledby="activity-tab">
-                            <div class="timeline">
-                                {% if activities %}
-                                {% for activity in activities %}
-                                <div class="timeline-item">
-                                    <div class="timeline-marker {% if activity.type == 'login' %}bg-success{% elif activity.type == 'create' %}bg-primary{% elif activity.type == 'update' %}bg-info{% elif activity.type == 'delete' %}bg-danger{% else %}bg-secondary{% endif %}">
-                                        {% if activity.type == 'login' %}
-                                        <i class="fas fa-sign-in-alt"></i>
-                                        {% elif activity.type == 'create' %}
-                                        <i class="fas fa-plus"></i>
-                                        {% elif activity.type == 'update' %}
-                                        <i class="fas fa-edit"></i>
-                                        {% elif activity.type == 'delete' %}
-                                        <i class="fas fa-trash"></i>
-                                        {% else %}
-                                        <i class="fas fa-circle"></i>
-                                        {% endif %}
+            </div>
+            <!-- Onglets d'information -->
+            <div class="col-lg-8">
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" id="userTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active"
+                                        id="events-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#events"
+                                        type="button"
+                                        role="tab"
+                                        aria-controls="events"
+                                        aria-selected="true">
+                                    <i class="fas fa-calendar-alt me-2"></i>Événements
+                                    <span class="badge bg-primary ms-1">{{ events|length }}</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link"
+                                        id="tickets-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#tickets"
+                                        type="button"
+                                        role="tab"
+                                        aria-controls="tickets"
+                                        aria-selected="false">
+                                    <i class="fas fa-ticket-alt me-2"></i>Tickets
+                                    <span class="badge bg-primary ms-1">{{ tickets|length }}</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link"
+                                        id="requests-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#requests"
+                                        type="button"
+                                        role="tab"
+                                        aria-controls="requests"
+                                        aria-selected="false">
+                                    <i class="fas fa-file-alt me-2"></i>Demandes
+                                    <span class="badge bg-primary ms-1">{{ demandes|length }}</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link"
+                                        id="activity-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#activity"
+                                        type="button"
+                                        role="tab"
+                                        aria-controls="activity"
+                                        aria-selected="false">
+                                    <i class="fas fa-history me-2"></i>Activité
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="userTabsContent">
+                            <!-- Onglet Événements -->
+                            <div class="tab-pane fade show active"
+                                 id="events"
+                                 role="tabpanel"
+                                 aria-labelledby="events-tab">
+                                {% if events %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Titre</th>
+                                                    <th>Date</th>
+                                                    <th>Lieu</th>
+                                                    <th>Catégorie</th>
+                                                    <th>Statut</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for event in events %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="{% url 'dashboard:event_detail' uid=event.uid %}"
+                                                               class="text-decoration-none">{{ event.title }}</a>
+                                                        </td>
+                                                        <td>{{ event.date_event|date:"d/m/Y H:i" }}</td>
+                                                        <td>{{ event.location }}</td>
+                                                        <td>{{ event.category.name }}</td>
+                                                        <td>
+                                                            {% if event.is_published %}
+                                                                <span class="badge bg-success">Publié</span>
+                                                            {% else %}
+                                                                <span class="badge bg-warning">Brouillon</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            <div class="btn-group">
+                                                                <a href="{% url 'dashboard:event_detail' uid=event.uid %}"
+                                                                   class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                                <a href="{% url 'dashboard:event_detail' uid=event.uid %}"
+                                                                   target="_blank"
+                                                                   class="btn btn-sm btn-outline-info">
+                                                                    <i class="fas fa-external-link-alt"></i>
+                                                                </a>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    <div class="timeline-content">
-                                        <h6 class="timeline-title">{{ activity.title }}</h6>
-                                        <p class="timeline-date">{{ activity.timestamp|date:"d/m/Y H:i" }}</p>
-                                        <p class="timeline-text">{{ activity.description }}</p>
-                                    </div>
-                                </div>
-                                {% endfor %}
                                 {% else %}
-                                <div class="empty-state">
-                                    <i class="fas fa-history fa-3x mb-3 text-muted"></i>
-                                    <h6>Aucune activité enregistrée</h6>
-                                    <p class="text-muted">Aucune activité récente n'a été enregistrée pour cet utilisateur</p>
-                                </div>
+                                    <div class="empty-state">
+                                        <i class="fas fa-calendar-alt fa-3x mb-3 text-muted"></i>
+                                        <h6>Aucun événement</h6>
+                                        <p class="text-muted">Cet utilisateur n'a créé aucun événement</p>
+                                    </div>
                                 {% endif %}
                             </div>
+                            <!-- Onglet Tickets -->
+                            <div class="tab-pane fade"
+                                 id="tickets"
+                                 role="tabpanel"
+                                 aria-labelledby="tickets-tab">
+                                {% if tickets %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Référence</th>
+                                                    <th>Événement</th>
+                                                    <th>Type</th>
+                                                    <th>Prix</th>
+                                                    <th>Date d'achat</th>
+                                                    <th>Statut</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for ticket in tickets %}
+                                                    <tr>
+                                                        <td>{{ ticket.reference }}</td>
+                                                        <td>
+                                                            <a href="{% url 'dashboard:event_detail' uid=ticket.event.uid %}"
+                                                               class="text-decoration-none">
+                                                                {{ ticket.event.title }}
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge {% if ticket.type_ticket == 'normal' %}bg-secondary{% elif ticket.type_ticket == 'vip' %}bg-success{% else %}bg-warning{% endif %}">
+                                                                {% if ticket.type_ticket == 'normal' %}
+                                                                    Standard
+                                                                {% elif
+                                                                    ticket.type_ticket == 'vip' %}
+                                                                    VIP
+                                                                {% else %}
+                                                                    VVIP{%
+                                                                    endif %}
+                                                                </span>
+                                                            </td>
+                                                            <td>{{ ticket.price|floatformat:0 }} FCFA</td>
+                                                            <td>{{ ticket.created_at|date:"d/m/Y" }}</td>
+                                                            <td>
+                                                                {% if ticket.is_paid %}
+                                                                    <span class="badge bg-success">Payé</span>
+                                                                {% elif ticket.is_cancelled %}
+                                                                    <span class="badge bg-danger">Annulé</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-warning">En attente</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                <div class="btn-group">
+                                                                    <a href="{% url 'dashboard:ticket_detail' reference=ticket.reference %}"
+                                                                       class="btn btn-sm btn-outline-primary">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </a>
+                                                                    <a href="{% url 'dashboard:ticket_print' reference=ticket.reference %}"
+                                                                       target="_blank"
+                                                                       class="btn btn-sm btn-outline-info">
+                                                                        <i class="fas fa-print"></i>
+                                                                    </a>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div class="empty-state">
+                                            <i class="fas fa-ticket-alt fa-3x mb-3 text-muted"></i>
+                                            <h6>Aucun ticket</h6>
+                                            <p class="text-muted">Cet utilisateur n'a acheté aucun ticket</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <!-- Onglet Demandes -->
+                                <div class="tab-pane fade"
+                                     id="requests"
+                                     role="tabpanel"
+                                     aria-labelledby="requests-tab">
+                                    {% if demandes %}
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Référence</th>
+                                                        <th>Service</th>
+                                                        <th>Date</th>
+                                                        <th>Statut</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for demande in demandes %}
+                                                        <tr>
+                                                            <td>{{ demande.reference }}</td>
+                                                            <td>{{ demande.service_type }}</td>
+                                                            <td>{{ demande.created_at|date:"d/m/Y" }}</td>
+                                                            <td>
+                                                                {% if demande.status == 'pending' %}
+                                                                    <span class="badge bg-warning">En attente</span>
+                                                                {% elif demande.status == 'accepted' %}
+                                                                    <span class="badge bg-success">Acceptée</span>
+                                                                {% elif demande.status == 'rejected' %}
+                                                                    <span class="badge bg-danger">Rejetée</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-secondary">{{ demande.status }}</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                <a href="{% url 'dashboard:demande_detail' reference=demande.reference %}"
+                                                                   class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div class="empty-state">
+                                            <i class="fas fa-file-alt fa-3x mb-3 text-muted"></i>
+                                            <h6>Aucune demande</h6>
+                                            <p class="text-muted">Cet utilisateur n'a fait aucune demande de service</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <!-- Onglet Activité -->
+                                <div class="tab-pane fade"
+                                     id="activity"
+                                     role="tabpanel"
+                                     aria-labelledby="activity-tab">
+                                    <div class="timeline">
+                                        {% if activities %}
+                                            {% for activity in activities %}
+                                                <div class="timeline-item">
+                                                    <div class="timeline-marker {% if activity.type == 'login' %}bg-success{% elif activity.type == 'create' %}bg-primary{% elif activity.type == 'update' %}bg-info{% elif activity.type == 'delete' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                                        {% if activity.type == 'login' %}
+                                                            <i class="fas fa-sign-in-alt"></i>
+                                                        {% elif activity.type == 'create' %}
+                                                            <i class="fas fa-plus"></i>
+                                                        {% elif activity.type == 'update' %}
+                                                            <i class="fas fa-edit"></i>
+                                                        {% elif activity.type == 'delete' %}
+                                                            <i class="fas fa-trash"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-circle"></i>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="timeline-content">
+                                                        <h6 class="timeline-title">{{ activity.title }}</h6>
+                                                        <p class="timeline-date">{{ activity.timestamp|date:"d/m/Y H:i" }}</p>
+                                                        <p class="timeline-text">{{ activity.description }}</p>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="empty-state">
+                                                <i class="fas fa-history fa-3x mb-3 text-muted"></i>
+                                                <h6>Aucune activité enregistrée</h6>
+                                                <p class="text-muted">
+                                                    Aucune activité récente n'a été enregistrée pour cet
+                                                    utilisateur
+                                                </p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Statistiques utilisateur -->
-            <div class="card dashboard-card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-chart-bar me-2"></i>Statistiques utilisateur
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3 mb-md-0">
-                            <div class="stat-card">
-                                <div class="stat-icon bg-primary">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
-                                <div class="stat-details">
-                                    <h3 class="stat-value">{{ events|length }}</h3>
-                                    <div class="stat-label">Événements créés</div>
-                                </div>
-                            </div>
+                    <!-- Statistiques utilisateur -->
+                    <div class="card dashboard-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Statistiques utilisateur
+                            </h5>
                         </div>
-                        <div class="col-md-4 mb-3 mb-md-0">
-                            <div class="stat-card">
-                                <div class="stat-icon bg-success">
-                                    <i class="fas fa-ticket-alt"></i>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <div class="stat-card">
+                                        <div class="stat-icon bg-primary">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </div>
+                                        <div class="stat-details">
+                                            <h3 class="stat-value">{{ events|length }}</h3>
+                                            <div class="stat-label">Événements créés</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="stat-details">
-                                    <h3 class="stat-value">{{ tickets|length }}</h3>
-                                    <div class="stat-label">Tickets achetés</div>
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <div class="stat-card">
+                                        <div class="stat-icon bg-success">
+                                            <i class="fas fa-ticket-alt"></i>
+                                        </div>
+                                        <div class="stat-details">
+                                            <h3 class="stat-value">{{ tickets|length }}</h3>
+                                            <div class="stat-label">Tickets achetés</div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="stat-card">
-                                <div class="stat-icon bg-info">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                <div class="stat-details">
-                                    <h3 class="stat-value">{{ demandes|length }}</h3>
-                                    <div class="stat-label">Demandes soumises</div>
+                                <div class="col-md-4">
+                                    <div class="stat-card">
+                                        <div class="stat-icon bg-info">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                        <div class="stat-details">
+                                            <h3 class="stat-value">{{ demandes|length }}</h3>
+                                            <div class="stat-label">Demandes soumises</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -436,164 +507,173 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Modal de suppression -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirmation de suppression</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ user.email }}</strong> ?</p>
-                <p class="text-danger">Cette action est irréversible et supprimera toutes les données associées à cet utilisateur.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form method="post" action="{% url 'dashboard:user_delete' pk=user.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                </form>
+        <!-- Modal de suppression -->
+        <div class="modal fade"
+             id="deleteModal"
+             tabindex="-1"
+             aria-labelledby="deleteModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Confirmation de suppression</h5>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Êtes-vous sûr de vouloir supprimer l'utilisateur
+                            <strong>{{ user.email }}</strong> ?
+                        </p>
+                        <p class="text-danger">
+                            Cette action est irréversible et supprimera toutes les données
+                            associées à cet utilisateur.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <form method="post" action="{% url 'dashboard:user_delete' pk=user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-{% endblock content %}
+    {% endblock content %}
+    {% block extra_css %}
+        <style>
+  .avatar-circle-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    color: white;
+    text-align: center;
+    line-height: 80px;
+    font-weight: 600;
+    font-size: 2rem;
+  }
 
-{% block extra_css %}
-<style>
-    .avatar-circle-large {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        color: white;
-        text-align: center;
-        line-height: 80px;
-        font-weight: 600;
-        font-size: 2rem;
-    }
+  .profile-details .detail-item {
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 12px;
+  }
 
-    .profile-details .detail-item {
-        margin-bottom: 12px;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 12px;
-    }
+  .profile-details .detail-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
 
-    .profile-details .detail-item:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-        padding-bottom: 0;
-    }
+  .profile-details .detail-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
 
-    .profile-details .detail-label {
-        font-size: 0.85rem;
-        color: #6c757d;
-        margin-bottom: 4px;
-        font-weight: 500;
-    }
+  .profile-details .detail-value {
+    font-size: 1rem;
+  }
 
-    .profile-details .detail-value {
-        font-size: 1rem;
-    }
+  .empty-state {
+    padding: 30px;
+    text-align: center;
+  }
 
-    .empty-state {
-        padding: 30px;
-        text-align: center;
-    }
+  /* Styles pour les statistiques */
+  .stat-card {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    height: 100%;
+  }
 
-    /* Styles pour les statistiques */
-    .stat-card {
-        display: flex;
-        align-items: center;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 15px;
-        height: 100%;
-    }
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.4rem;
+    margin-right: 15px;
+  }
 
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.4rem;
-        margin-right: 15px;
-    }
+  .stat-details {
+    flex: 1;
+  }
 
-    .stat-details {
-        flex: 1;
-    }
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+  }
 
-    .stat-value {
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin: 0;
-        line-height: 1.2;
-    }
+  .stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
 
-    .stat-label {
-        font-size: 0.85rem;
-        color: #6c757d;
-    }
+  /* Timeline pour l'historique d'activité */
+  .timeline {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+  }
 
-    /* Timeline pour l'historique d'activité */
-    .timeline {
-        position: relative;
-        padding-left: 40px;
-        margin-bottom: 20px;
-    }
+  .timeline:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 19px;
+    height: 100%;
+    width: 2px;
+    background-color: #e9ecef;
+  }
 
-    .timeline:before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 19px;
-        height: 100%;
-        width: 2px;
-        background-color: #e9ecef;
-    }
+  .timeline-item {
+    margin-bottom: 20px;
+    position: relative;
+  }
 
-    .timeline-item {
-        margin-bottom: 20px;
-        position: relative;
-    }
+  .timeline-marker {
+    position: absolute;
+    left: -40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    z-index: 1;
+  }
 
-    .timeline-marker {
-        position: absolute;
-        left: -40px;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        z-index: 1;
-    }
+  .timeline-content {
+    padding-bottom: 15px;
+  }
 
-    .timeline-content {
-        padding-bottom: 15px;
-    }
+  .timeline-title {
+    margin: 0 0 5px 0;
+    font-weight: 600;
+  }
 
-    .timeline-title {
-        margin: 0 0 5px 0;
-        font-weight: 600;
-    }
+  .timeline-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 8px;
+  }
 
-    .timeline-date {
-        font-size: 0.85rem;
-        color: #6c757d;
-        margin-bottom: 8px;
-    }
-
-    .timeline-text {
-        margin-bottom: 0;
-    }
-</style>
-{% endblock extra_css %}
+  .timeline-text {
+    margin-bottom: 0;
+  }
+        </style>
+    {% endblock extra_css %}

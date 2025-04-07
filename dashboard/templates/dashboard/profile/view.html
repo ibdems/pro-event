@@ -1,150 +1,150 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
-
-{% block title %}Mon Profil | Tableau de Bord{% endblock title %}
-
-{% block page_title %}Mon Profil{% endblock page_title %}
-
+{% block title %}
+    Mon Profil | Tableau de Bord
+{% endblock title %}
+{% block page_title %}
+    Mon Profil
+{% endblock page_title %}
 {% block content %}
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="avatar-xl mx-auto mb-3">
-                    {% if request.user.profile.avatar %}
-                    <img src="{{ request.user.profile.avatar.url }}" class="rounded-circle img-thumbnail" alt="Photo de profil">
-                    {% else %}
-                    <div class="avatar-circle bg-primary">
-                        <span>{{ request.user.email|slice:":1"|upper }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-                <h5 class="mb-1">{{ request.user.get_full_name|default:request.user.email }}</h5>
-                <p class="text-muted">
-                    {% if request.user.is_superuser %}
-                    Administrateur
-                    {% elif request.user.is_staff %}
-                    Organisateur
-                    {% else %}
-                    Utilisateur
-                    {% endif %}
-                </p>
-                <div class="d-grid gap-2">
-                    <a href="{% url 'dashboard:profile_edit' %}" class="btn btn-primary">
-                        <i class="fas fa-edit me-2"></i>Modifier mon profil
-                    </a>
-                </div>
-            </div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-envelope me-2"></i>Email</span>
-                    <span>{{ request.user.email }}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-phone me-2"></i>Téléphone</span>
-                    <span>{{ request.user.profile.phone|default:"Non renseigné" }}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-calendar me-2"></i>Date d'inscription</span>
-                    <span>{{ request.user.date_joined|date:"d/m/Y" }}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-clock me-2"></i>Dernière connexion</span>
-                    <span>{{ request.user.last_login|date:"d/m/Y H:i"|default:"Jamais" }}</span>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="col-md-8">
-        <!-- Statistiques de l'utilisateur -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title">Vos statistiques</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <div class="stats-card">
-                            <div class="stats-card-body">
-                                <div class="stats-card-icon bg-primary">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
-                                <div class="stats-card-info">
-                                    <h3>{{ user_events_count }}</h3>
-                                    <p>Événements</p>
-                                </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="avatar-xl mx-auto mb-3">
+                        {% if request.user.profile.avatar %}
+                            <img src="{{ request.user.profile.avatar.url }}"
+                                 class="rounded-circle img-thumbnail"
+                                 alt="Photo de profil">
+                        {% else %}
+                            <div class="avatar-circle bg-primary">
+                                <span>{{ request.user.email|slice:":1"|upper }}</span>
                             </div>
-                        </div>
+                        {% endif %}
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="stats-card">
-                            <div class="stats-card-body">
-                                <div class="stats-card-icon bg-success">
-                                    <i class="fas fa-ticket-alt"></i>
-                                </div>
-                                <div class="stats-card-info">
-                                    <h3>{{ user_tickets_count }}</h3>
-                                    <p>Tickets vendus</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="stats-card">
-                            <div class="stats-card-body">
-                                <div class="stats-card-icon bg-info">
-                                    <i class="fas fa-money-bill-wave"></i>
-                                </div>
-                                <div class="stats-card-info">
-                                    <h3>{{ user_revenue }}</h3>
-                                    <p>Revenus totaux</p>
-                                </div>
-                            </div>
-                        </div>
+                    <h5 class="mb-1">{{ request.user.get_full_name|default:request.user.email }}</h5>
+                    <p class="text-muted">
+                        {% if request.user.is_superuser %}
+                            Administrateur
+                        {% elif request.user.is_staff %}
+                            Organisateur
+                        {% else %}
+                            Utilisateur
+                        {% endif %}
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'dashboard:profile_edit' %}" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Modifier mon profil
+                        </a>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Activité récente -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Activité récente</h5>
-            </div>
-            <div class="card-body">
-                <ul class="timeline">
-                    {% for activity in user_activities %}
-                    <li class="timeline-item">
-                        <div class="timeline-badge {{ activity.badge_class }}">
-                            <i class="{{ activity.icon }}"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <h6 class="timeline-title">{{ activity.title }}</h6>
-                            <p class="text-muted mb-0">{{ activity.description }}</p>
-                            <small class="text-muted">{{ activity.timestamp|date:"d/m/Y H:i" }}</small>
-                        </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-envelope me-2"></i>Email</span>
+                        <span>{{ request.user.email }}</span>
                     </li>
-                    {% empty %}
-                    <div class="text-center py-4">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            <h6>Aucune activité récente</h6>
-                            <p class="text-muted">Votre historique d'activité apparaîtra ici.</p>
-                        </div>
-                    </div>
-                    {% endfor %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-phone me-2"></i>Téléphone</span>
+                        <span>{{ request.user.profile.phone|default:"Non renseigné" }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-calendar me-2"></i>Date d'inscription</span>
+                        <span>{{ request.user.date_joined|date:"d/m/Y" }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-clock me-2"></i>Dernière connexion</span>
+                        <span>{{ request.user.last_login|date:"d/m/Y H:i"|default:"Jamais" }}</span>
+                    </li>
                 </ul>
             </div>
         </div>
+        <div class="col-md-8">
+            <!-- Statistiques de l'utilisateur -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Vos statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="stats-card">
+                                <div class="stats-card-body">
+                                    <div class="stats-card-icon bg-primary">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                    <div class="stats-card-info">
+                                        <h3>{{ user_events_count }}</h3>
+                                        <p>Événements</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="stats-card">
+                                <div class="stats-card-body">
+                                    <div class="stats-card-icon bg-success">
+                                        <i class="fas fa-ticket-alt"></i>
+                                    </div>
+                                    <div class="stats-card-info">
+                                        <h3>{{ user_tickets_count }}</h3>
+                                        <p>Tickets vendus</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="stats-card">
+                                <div class="stats-card-body">
+                                    <div class="stats-card-icon bg-info">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <div class="stats-card-info">
+                                        <h3>{{ user_revenue }}</h3>
+                                        <p>Revenus totaux</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Activité récente -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Activité récente</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="timeline">
+                        {% for activity in user_activities %}
+                            <li class="timeline-item">
+                                <div class="timeline-badge {{ activity.badge_class }}">
+                                    <i class="{{ activity.icon }}"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title">{{ activity.title }}</h6>
+                                    <p class="text-muted mb-0">{{ activity.description }}</p>
+                                    <small class="text-muted">{{ activity.timestamp|date:"d/m/Y H:i" }}</small>
+                                </div>
+                            </li>
+                        {% empty %}
+                            <div class="text-center py-4">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-history"></i>
+                                    </div>
+                                    <h6>Aucune activité récente</h6>
+                                    <p class="text-muted">Votre historique d'activité apparaîtra ici.</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 {% endblock content %}
-
 {% block extra_js %}
-<script>
+    <script>
     $(document).ready(function() {
         // Initialisation des tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -152,5 +152,5 @@
             return new bootstrap.Tooltip(tooltipTriggerEl)
         });
     });
-</script>
+    </script>
 {% endblock extra_js %}

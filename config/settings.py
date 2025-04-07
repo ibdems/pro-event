@@ -90,7 +90,7 @@ DATABASES = {
         "USER": "proevent",
         "PASSWORD": "proevent",
         "HOST": "127.0.0.1",
-        "PORT": "5432",
+        "PORT": "5460",
         "TEST": {
             "NAME": "task_test",
         },
@@ -167,6 +167,9 @@ EMAIL_HOST_PASSWORD = "kgqh dzyc keer zlfv"
 DEFAULT_FROM_EMAIL = "ibrahima882001@gmail.com"
 EMAIL_USE_TLS = True
 
+# URL de base pour les liens dans les emails
+BASE_URL = "http://127.0.0.1:8000"
+
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'localhost'
 # EMAIL_PORT = 1025
@@ -234,9 +237,9 @@ LOGGING = {
 }
 
 #  Configuration de sentry
-sentry_sdk.init(
-    dsn="https://46787407c9b7d4d646ec2c833aeeb26b@o4508716806963200.ingest.de.sentry.io/4508716810305616",
-    integrations=[DjangoIntegration(), CeleryIntegration()],
-    traces_sample_rate=1.0,
-    send_default_pii=True,
-)
+# sentry_sdk.init(
+#     dsn="https://46787407c9b7d4d646ec2c833aeeb26b@o4508716806963200.ingest.de.sentry.io/4508716810305616",
+#     integrations=[DjangoIntegration(), CeleryIntegration()],
+#     traces_sample_rate=1.0,
+#     send_default_pii=True,
+# )

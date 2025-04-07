@@ -16,7 +16,7 @@ from django_filters.views import FilterView
 
 from .filter import EventFilter
 from .forms import ContactForm, EventForms, PayementForm
-from .models import Contact, Event, InfoTicket, Ticket
+from .models import Contact, Event, InfoTicket, Invitation, Ticket
 from .tasks import generate_and_save_ticket_pdf, send_ticket_by_email
 
 
@@ -75,7 +75,8 @@ class EventView(FilterView, ListView):
     def get_queryset(self):
         qs = super().get_queryset()
         return (
-            qs.only(
+            qs.filter(statut=True)
+            .only(
                 "uid",
                 "category",
                 "title",
@@ -392,3 +393,113 @@ class ScanCodeView(View):
             return JsonResponse(
                 {"success": False, "message": "Une erreur est survenue lors de la vérification."}
             )
+
+
+class InvitationResponseView(View):
+    """Vue pour gérer les réponses aux invitations (acceptation ou refus)"""
+
+    def get_invitation(self, token, action):
+        try:
+            invitation = Invitation.objects.get(token=token)
+            if invitation.status != "pending":
+                messages.info(self.request, "Vous avez déjà répondu à cette invitation.")
+                return None
+            return invitation
+        except Invitation.DoesNotExist:
+            messages.error(self.request, "Invitation non valide ou expirée.")
+            return None
+
+    def get(self, request, *args, **kwargs):
+        token = kwargs.get("token")
+        action = kwargs.get("action")
+
+        if action not in ["accept", "decline"]:
+            messages.error(request, "Action non valide.")
+            return redirect("event:event_detail", uid=event.uid)  # noqa
+
+        invitation = self.get_invitation(token, action)
+        if not invitation:
+            return redirect("event:event_detail", uid=event.uid)  # noqa
+
+        event = invitation.event
+
+        if action == "accept":
+            # Vérifier si l'événement est toujours actif
+            if not event.statut:
+                messages.error(request, "Cet événement n'est plus actif.")
+                return redirect("event:event_detail", uid=event.uid)
+
+            # Vérifier si l'événement n'est pas déjà passé
+            if event.end_date < timezone.now():
+                messages.error(request, "Cet événement est déjà terminé.")
+                return redirect("event:event_detail", uid=event.uid)
+
+            # Vérifier la disponibilité des tickets
+            if not event.verifier_disponibilite(invitation.ticket_type, 1):
+                messages.error(
+                    request, "Désolé, il n'y a plus de places disponibles pour cet événement."
+                )
+                return redirect("event:event_detail", uid=event.uid)
+
+            # Accepter l'invitation et générer un ticket
+            if invitation.accept_invitation():
+                messages.success(
+                    request,
+                    "Votre invitation a été acceptée. Vous recevrez votre ticket par email"
+                    " sous peu.",
+                )
+            else:
+                messages.error(request, "Une erreur s'est produite. Veuillez réessayer plus tard.")
+        else:  # decline
+            if invitation.decline_invitation():
+                messages.info(
+                    request, "Vous avez décliné l'invitation. Merci de nous avoir informés."
+                )
+            else:
+                messages.error(request, "Une erreur s'est produite. Veuillez réessayer plus tard.")
+
+        return redirect("event:event_detail", uid=event.uid)
+
+
+class CheckTicketView(View):
+    def get(self, request, code):
+        try:
+            ticket = Ticket.objects.select_related("event", "payement").get(code=code)
+            if ticket.is_used:
+                return JsonResponse(
+                    {"valid": False, "message": "Ce ticket a déjà été utilisé.", "ticket": None}
+                )
+
+            # Retourner les informations du ticket
+            return JsonResponse(
+                {
+                    "valid": True,
+                    "message": "Ticket valide",
+                    "ticket": {
+                        "id": ticket.id,
+                        "code": ticket.code,
+                        "event_title": ticket.event.title,
+                        "event_date": ticket.event.start_date.strftime("%d/%m/%Y"),
+                        "type_ticket": ticket.type_ticket,
+                        "full_name": ticket.payement.fullname,
+                        "is_used": ticket.is_used,
+                    },
+                }
+            )
+        except Ticket.DoesNotExist:
+            return JsonResponse({"valid": False, "message": "Ticket introuvable", "ticket": None})
+
+    def post(self, request, code):
+        try:
+            ticket = Ticket.objects.select_related("event").get(code=code)
+            if ticket.is_used:
+                return JsonResponse({"success": False, "message": "Ce ticket a déjà été utilisé."})
+
+            # Marquer le ticket comme utilisé
+            ticket.is_used = True
+            ticket.used_at = timezone.now()
+            ticket.save(update_fields=["is_used", "used_at"])
+
+            return JsonResponse({"success": True, "message": "Ticket validé avec succès."})
+        except Ticket.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Ticket introuvable"})

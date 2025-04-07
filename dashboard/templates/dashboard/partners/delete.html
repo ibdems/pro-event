@@ -1,0 +1,81 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+    Supprimer
+    un Partenaire
+{% endblock title %}
+{% block page_title %}
+    Supprimer un
+    Partenaire
+{% endblock page_title %}
+{% block content %}
+    <div class="partner-delete-container">
+        <!-- Fil d'Ariane -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:home' %}">Tableau de bord</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:event_list' %}">Événements</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:partner_list' %}">Partenaires</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Supprimer {{ object.name }}</li>
+            </ol>
+        </nav>
+        <!-- Confirmation de suppression -->
+        <div class="card dashboard-card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Confirmation de suppression</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Attention :</strong> Cette action est irréversible!
+                </div>
+                <div class="d-flex align-items-center mb-4">
+                    {% if object.logo %}
+                        <div class="me-3">
+                            <img src="{{ object.logo.url }}"
+                                 alt="{{ object.name }}"
+                                 style="max-height: 80px;
+                                        max-width: 150px"
+                                 class="img-thumbnail" />
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h5>{{ object.name }}</h5>
+                        <p class="text-muted mb-0">{{ object.partnership_type }}</p>
+                    </div>
+                </div>
+                <p class="mb-3">Êtes-vous sûr de vouloir supprimer ce partenaire ?</p>
+                {% if object.event_partner.count > 0 %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle me-2"></i>
+                        <strong>Impossible de supprimer :</strong> Ce partenaire est
+                        actuellement associé à {{ object.event_partner.count }} événement(s).
+                        <p class="mt-2 mb-0">
+                            Veuillez d'abord retirer ce partenaire de tous les événements avant de
+                            pouvoir le supprimer.
+                        </p>
+                    </div>
+                {% else %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-actions mt-4 d-flex justify-content-between">
+                            <a href="{% url 'dashboard:partner_list' %}"
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Confirmer la suppression
+                            </button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invitation: {{ event.title }}</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      }
+      .header {
+        text-align: center;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+      }
+      .logo {
+        max-width: 150px;
+        margin-bottom: 20px;
+      }
+      .event-title {
+        color: #333;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .event-info {
+        margin: 25px 0;
+        padding: 20px;
+        background-color: #f8f8f8;
+        border-radius: 8px;
+      }
+      .info-row {
+        margin-bottom: 15px;
+      }
+      .info-label {
+        font-weight: bold;
+        color: #555;
+        margin-right: 10px;
+        min-width: 80px;
+        display: inline-block;
+      }
+      .action-buttons {
+        margin: 30px 0;
+        text-align: center;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 28px;
+        margin: 0 10px;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+      }
+      .btn-accept {
+        background-color: #4caf50;
+        color: white;
+      }
+      .btn-accept:hover {
+        background-color: #45a049;
+      }
+      .btn-decline {
+        background-color: #f44336;
+        color: white;
+      }
+      .btn-decline:hover {
+        background-color: #d32f2f;
+      }
+      .message {
+        margin: 20px 0;
+        padding: 15px;
+        border-left: 4px solid #ddd;
+        background-color: #f9f9f9;
+      }
+      .footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+      }
+      @media only screen and (max-width: 600px) {
+        .container {
+          width: 100%;
+          padding: 10px;
+        }
+        .btn {
+          display: block;
+          margin: 10px auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img
+          src="{% static 'img/logo.jpg' %}"
+          alt="ProEvent Logo"
+          class="logo"
+        />
+        <h1 class="event-title">Vous êtes invité(e) à {{ event.title }}</h1>
+        <p>
+          {{ invitation.name }}, vous avez été invité(e) à cet événement privé.
+        </p>
+      </div>
+
+      <div class="event-info">
+        <div class="info-row">
+          <span class="info-label">Date:</span>
+          <span>{{ event.start_date|date:"d F Y à H:i" }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Lieu:</span>
+          <span>{{ event.location }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Type:</span>
+          <span>{{ invitation.get_ticket_type_display }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Catégorie:</span>
+          <span>{{ event.category.name }}</span>
+        </div>
+      </div>
+
+      {% if event.description %}
+      <div class="description">
+        <h3>À propos de l'événement:</h3>
+        <p>{{ event.description|linebreaks }}</p>
+      </div>
+      {% endif %} {% if invitation.message %}
+      <div class="message">
+        <h3>Message personnel:</h3>
+        <p>{{ invitation.message|linebreaks }}</p>
+      </div>
+      {% endif %}
+
+      <div class="action-buttons">
+        <a href="{{ accept_url }}" class="btn btn-accept"
+          >Accepter l'invitation</a
+        >
+        <a href="{{ decline_url }}" class="btn btn-decline">Décliner</a>
+      </div>
+
+      <div class="footer">
+        <p>
+          Si vous avez des questions, n'hésitez pas à contacter l'organisateur
+          de l'événement.
+        </p>
+        <p>&copy; {{ now.year }} ProEvent. Tous droits réservés.</p>
+      </div>
+    </div>
+  </body>
+</html>

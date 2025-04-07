@@ -72,6 +72,21 @@ class Event(models.Model):
     class Meta:
         verbose_name = "Evenement"
 
+    @property
+    def invitations_accepted_count(self):
+        """Retourne le nombre d'invitations acceptées"""
+        return self.invitations.filter(status="accepted").count()
+
+    @property
+    def invitations_pending_count(self):
+        """Retourne le nombre d'invitations en attente"""
+        return self.invitations.filter(status="pending").count()
+
+    @property
+    def invitations_declined_count(self):
+        """Retourne le nombre d'invitations refusées"""
+        return self.invitations.filter(status="declined").count()
+
     def get_disponibilite(self):
         """Retourne la disponibilité des tickets par type"""
         try:
@@ -81,21 +96,34 @@ class Event(models.Model):
             # Créer un dictionnaire des tickets vendus
             tickets_vendus = {item["type_ticket"]: item["total"] for item in vendus}
 
+            # Nombre de tickets vendus pour chaque type
+            vendus_normal = tickets_vendus.get("normal", 0)
+            vendus_vip = tickets_vendus.get("vip", 0)
+            vendus_vvip = tickets_vendus.get("vvip", 0)
+
+            # Calculer les revenus pour chaque type de ticket
+            revenu_normal = vendus_normal * info_ticket.prix_normal
+            revenu_vip = vendus_vip * info_ticket.prix_vip
+            revenu_vvip = vendus_vvip * info_ticket.prix_vvip
+
             return {
                 "normal": {
                     "capacite": info_ticket.normal_capacity,
-                    "vendus": tickets_vendus.get("normal", 0),
-                    "disponibles": info_ticket.normal_capacity - tickets_vendus.get("normal", 0),
+                    "vendus": vendus_normal,
+                    "disponibles": info_ticket.normal_capacity - vendus_normal,
+                    "revenu": revenu_normal,
                 },
                 "vip": {
                     "capacite": info_ticket.vip_capacity,
-                    "vendus": tickets_vendus.get("vip", 0),
-                    "disponibles": info_ticket.vip_capacity - tickets_vendus.get("vip", 0),
+                    "vendus": vendus_vip,
+                    "disponibles": info_ticket.vip_capacity - vendus_vip,
+                    "revenu": revenu_vip,
                 },
                 "vvip": {
                     "capacite": info_ticket.vvip_capacity,
-                    "vendus": tickets_vendus.get("vvip", 0),
-                    "disponibles": info_ticket.vvip_capacity - tickets_vendus.get("vvip", 0),
+                    "vendus": vendus_vvip,
+                    "disponibles": info_ticket.vvip_capacity - vendus_vvip,
+                    "revenu": revenu_vvip,
                 },
             }
         except InfoTicket.DoesNotExist:
@@ -116,6 +144,20 @@ class Event(models.Model):
             return 0
 
         return sum(type_info["disponibles"] for type_info in disponibilite.values())
+
+    def get_total_revenus(self):
+        """Calcule le total des revenus générés par les tickets vendus"""
+        disponibilite = self.get_disponibilite()
+        if not disponibilite:
+            return 0
+
+        total = 0
+        # Ajouter les revenus de chaque type de ticket
+        for type_ticket, info in disponibilite.items():
+            if "revenu" in info:
+                total += info["revenu"] or 0
+
+        return total
 
     def clean(self):
         if self.start_date and self.end_date:
@@ -211,7 +253,7 @@ class Payement(models.Model):
     def save(self, *args, **kwargs):
         if not self.reference_payement:
             self.reference_payement = f"PE-PA-{uuid.uuid4().hex[:6]}".upper()
-        if self.amount <= 0:
+        if self.amount < 0:
             raise ValidationError("Le montant doit être positif.")
 
         super().save(*args, **kwargs)
@@ -266,9 +308,107 @@ class Contact(models.Model):
     is_read = models.BooleanField(default=False, verbose_name="Lu", null=True)
 
     def __str__(self):
-        return f"{self.name} - {self.subject}"
+        return self.subject
 
     class Meta:
         verbose_name = "Contact"
         verbose_name_plural = "Contacts"
+        ordering = ["-created_at"]
+
+
+class Invitation(models.Model):
+    STATUS_CHOICES = (
+        ("pending", "En attente"),
+        ("accepted", "Acceptée"),
+        ("declined", "Refusée"),
+    )
+    TICKET_TYPE_CHOICES = (
+        ("normal", "Normal"),
+        ("vip", "VIP"),
+        ("vvip", "VVIP"),
+    )
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="invitations")
+    name = models.CharField(max_length=150, verbose_name="Nom de l'invité")
+    email = models.EmailField(verbose_name="Email de l'invité")
+    message = models.TextField(verbose_name="Message personnalisé", blank=True, null=True)
+    ticket_type = models.CharField(
+        max_length=20, choices=TICKET_TYPE_CHOICES, default="normal", verbose_name="Type de ticket"
+    )
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="pending", verbose_name="Statut"
+    )
+    token = models.CharField(max_length=100, unique=True, editable=False)
+    ticket = models.OneToOneField(
+        Ticket, on_delete=models.SET_NULL, related_name="invitation", null=True, blank=True
+    )
+    sent_at = models.DateTimeField(null=True, blank=True)
+    responded_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # Générer un token unique si nouveau
+        if not self.token:
+            self.token = uuid.uuid4().hex
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Invitation pour {self.name} - {self.event.title}"
+
+    def accept_invitation(self):
+        """Accepte l'invitation et génère un ticket"""
+        if self.status != "pending":
+            return False
+
+        self.status = "accepted"
+        self.responded_at = timezone.now()
+        self.save()
+
+        # Créer un payement fictif pour l'invité
+        payement = Payement.objects.create(
+            reference_payement=f"INV-{self.uid.hex[:8]}",
+            nom_complet=self.name,
+            email_reception=self.email,
+            telephone_payement="",
+            telephone_reception="",
+            payment_method="invitation",
+            statut_payement=True,
+            quantity=1,
+            event=self.event,
+            amount=0,  # Gratuit pour les invités
+        )
+
+        # Créer un ticket pour l'invité
+        ticket = Ticket.objects.create(
+            code_ticket=f"INV-{uuid.uuid4().hex[:8]}",
+            payement=payement,
+            event=self.event,
+            type_ticket=self.ticket_type,
+        )
+
+        # Associer le ticket à l'invitation
+        self.ticket = ticket
+        self.save()
+
+        from event.tasks import generate_and_send_invitation_ticket
+
+        generate_and_send_invitation_ticket.delay(self.id)
+
+        return True
+
+    def decline_invitation(self):
+        """Refuse l'invitation"""
+        if self.status != "pending":
+            return False
+
+        self.status = "declined"
+        self.responded_at = timezone.now()
+        self.save()
+        return True
+
+    class Meta:
+        verbose_name = "Invitation"
+        verbose_name_plural = "Invitations"
         ordering = ["-created_at"]

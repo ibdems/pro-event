@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from django.db import models
+from django.utils import timezone
 
 from event.models import Event, InfoTicket
 from users.models import User
@@ -30,13 +31,18 @@ class ServiceHotesse(models.Model):
     number_hotesse = models.IntegerField()
     start_date_service = models.DateTimeField()
     end_date_service = models.DateTimeField()
-    besoin = models.TextField()  # Besoin particuliers (tenue, langue parles, ethnique.....)
+    besoin = models.TextField()
 
     def __str__(self):
         return self.number_hotesse
 
 
 class Demande(models.Model):
+    STATUS_CHOICES = (
+        ("pending", "En attente"),
+        ("accepted", "Acceptée"),
+        ("rejected", "Rejetée"),
+    )
     uid = models.UUIDField(default=uuid4, unique=True, editable=False)
     service = models.ManyToManyField(Service)
     event = models.OneToOneField(
@@ -45,7 +51,7 @@ class Demande(models.Model):
     ticket = models.OneToOneField(
         InfoTicket, on_delete=models.CASCADE, blank=True, null=True, related_name="ticket_demande"
     )
-    anonymous_user = models.OneToOneField(
+    anonymous_user = models.ForeignKey(
         AnonymousUser,
         blank=True,
         null=True,
@@ -59,7 +65,14 @@ class Demande(models.Model):
         null=True,
         related_name="service_hotesse_demande",
     )
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         User, on_delete=models.CASCADE, blank=True, null=True, related_name="user_demande"
     )
-    is_accepted = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default="pending",
+        verbose_name="Statut de la demande",
+    )
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)

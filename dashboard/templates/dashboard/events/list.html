@@ -1,148 +1,226 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
-
-{% block title %}Gestion des Événements{% endblock title %}
-
-{% block page_title %}Gestion des Événements{% endblock page_title %}
-
+{% block title %}
+    Gestion des Événements
+{% endblock title %}
+{% block page_title %}
+    Gestion des Événements
+{% endblock page_title %}
 {% block content %}
-<div class="event-management">
-    <!-- Actions bar -->
-    <div class="actions-bar mb-4">
-        <div class="row align-items-center">
-            <div class="col-md-6 mb-3 mb-md-0">
-                <h2 class="section-title mb-0">Liste des événements</h2>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
-                    <i class="fas fa-plus-circle me-2"></i>Nouvel événement
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filtres -->
-    <div class="card dashboard-card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">Filtres</h5>
-        </div>
-        <div class="card-body">
-            <form method="get" action="{% url 'dashboard:event_list' %}" class="row g-3">
-                <div class="col-md-3">
-                    <label for="category" class="form-label">Catégorie</label>
-                    <select name="category" id="category" class="form-select">
-                        <option value="">Toutes les catégories</option>
-                        {% for category in categories %}
-                        <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
-                            {{ category.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
+    <div class="event-management">
+        <!-- Actions bar -->
+        <div class="actions-bar mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <h2 class="section-title mb-0">Liste des événements</h2>
                 </div>
-                <div class="col-md-3">
-                    <label for="status" class="form-label">Statut</label>
-                    <select name="status" id="status" class="form-select">
-                        <option value="">Tous les statuts</option>
-                        <option value="1" {% if request.GET.status == '1' %}selected{% endif %}>Actif</option>
-                        <option value="0" {% if request.GET.status == '0' %}selected{% endif %}>En attente</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="date_from" class="form-label">Date (début)</label>
-                    <input type="date" class="form-control" id="date_from" name="date_from" value="{{ request.GET.date_from }}">
-                </div>
-                <div class="col-md-3">
-                    <label for="date_to" class="form-label">Date (fin)</label>
-                    <input type="date" class="form-control" id="date_to" name="date_to" value="{{ request.GET.date_to }}">
-                </div>
-                <div class="col-12 mt-4 text-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-filter me-2"></i>Filtrer
-                    </button>
-                    <a href="{% url 'dashboard:event_list' %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-redo me-2"></i>Réinitialiser
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Nouvel événement
                     </a>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
-
-    <!-- Tableau des événements -->
-    <div class="card dashboard-card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle datatable">
-                    <thead>
-                        <tr>
-                            <th>Événement</th>
-                            <th>Catégorie</th>
-                            <th>Date</th>
-                            <th>Lieu</th>
-                            <th>Type</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for event in events %}
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    {% if event.image_event %}
-                                    <img src="{{ event.image_event.url }}" alt="{{ event.title }}" class="event-thumb me-2">
+        <!-- Filtres -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Filtres</h5>
+            </div>
+            <div class="card-body">
+                <form method="get"
+                      action="{% url 'dashboard:event_list' %}"
+                      class="row g-3">
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Catégorie</label>
+                        <select name="category" id="category" class="form-control">
+                            <option value="">Toutes les catégories</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}"
+                                        {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="type_event" class="form-label">Type d'événement</label>
+                        <select name="type_event" id="type_event" class="form-control">
+                            <option value="">Tous les types</option>
+                            <option value="public"
+                                    {% if request.GET.type_event == 'public' %}selected{% endif %}>Public</option>
+                            <option value="private"
+                                    {% if request.GET.type_event == 'private' %}selected{% endif %}>Privé</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Statut</label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="">Tous les statuts</option>
+                            <option value="1" {% if request.GET.status == '1' %}selected{% endif %}>Actif</option>
+                            <option value="0" {% if request.GET.status == '0' %}selected{% endif %}>En attente</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="date_from" class="form-label">Date (début)</label>
+                        <input type="date"
+                               class="form-control"
+                               id="date_from"
+                               name="date_from"
+                               value="{{ request.GET.date_from }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="date_to" class="form-label">Date (fin)</label>
+                        <input type="date"
+                               class="form-control"
+                               id="date_to"
+                               name="date_to"
+                               value="{{ request.GET.date_to }}">
+                    </div>
+                    <div class="col-md-9">
+                        <label for="title" class="form-label">Recherche par titre</label>
+                        <input type="text"
+                               class="form-control"
+                               id="title"
+                               name="title"
+                               value="{{ request.GET.title }}"
+                               placeholder="Rechercher un événement...">
+                    </div>
+                    <div class="col-12 mt-4 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-2"></i>Filtrer
+                        </button>
+                        <a href="{% url 'dashboard:event_list' %}"
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Tableau des événements -->
+        <div class="card dashboard-card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle datatable">
+                        <thead>
+                            <tr>
+                                <th>Événement</th>
+                                <th>Catégorie</th>
+                                <th>Date</th>
+                                <th>Lieu</th>
+                                <th>Type</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if event.image %}
+                                                <img src="{{ event.image.url }}"
+                                                     alt="{{ event.title }}"
+                                                     class="event-thumb me-2">
+                                            {% else %}
+                                                <div class="event-thumb-placeholder me-2">
+                                                    <i class="fas fa-calendar"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-0">{{ event.title }}</h6>
+                                                <small class="text-muted">Par:
+                                                    {% if event.user %}
+                                                        {{ event.user.get_full_name|default:event.user.email }}
+                                                    {% else %}
+                                                        Demande automatique
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ event.category.name }}</td>
+                                    <td>
+                                        {{ event.start_date|date:"d/m/Y" }} <small class="d-block text-muted">{{ event.start_date|date:"H:i" }}</small>
+                                </td>
+                                <td>{{ event.location }}</td>
+                                <td>
+                                    {% if event.type_event == 'private' %}
+                                        <span class="badge bg-info">Privé</span>
                                     {% else %}
-                                    <div class="event-thumb-placeholder me-2"><i class="fas fa-calendar"></i></div>
+                                        <span class="badge bg-success">Public</span>
                                     {% endif %}
-                                    <div>
-                                        <h6 class="mb-0">{{ event.title }}</h6>
-                                        <small class="text-muted">Par: {{ event.user.get_full_name|default:event.user.email }}</small>
+                                </td>
+                                <td>
+                                    {% if event.statut %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">En attente</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'dashboard:event_edit' uid=event.uid %}"
+                                           class="btn btn-sm btn-outline-primary"
+                                           data-bs-toggle="tooltip"
+                                           title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'dashboard:event_detail' uid=event.uid %}"
+                                           class="btn btn-sm btn-outline-info"
+                                           data-bs-toggle="tooltip"
+                                           title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if event.type_event == 'private' %}
+                                            <a href="{% url 'dashboard:event_detail' uid=event.uid %}#invitations"
+                                               class="btn btn-sm btn-outline-purple"
+                                               data-bs-toggle="tooltip"
+                                               title="Gérer les invitations">
+                                                <i class="fas fa-envelope"></i>
+                                            </a>
+                                        {% endif %}
+                                        {% if event.statut %}
+                                            <form method="post"
+                                                  action="{% url 'dashboard:event_deactivate' uid=event.uid %}"
+                                                  class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-warning"
+                                                        data-bs-toggle="tooltip"
+                                                        title="Désactiver">
+                                                    <i class="fas fa-toggle-off"></i>
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <form method="post"
+                                                  action="{% url 'dashboard:event_activate' uid=event.uid %}"
+                                                  class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-success"
+                                                        data-bs-toggle="tooltip"
+                                                        title="Activer">
+                                                    <i class="fas fa-toggle-on"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
                                     </div>
-                                </div>
-                            </td>
-                            <td>{{ event.category.name }}</td>
-                            <td>{{ event.date_event|date:"d/m/Y" }} <small class="d-block text-muted">{{ event.date_event|date:"H:i" }}</small></td>
-                            <td>{{ event.location }}</td>
-                            <td>
-                                {% if event.type_event %}
-                                <span class="badge bg-info">Privé</span>
-                                {% else %}
-                                <span class="badge bg-success">Public</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if event.statut %}
-                                <span class="badge bg-success">Actif</span>
-                                {% else %}
-                                <span class="badge bg-warning">En attente</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="{% url 'dashboard:event_edit' uid=event.uid %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Modifier">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="{% url 'event:detail' slug=event.slug %}" target="_blank" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="Voir">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{% url 'dashboard:event_delete' uid=event.uid %}" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Supprimer">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center py-4">
-                                <div class="empty-state">
-                                    <i class="fas fa-calendar-times fa-3x mb-3 text-muted"></i>
-                                    <h5>Aucun événement trouvé</h5>
-                                    <p class="text-muted">Il n'y a pas d'événements correspondant à vos critères.</p>
-                                    <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
-                                        <i class="fas fa-plus-circle me-2"></i>Créer un événement
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="empty-state">
+                                        <i class="fas fa-calendar-times fa-3x mb-3 text-muted"></i>
+                                        <h5>Aucun événement trouvé</h5>
+                                        <p class="text-muted">Il n'y a pas d'événements correspondant à vos critères.</p>
+                                        <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
+                                            <i class="fas fa-plus-circle me-2"></i>Créer un événement
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -151,14 +229,11 @@
     </div>
 </div>
 {% endblock content %}
-
 {% block extra_js %}
-<script>
+    <script>
     $(document).ready(function() {
-        $('.datatable').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json'
-            },
+        // Utiliser la fonction globale définie dans base.html
+        initializeDataTable('.datatable', {
             order: [[2, 'desc']], // Trier par date (3ème colonne) par défaut
             columnDefs: [
                 { orderable: false, targets: [0, 6] } // Désactiver le tri pour les colonnes d'image et d'actions
@@ -171,5 +246,37 @@
             return new bootstrap.Tooltip(tooltipTriggerEl)
         });
     });
-</script>
+    </script>
 {% endblock extra_js %}
+{% block extra_css %}
+    <style>
+    .event-thumb {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        object-fit: cover;
+    }
+    .event-thumb-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+    .empty-state {
+        padding: 2rem 0;
+    }
+    .btn-outline-purple {
+        color: #6f42c1;
+        border-color: #6f42c1;
+    }
+    .btn-outline-purple:hover {
+        color: #fff;
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+    }
+    </style>
+{% endblock extra_css %}

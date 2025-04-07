@@ -24,7 +24,10 @@ class DemandeView(View):
 
     def post(self, request):
         print(request.POST)
-        selected_services = request.POST.getlist("selected_services")
+        # Récupération des services sélectionnés
+        selected_services_input = request.POST.get("selected_services", "")
+        selected_services = selected_services_input.split(",") if selected_services_input else []
+
         forms_data = {
             "anonymous_user": AnonymousUserForms(request.POST),
             "event": EventForms(request.POST),
@@ -53,15 +56,20 @@ class DemandeView(View):
             else:
                 instances["event"] = forms_data["event"].save(commit=False)
                 instances["event"].statut = False
+                # Associer l'utilisateur à l'événement si authentifié
+                if request.user.is_authenticated:
+                    instances["event"].user = request.user
 
         if "ticket" in selected_services:
             if not forms_data["event"].is_valid() or not forms_data["ticket"].is_valid():
                 print(f" {forms_data["event"].errors}, {forms_data["ticket"].errors}")
                 is_valid = False
             else:
-
                 instances["event"] = forms_data["event"].save(commit=False)
                 instances["event"].statut = False
+                # Associer l'utilisateur à l'événement si authentifié
+                if request.user.is_authenticated:
+                    instances["event"].user = request.user
                 instances["ticket"] = forms_data["ticket"].save(commit=False)
                 instances["ticket"].event = instances["event"]
                 print(instances["ticket"])

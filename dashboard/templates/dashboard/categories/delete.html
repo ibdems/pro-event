@@ -1,0 +1,69 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+    Supprimer
+    une Catégorie
+{% endblock title %}
+{% block page_title %}
+    Supprimer une
+    Catégorie
+{% endblock page_title %}
+{% block content %}
+    <div class="category-delete-container">
+        <!-- Fil d'Ariane -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:home' %}">Tableau de bord</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:event_list' %}">Événements</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:category_list' %}">Catégories</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Supprimer {{ object.name }}</li>
+            </ol>
+        </nav>
+        <!-- Confirmation de suppression -->
+        <div class="card dashboard-card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Confirmation de suppression</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Attention :</strong> Cette action est irréversible!
+                </div>
+                <p class="mb-3">
+                    Êtes-vous sûr de vouloir supprimer la catégorie
+                    <strong>"{{ object.name }}"</strong> ?
+                </p>
+                {% if object.event_set.count > 0 %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle me-2"></i>
+                        <strong>Impossible de supprimer :</strong> Cette catégorie est
+                        actuellement utilisée par {{ object.event_set.count }} événement(s).
+                        <p class="mt-2 mb-0">
+                            Veuillez d'abord changer la catégorie de ces événements avant de
+                            pouvoir la supprimer.
+                        </p>
+                    </div>
+                {% else %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-actions mt-4 d-flex justify-content-between">
+                            <a href="{% url 'dashboard:category_list' %}"
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Confirmer la suppression
+                            </button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,98 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+    Gestion
+    des Partenaires
+{% endblock title %}
+{% block page_title %}
+    Gestion des
+    Partenaires
+{% endblock page_title %}
+{% block content %}
+    <div class="partner-management-container">
+        <!-- Fil d'Ariane -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:home' %}">Tableau de bord</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:event_list' %}">Événements</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Partenaires</li>
+            </ol>
+        </nav>
+        <!-- Entête avec bouton d'ajout -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0">Liste des partenaires</h3>
+            <a href="{% url 'dashboard:partner_add' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Ajouter un partenaire
+            </a>
+        </div>
+        <!-- Tableau des partenaires -->
+        <div class="card dashboard-card">
+            <div class="card-body">
+                {% if partners %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Logo</th>
+                                    <th>Nom</th>
+                                    <th>Type de partenariat</th>
+                                    <th>Événements</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for partner in partners %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>
+                                            {% if partner.logo %}
+                                                <img src="{{ partner.logo.url }}"
+                                                     alt="{{ partner.name }}"
+                                                     style="max-height: 40px;
+                                                            max-width: 80px" />
+                                            {% else %}
+                                                <div class="badge bg-secondary">Pas de logo</div>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ partner.name }}</td>
+                                        <td>
+                                            <span class="badge bg-info">{{ partner.partnership_type }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ partner.event_count }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{% url 'dashboard:partner_edit' partner.id %}"
+                                                   class="btn btn-outline-primary"
+                                                   title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'dashboard:partner_delete' partner.id %}"
+                                                   class="btn btn-outline-danger"
+                                                   title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucun partenaire n'a encore été créé.
+                        <a href="{% url 'dashboard:partner_add' %}" class="alert-link">Créer un partenaire</a>.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -20,47 +20,172 @@ class PartnerForms(forms.ModelForm):
 
 class EventForms(forms.ModelForm):
     category = forms.ModelChoiceField(
-        queryset=Category.objects.all(), empty_label="Choisir une catégorie"
+        queryset=Category.objects.all(),
+        empty_label="Choisir une catégorie",
+        widget=forms.Select(attrs={"class": "form-control form-select"}),
     )
     partner = forms.ModelMultipleChoiceField(
-        queryset=Partner.objects.all(), required=False, widget=forms.CheckboxSelectMultiple
+        queryset=Partner.objects.all(),
+        required=False,
+        widget=forms.SelectMultiple(attrs={"class": "form-control form-select", "size": "3"}),
+    )
+    statut = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
+    type_event = forms.ChoiceField(
+        choices=Event.type_choices, widget=forms.Select(attrs={"class": "form-control form-select"})
     )
 
     class Meta:
         model = Event
         fields = (
-            "category",
             "title",
+            "category",
             "description",
+            "type_event",
             "start_date",
             "end_date",
             "location",
             "image",
-            "type_event",
             "partner",
+            "statut",
         )
         widgets = {
+            "title": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Titre de l'événement"}
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Description détaillée de l'événement",
+                }
+            ),
+            "location": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Lieu de l'événement"}
+            ),
+            "image": forms.FileInput(attrs={"class": "form-control"}),
             "start_date": forms.DateTimeInput(
-                format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local", "class": "form-control"}
+                format="%Y-%m-%dT%H:%M",
+                attrs={
+                    "type": "datetime-local",
+                    "class": "form-control",
+                    "placeholder": "Date et heure de début",
+                    "step": "900",  # Par pas de 15 minutes (900 secondes)
+                },
             ),
             "end_date": forms.DateTimeInput(
-                format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local", "class": "form-control"}
+                format="%Y-%m-%dT%H:%M",
+                attrs={
+                    "type": "datetime-local",
+                    "class": "form-control",
+                    "placeholder": "Date et heure de fin",
+                    "step": "900",  # Par pas de 15 minutes (900 secondes)
+                },
             ),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["start_date"].input_formats = ("%Y-%m-%dT%H:%M",)
+        self.fields["end_date"].input_formats = ("%Y-%m-%dT%H:%M",)
+
+        # Rendre les champs obligatoires plus évidents
+        required_fields = [
+            "title",
+            "category",
+            "description",
+            "type_event",
+            "start_date",
+            "end_date",
+            "location",
+        ]
+        for field_name in required_fields:
+            if field_name in self.fields:
+                self.fields[field_name].widget.attrs["required"] = "required"
+
 
 class TicketForms(forms.ModelForm):
+    type_access = forms.ChoiceField(
+        choices=(("gratuit", "Gratuit"), ("payant", "Payant")),
+        widget=forms.Select(attrs={"class": "form-control form-select"}),
+    )
+
     class Meta:
         model = InfoTicket
         fields = (
-            "normal_capacity",
-            "vip_capacity",
-            "vvip_capacity",
-            "prix_normal",
-            "prix_vip",
-            "prix_vvip",
             "type_access",
+            "normal_capacity",
+            "prix_normal",
+            "vip_capacity",
+            "prix_vip",
+            "vvip_capacity",
+            "prix_vvip",
         )
+        widgets = {
+            "normal_capacity": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "1",
+                    "placeholder": "Capacité pour les tickets normaux",
+                }
+            ),
+            "vip_capacity": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "0",
+                    "placeholder": "Capacité pour les tickets VIP",
+                }
+            ),
+            "vvip_capacity": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "0",
+                    "placeholder": "Capacité pour les tickets VVIP",
+                }
+            ),
+            "prix_normal": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "0",
+                    "placeholder": "Prix en FG pour les tickets normaux",
+                }
+            ),
+            "prix_vip": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "0",
+                    "placeholder": "Prix en FG pour les tickets VIP",
+                }
+            ),
+            "prix_vvip": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "0",
+                    "placeholder": "Prix en FG pour les tickets VVIP",
+                }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Rendre les champs obligatoires plus évidents
+        required_fields = ["type_access", "normal_capacity"]
+        for field_name in required_fields:
+            if field_name in self.fields:
+                self.fields[field_name].widget.attrs["required"] = "required"
+
+        # Ajouter des descriptions aux champs
+        self.fields["normal_capacity"].help_text = "Nombre total de tickets normaux disponibles"
+        self.fields["vip_capacity"].help_text = (
+            "Nombre total de tickets VIP disponibles (0 pour aucun)"
+        )
+        self.fields["vvip_capacity"].help_text = (
+            "Nombre total de tickets VVIP disponibles (0 pour aucun)"
+        )
+        self.fields["prix_normal"].help_text = "Prix unitaire en Francs Guinéens (FG)"
+        self.fields["prix_vip"].help_text = "Prix unitaire en Francs Guinéens (FG)"
+        self.fields["prix_vvip"].help_text = "Prix unitaire en Francs Guinéens (FG)"
 
 
 class ContactForm(forms.ModelForm):

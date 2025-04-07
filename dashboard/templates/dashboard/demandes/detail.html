@@ -1,520 +1,619 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
-
-{% block title %}Détails de la Demande{% endblock title %}
-
-{% block page_title %}Détails de la Demande #{{ demande.id }}{% endblock page_title %}
-
+{% block title %}
+    Détails
+    de la Demande
+{% endblock title %}
+{% block page_title %}
+    Détails de la Demande
+    #{{ numero_demande }}
+{% endblock page_title %}
 {% block content %}
-<div class="demande-detail">
-    <!-- Fil d'Ariane -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Tableau de bord</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'dashboard:demande_list' %}">Demandes</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Demande #{{ demande.id }}</li>
-        </ol>
-    </nav>
-
-    <!-- Actions bar -->
-    <div class="actions-bar mb-4">
-        <div class="row align-items-center">
-            <div class="col-md-6 mb-3 mb-md-0">
-                <span class="badge {% if demande.is_accepted %}bg-success{% else %}bg-warning{% endif %} status-badge">
-                    {% if demande.is_accepted %}
-                    <i class="fas fa-check-circle me-1"></i> Acceptée
-                    {% else %}
-                    <i class="fas fa-clock me-1"></i> En attente
-                    {% endif %}
-                </span>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <div class="btn-group">
-                    {% if not demande.is_accepted %}
-                    <form method="post" action="{% url 'dashboard:demande_accept' uid=demande.uid %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success me-2">
-                            <i class="fas fa-check me-2"></i>Accepter
-                        </button>
-                    </form>
-                    {% else %}
-                    <form method="post" action="{% url 'dashboard:demande_reject' uid=demande.uid %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-warning me-2">
-                            <i class="fas fa-times me-2"></i>Rejeter
-                        </button>
-                    </form>
-                    {% endif %}
-                    <a href="#" class="btn btn-outline-secondary me-2" id="print-demande">
-                        <i class="fas fa-print me-2"></i>Imprimer
-                    </a>
-                    <a href="{% url 'dashboard:demande_list' %}" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left me-2"></i>Retour
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Informations principales -->
-        <div class="col-lg-8">
-            <!-- Carte des services demandés -->
-            <div class="card dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-list-alt me-2"></i>Services demandés</h5>
-                </div>
-                <div class="card-body">
-                    <div class="services-list">
-                        {% for service in services %}
-                        <div class="service-item mb-3">
-                            <div class="service-icon bg-primary">
-                                <i class="fas fa-{% if service.accronyme == 'event' %}calendar-alt{% elif service.accronyme == 'ticket' %}ticket-alt{% else %}user-tie{% endif %}"></i>
-                            </div>
-                            <div class="service-info">
-                                <h5>{{ service.name }}</h5>
-                                <p>{{ service.description }}</p>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-info-circle me-2"></i>Aucun service spécifique demandé.
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Informations sur l'événement (si disponible) -->
-            {% if demande.event %}
-            <div class="card dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-calendar-alt me-2"></i>Informations sur l'événement</h5>
-                </div>
-                <div class="card-body">
-                    <div class="event-header mb-3">
-                        {% if demande.event.image_event %}
-                        <div class="event-image">
-                            <img src="{{ demande.event.image_event.url }}" alt="{{ demande.event.title }}">
-                        </div>
+    <div class="demande-detail">
+        <!-- Fil d'Ariane -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:home' %}">Tableau de bord</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:demande_list' %}">Demandes</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Demande #{{ numero_demande }}</li>
+            </ol>
+        </nav>
+        <!-- Actions bar -->
+        <div class="actions-bar mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <span class="badge {% if is_accepted %}bg-success {% elif is_rejected %}bg-danger {% else %}bg-warning{% endif %} status-badge">
+                        {% if is_accepted %}
+                            <i class="fas fa-check-circle me-1"></i> Acceptée
+                        {% elif is_rejected %}
+                            <i class="fas fa-times-circle me-1"></i> Rejetée
+                        {% else %}
+                            <i class="fas fa-clock me-1"></i> En attente
                         {% endif %}
-                        <div class="event-main-info">
-                            <h4>{{ demande.event.title }}</h4>
-                            <div class="event-meta">
-                                <span><i class="fas fa-map-marker-alt me-1"></i>{{ demande.event.location }}</span>
-                                <span><i class="fas fa-calendar me-1"></i>{{ demande.event.date_event|date:"d/m/Y H:i" }}</span>
-                                <span><i class="fas fa-tag me-1"></i>{{ demande.event.category.name }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="event-description">
-                        <h6>Description</h6>
-                        <p>{{ demande.event.description }}</p>
-                    </div>
-
-                    <div class="event-details mt-3">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6>Type d'événement</h6>
-                                <p>{% if demande.event.type_event %}Privé{% else %}Public{% endif %}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <h6>Statut</h6>
-                                <p>{% if demande.event.statut %}Actif{% else %}En attente{% endif %}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="event-actions mt-3">
-                        <a href="{% url 'dashboard:event_edit' uid=demande.event.uid %}" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-edit me-1"></i>Modifier l'événement
+                    </span>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="btn-group">
+                        {% if is_pending %}
+                            <button type="button"
+                                    class="btn btn-success me-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#acceptDemandeModal">
+                                <i class="fas fa-check me-2"></i>Accepter
+                            </button>
+                            <button type="button"
+                                    class="btn btn-danger me-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rejectDemandeModal">
+                                <i class="fas fa-times me-2"></i>Rejeter
+                            </button>
+                        {% endif %}
+                        <a href="#" class="btn btn-outline-secondary me-2" id="print-demande">
+                            <i class="fas fa-print me-2"></i>Imprimer
                         </a>
-                        <a href="{% url 'event:detail' slug=demande.event.slug %}" target="_blank" class="btn btn-outline-info btn-sm">
-                            <i class="fas fa-eye me-1"></i>Voir la page publique
+                        <a href="{% url 'dashboard:demande_list' %}"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour
                         </a>
                     </div>
                 </div>
             </div>
-            {% endif %}
-
-            <!-- Informations sur les tickets (si disponible) -->
-            {% if demande.ticket %}
-            <div class="card dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-ticket-alt me-2"></i>Configuration des tickets</h5>
-                </div>
-                <div class="card-body">
-                    <div class="tickets-config">
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <div class="ticket-type-card">
-                                    <div class="ticket-type-header bg-primary">
-                                        <h6>STANDARD</h6>
-                                    </div>
-                                    <div class="ticket-type-body">
-                                        <div class="ticket-type-price">{{ demande.ticket.price_normal }} FCFA</div>
-                                        <div class="ticket-type-capacity">
-                                            <i class="fas fa-users me-1"></i>{{ demande.ticket.capacite_normal }} places
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="ticket-type-card">
-                                    <div class="ticket-type-header bg-success">
-                                        <h6>VIP</h6>
-                                    </div>
-                                    <div class="ticket-type-body">
-                                        <div class="ticket-type-price">{{ demande.ticket.price_vip }} FCFA</div>
-                                        <div class="ticket-type-capacity">
-                                            <i class="fas fa-users me-1"></i>{{ demande.ticket.capacite_vip }} places
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="ticket-type-card">
-                                    <div class="ticket-type-header bg-warning">
-                                        <h6>VVIP</h6>
-                                    </div>
-                                    <div class="ticket-type-body">
-                                        <div class="ticket-type-price">{{ demande.ticket.price_vvip }} FCFA</div>
-                                        <div class="ticket-type-capacity">
-                                            <i class="fas fa-users me-1"></i>{{ demande.ticket.capacite_vvip }} places
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Service d'hôtesses (si disponible) -->
-            {% if demande.service_hotesse %}
-            <div class="card dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-user-tie me-2"></i>Service d'hôtesses</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="info-card">
-                                <div class="info-card-label">Nombre d'hôtesses</div>
-                                <div class="info-card-value">{{ demande.service_hotesse.number_hotesse }}</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="info-card">
-                                <div class="info-card-label">Période</div>
-                                <div class="info-card-value">
-                                    Du {{ demande.service_hotesse.start_date_service|date:"d/m/Y H:i" }}
-                                    <br>
-                                    Au {{ demande.service_hotesse.end_date_service|date:"d/m/Y H:i" }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="info-card">
-                                <div class="info-card-label">Besoins particuliers</div>
-                                <div class="info-card-value">{{ demande.service_hotesse.besoin }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
         </div>
-
-        <!-- Informations latérales -->
-        <div class="col-lg-4">
-            <!-- Informations sur le demandeur -->
-            <div class="card dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-user me-2"></i>Informations du demandeur</h5>
+        <div class="row">
+            <!-- Informations principales -->
+            <div class="col-lg-8">
+                <!-- Carte des services demandés -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-list-alt me-2"></i>Services demandés
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="services-list">
+                            {% for service in services %}
+                                <div class="service-item mb-3">
+                                    <div class="service-icon bg-primary">
+                                        <i class="fas fa-{% if service.accronyme == 'event' %}calendar-alt{% elif service.accronyme == 'ticket' %}ticket-alt{% else %}user-tie{% endif %}"></i>
+                                    </div>
+                                    <div class="service-info">
+                                        <h5>{{ service.name }}</h5>
+                                        <p>{{ service.description }}</p>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>Aucun service spécifique
+                                    demandé.
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    {% if demande.user %}
-                    <div class="demandeur-info">
-                        <div class="user-avatar mb-3">
-                            <img src="{% static 'img/default-avatar.png' %}" alt="{{ demande.user.get_full_name }}">
+                <!-- Informations sur l'événement (si disponible) -->
+                {% if demande.event %}
+                    <div class="card dashboard-card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-calendar-alt me-2"></i>Informations sur l'événement
+                            </h5>
                         </div>
-                        <h5 class="demandeur-name">{{ demande.user.get_full_name|default:demande.user.email }}</h5>
-                        <div class="demandeur-meta">
-                            <p><i class="fas fa-envelope me-2"></i>{{ demande.user.email }}</p>
-                            {% if demande.user.phone %}
-                            <p><i class="fas fa-phone me-2"></i>{{ demande.user.phone }}</p>
-                            {% endif %}
-                        </div>
-                        <div class="demandeur-badge mt-2">
-                            <span class="badge bg-info"><i class="fas fa-user-check me-1"></i>Utilisateur enregistré</span>
-                        </div>
-                        <div class="demandeur-actions mt-3">
-                            <a href="{% url 'dashboard:user_detail' pk=demande.user.id %}" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-eye me-1"></i>Voir le profil
-                            </a>
+                        <div class="card-body">
+                            <div class="event-header mb-3">
+                                {% if demande.event.image %}
+                                    <div class="event-image">
+                                        <img src="{{ demande.event.image.url }}" alt="{{ demande.event.title }}" />
+                                    </div>
+                                {% endif %}
+                                <div class="event-main-info">
+                                    <h4>{{ demande.event.title }}</h4>
+                                    <div class="event-meta">
+                                        <span>
+                                            <i class="fas fa-map-marker-alt me-1"></i>
+                                            {{ demande.event.location }}
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ demande.event.start_date|date:"d/m/Y H:i" }}
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-tag me-1"></i>
+                                            {{ demande.event.category.name }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="event-description">
+                                <h6>Description</h6>
+                                <p>{{ demande.event.description }}</p>
+                            </div>
+                            <div class="event-details mt-3">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Type d'événement</h6>
+                                        <p>
+                                            {% if demande.event.type_event == 'private' %}
+                                                Privé
+                                            {% else %}
+                                                Public
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Statut</h6>
+                                        <p>
+                                            {% if demande.event.statut %}
+                                                Actif
+                                            {% else %}
+                                                En attente
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="event-actions mt-3">
+                                <a href="{% url 'dashboard:event_edit' uid=demande.event.uid %}"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit me-1"></i>Modifier l'événement
+                                </a>
+                                <a href="{% url 'dashboard:event_detail' uid=demande.event.uid %}"
+                                   target="_blank"
+                                   class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Voir la page generale
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    {% elif demande.anonymous_user %}
-                    <div class="demandeur-info">
-                        <div class="user-avatar mb-3">
-                            <img src="{% static 'img/default-avatar.png' %}" alt="{{ demande.anonymous_user.first_name }}">
+                {% endif %}
+                <!-- Informations sur les tickets (si disponible) -->
+                {% if demande.ticket %}
+                    <div class="card dashboard-card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-ticket-alt me-2"></i>Configuration des tickets
+                            </h5>
                         </div>
-                        <h5 class="demandeur-name">{{ demande.anonymous_user.first_name }} {{ demande.anonymous_user.last_name }}</h5>
-                        <div class="demandeur-meta">
-                            <p><i class="fas fa-envelope me-2"></i>{{ demande.anonymous_user.email }}</p>
-                            <p><i class="fas fa-phone me-2"></i>{{ demande.anonymous_user.contact }}</p>
-                        </div>
-                        <div class="demandeur-badge mt-2">
-                            <span class="badge bg-secondary"><i class="fas fa-user me-1"></i>Utilisateur anonyme</span>
+                        <div class="card-body">
+                            <div class="tickets-config">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="ticket-type-card">
+                                            <div class="ticket-type-header bg-primary">
+                                                <h6>STANDARD</h6>
+                                            </div>
+                                            <div class="ticket-type-body">
+                                                <div class="ticket-type-price">{{ demande.ticket.price_normal }} FG</div>
+                                                <div class="ticket-type-capacity">
+                                                    <i class="fas fa-users me-1"></i>
+                                                    {{ demande.ticket.capacite_normal }} places
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="ticket-type-card">
+                                            <div class="ticket-type-header bg-success">
+                                                <h6>VIP</h6>
+                                            </div>
+                                            <div class="ticket-type-body">
+                                                <div class="ticket-type-price">{{ demande.ticket.price_vip }} FG</div>
+                                                <div class="ticket-type-capacity">
+                                                    <i class="fas fa-users me-1"></i>
+                                                    {{ demande.ticket.capacite_vip }} places
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="ticket-type-card">
+                                            <div class="ticket-type-header bg-warning">
+                                                <h6>VVIP</h6>
+                                            </div>
+                                            <div class="ticket-type-body">
+                                                <div class="ticket-type-price">{{ demande.ticket.price_vvip }} FG</div>
+                                                <div class="ticket-type-capacity">
+                                                    <i class="fas fa-users me-1"></i>
+                                                    {{ demande.ticket.capacite_vvip }} places
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    {% else %}
-                    <div class="alert alert-warning mb-0">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Aucune information sur le demandeur n'est disponible.
+                {% endif %}
+                <!-- Service d'hôtesses (si disponible) -->
+                {% if demande.service_hotesse %}
+                    <div class="card dashboard-card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-user-tie me-2"></i>Service d'hôtesses
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <div class="info-card-label">Nombre d'hôtesses</div>
+                                        <div class="info-card-value">{{ demande.service_hotesse.number_hotesse }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <div class="info-card-label">Période</div>
+                                        <div class="info-card-value">
+                                            Du
+                                            {{ demande.service_hotesse.start_date_service|date:"d/m/Y H:i" }}
+                                            <br />
+                                            Au
+                                            {{ demande.service_hotesse.end_date_service|date:"d/m/Y H:i" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="info-card">
+                                        <div class="info-card-label">Besoins particuliers</div>
+                                        <div class="info-card-value">{{ demande.service_hotesse.besoin }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    {% endif %}
+                {% endif %}
+            </div>
+            <!-- Informations latérales -->
+            <div class="col-lg-4">
+                <!-- Informations sur le demandeur -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-user me-2"></i>Informations du demandeur
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if demande.user %}
+                            <div class="demandeur-info">
+                                <div class="user-avatar mb-3">
+                                    <img src="{% static 'img/default-avatar.png' %}"
+                                         alt="{{ demande.user.get_full_name }}" />
+                                </div>
+                                <h5 class="demandeur-name">{{ demande.user.get_full_name|default:demande.user.email }}</h5>
+                                <div class="demandeur-meta">
+                                    <p>
+                                        <i class="fas fa-envelope me-2"></i>{{ demande.user.email }}
+                                    </p>
+                                    {% if demande.user.phone %}
+                                        <p>
+                                            <i class="fas fa-phone me-2"></i>{{ demande.user.phone }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                <div class="demandeur-badge mt-2">
+                                    <span class="badge bg-info"><i class="fas fa-user-check me-1"></i>Utilisateur
+                                    enregistré</span>
+                                </div>
+                                <div class="demandeur-actions mt-3">
+                                    <a href="{% url 'dashboard:user_detail' pk=demande.user.id %}"
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>Voir le profil
+                                    </a>
+                                </div>
+                            </div>
+                        {% elif demande.anonymous_user %}
+                            <div class="demandeur-info">
+                                <div class="user-avatar mb-3">
+                                    <img src="{% static 'img/default-avatar.png' %}"
+                                         alt="{{ demande.anonymous_user.first_name }}" />
+                                </div>
+                                <h5 class="demandeur-name">
+                                    {{ demande.anonymous_user.first_name }}
+                                    {{ demande.anonymous_user.last_name }}
+                                </h5>
+                                <div class="demandeur-meta">
+                                    <p>
+                                        <i class="fas fa-envelope me-2"></i>
+                                        {{ demande.anonymous_user.email }}
+                                    </p>
+                                    <p>
+                                        <i class="fas fa-phone me-2"></i>
+                                        {{ demande.anonymous_user.contact }}
+                                    </p>
+                                </div>
+                                <div class="demandeur-badge mt-2">
+                                    <span class="badge bg-secondary"><i class="fas fa-user me-1"></i>Utilisateur anonyme</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning mb-0">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Aucune information
+                                sur le demandeur n'est disponible.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- Détails de la demande -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-info-circle me-2"></i>Détails de la demande
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Numéro</span>
+                                <span class="badge bg-primary">#{{ numero_demande }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>UUID</span>
+                                <span class="text-muted small">{{ demande.uid }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Statut</span>
+                                <span class="badge {% if is_accepted %}bg-success{% elif is_rejected %}bg-danger{% else %}bg-warning{% endif %}">
+                                    {% if is_accepted %}
+                                        Acceptée
+                                    {% elif is_rejected %}
+                                        Rejetée
+                                    {% else %}
+                                        En attente
+                                    {% endif %}
+                                </span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Date de création</span>
+                                <span>{{ demande.created_at|date:"d/m/Y H:i"|default:"Non disponible" }}</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-
-            <!-- Détails de la demande -->
-            <div class="card dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Détails de la demande</h5>
+        </div>
+    </div>
+    <!-- Modal de confirmation pour accepter une demande -->
+    <div class="modal fade"
+         id="acceptDemandeModal"
+         tabindex="-1"
+         aria-labelledby="acceptDemandeModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="acceptDemandeModalLabel">Confirmer l'acceptation</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                 </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>ID de la demande</span>
-                            <span class="badge bg-primary">#{{ demande.id }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>UUID</span>
-                            <span class="text-muted small">{{ demande.uid }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Statut</span>
-                            <span class="badge {% if demande.is_accepted %}bg-success{% else %}bg-warning{% endif %}">
-                                {% if demande.is_accepted %}Acceptée{% else %}En attente{% endif %}
-                            </span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Date de création</span>
-                            <span>{{ demande.created_at|date:"d/m/Y H:i"|default:"Non disponible" }}</span>
-                        </li>
-                    </ul>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir accepter cette demande ?</p>
+                    <p>Si la demande concerne un événement, celui-ci sera automatiquement activé.</p>
                 </div>
-            </div>
-
-            <!-- Carte de notes -->
-            <div class="card dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
-                </div>
-                <div class="card-body">
-                    <form id="notesForm" class="notes-form">
-                        <div class="mb-3">
-                            <textarea class="form-control" id="demande-notes" rows="4" placeholder="Ajouter des notes sur cette demande..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="fas fa-save me-1"></i>Enregistrer
-                        </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form id="acceptDemandeForm"
+                          method="post"
+                          action="{% url 'dashboard:demande_accept' uid=demande.uid %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Accepter</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-</div>
+    <!-- Modal de confirmation pour rejeter une demande -->
+    <div class="modal fade"
+         id="rejectDemandeModal"
+         tabindex="-1"
+         aria-labelledby="rejectDemandeModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectDemandeModalLabel">Confirmer le rejet</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir rejeter cette demande ?</p>
+                    <p>Si la demande concerne un événement, celui-ci restera désactivé.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form id="rejectDemandeForm"
+                          method="post"
+                          action="{% url 'dashboard:demande_reject' uid=demande.uid %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Rejeter</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
-
 {% block extra_css %}
-<style>
-    /* Styles pour les services */
-    .service-item {
-        display: flex;
-        align-items: flex-start;
-        padding: 15px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-    }
+    <style>
+  /* Styles pour les services */
+  .service-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
 
-    .service-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 8px;
-        background-color: var(--primary-color);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        margin-right: 15px;
-    }
+  .service-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 15px;
+  }
 
-    .service-info h5 {
-        margin: 0 0 5px 0;
-        font-weight: 600;
-    }
+  .service-info h5 {
+    margin: 0 0 5px 0;
+    font-weight: 600;
+  }
 
-    .service-info p {
-        margin: 0;
-        color: var(--secondary-color);
-        font-size: 0.9rem;
-    }
+  .service-info p {
+    margin: 0;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+  }
 
-    /* Styles pour l'événement */
-    .event-header {
-        display: flex;
-        align-items: flex-start;
-    }
+  /* Styles pour l'événement */
+  .event-header {
+    display: flex;
+    align-items: flex-start;
+  }
 
-    .event-image {
-        width: 100px;
-        height: 100px;
-        margin-right: 20px;
-        flex-shrink: 0;
-    }
+  .event-image {
+    width: 100px;
+    height: 100px;
+    margin-right: 20px;
+    flex-shrink: 0;
+  }
 
-    .event-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 8px;
-    }
+  .event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
 
-    .event-main-info h4 {
-        margin: 0 0 10px 0;
-        font-weight: 600;
-    }
+  .event-main-info h4 {
+    margin: 0 0 10px 0;
+    font-weight: 600;
+  }
 
-    .event-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        font-size: 0.85rem;
-        color: var(--secondary-color);
-    }
+  .event-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+  }
 
-    /* Styles pour les tickets */
-    .ticket-type-card {
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        height: 100%;
-    }
+  /* Styles pour les tickets */
+  .ticket-type-card {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    height: 100%;
+  }
 
-    .ticket-type-header {
-        padding: 10px;
-        text-align: center;
-        color: white;
-    }
+  .ticket-type-header {
+    padding: 10px;
+    text-align: center;
+    color: white;
+  }
 
-    .ticket-type-header h6 {
-        margin: 0;
-        font-weight: 600;
-    }
+  .ticket-type-header h6 {
+    margin: 0;
+    font-weight: 600;
+  }
 
-    .ticket-type-body {
-        padding: 15px;
-        background-color: #fff;
-    }
+  .ticket-type-body {
+    padding: 15px;
+    background-color: #fff;
+  }
 
-    .ticket-type-price {
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 5px;
-        text-align: center;
-    }
+  .ticket-type-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    text-align: center;
+  }
 
-    .ticket-type-capacity {
-        font-size: 0.85rem;
-        color: var(--secondary-color);
-        text-align: center;
-    }
+  .ticket-type-capacity {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    text-align: center;
+  }
 
-    /* Styles pour les informations du demandeur */
-    .demandeur-info {
-        text-align: center;
-    }
+  /* Styles pour les informations du demandeur */
+  .demandeur-info {
+    text-align: center;
+  }
 
-    .user-avatar {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        margin: 0 auto;
-        overflow: hidden;
-    }
+  .user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto;
+    overflow: hidden;
+  }
 
-    .user-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+  .user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-    .demandeur-name {
-        margin: 10px 0 5px 0;
-        font-weight: 600;
-    }
+  .demandeur-name {
+    margin: 10px 0 5px 0;
+    font-weight: 600;
+  }
 
-    .demandeur-meta {
-        font-size: 0.85rem;
-        color: var(--secondary-color);
-        margin-bottom: 10px;
-    }
+  .demandeur-meta {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    margin-bottom: 10px;
+  }
 
-    .demandeur-meta p {
-        margin: 5px 0;
-    }
+  .demandeur-meta p {
+    margin: 5px 0;
+  }
 
-    /* Styles pour les cartes d'information */
-    .info-card {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 15px;
-        height: 100%;
-    }
+  /* Styles pour les cartes d'information */
+  .info-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    height: 100%;
+  }
 
-    .info-card-label {
-        font-size: 0.85rem;
-        color: var(--secondary-color);
-        margin-bottom: 5px;
-        font-weight: 600;
-    }
+  .info-card-label {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
 
-    .info-card-value {
-        font-size: 1rem;
-    }
+  .info-card-value {
+    font-size: 1rem;
+  }
 
-    /* Style pour le badge de statut */
-    .status-badge {
-        font-size: 1rem;
-        padding: 8px 15px;
-    }
-</style>
+  /* Style pour le badge de statut */
+  .status-badge {
+    font-size: 1rem;
+    padding: 8px 15px;
+  }
+    </style>
 {% endblock extra_css %}
-
 {% block extra_js %}
-<script>
-    $(document).ready(function() {
-        // Gestion du formulaire de notes
-        $('#notesForm').submit(function(e) {
-            e.preventDefault();
-            const notes = $('#demande-notes').val();
-
-            // Simuler l'enregistrement des notes
-            // À remplacer par un appel AJAX réel
-            setTimeout(function() {
-                alert('Notes enregistrées avec succès !');
-            }, 500);
-        });
-
-        // Impression de la demande
-        $('#print-demande').click(function(e) {
-            e.preventDefault();
-            window.print();
-        });
+    <script>
+  $(document).ready(function() {
+    // Impression de la demande
+    $('#print-demande').click(function(e) {
+      e.preventDefault();
+      window.print();
     });
-</script>
+
+    // Les modals de confirmation sont gérés par Bootstrap automatiquement
+    // car nous avons utilisé les attributs data-bs-toggle="modal" et data-bs-target
+  });
+    </script>
 {% endblock extra_js %}

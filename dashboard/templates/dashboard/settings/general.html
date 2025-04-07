@@ -1,313 +1,391 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
-
-{% block title %}Paramètres Généraux{% endblock title %}
-
-{% block page_title %}Paramètres Généraux{% endblock page_title %}
-
+{% block title %}
+    Paramètres Généraux
+{% endblock title %}
+{% block page_title %}
+    Paramètres Généraux
+{% endblock page_title %}
 {% block content %}
-<div class="settings-page">
-    <!-- Fil d'Ariane -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Tableau de bord</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Paramètres</li>
-        </ol>
-    </nav>
-
-    <div class="row">
-        <!-- Menu de navigation des paramètres -->
-        <div class="col-lg-3 mb-4">
-            <div class="card dashboard-card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-cogs me-2"></i>Paramètres
-                    </h5>
+    <div class="settings-page">
+        <!-- Fil d'Ariane -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:home' %}">Tableau de bord</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Paramètres</li>
+            </ol>
+        </nav>
+        <div class="row">
+            <!-- Menu de navigation des paramètres -->
+            <div class="col-lg-3 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cogs me-2"></i>Paramètres
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="settings-nav">
+                            <a href="{% url 'dashboard:settings_general' %}"
+                               class="settings-nav-item active">
+                                <i class="fas fa-sliders-h me-2"></i>Paramètres généraux
+                            </a>
+                            <a href="{% url 'dashboard:settings_email' %}" class="settings-nav-item">
+                                <i class="fas fa-envelope me-2"></i>Configuration email
+                            </a>
+                            <a href="{% url 'dashboard:settings_payment' %}"
+                               class="settings-nav-item">
+                                <i class="fas fa-credit-card me-2"></i>Méthodes de paiement
+                            </a>
+                            <a href="{% url 'dashboard:settings_seo' %}" class="settings-nav-item">
+                                <i class="fas fa-chart-line me-2"></i>SEO & Intégrations
+                            </a>
+                            <a href="{% url 'dashboard:settings_backup' %}"
+                               class="settings-nav-item">
+                                <i class="fas fa-database me-2"></i>Sauvegarde & Restauration
+                            </a>
+                            <a href="{% url 'dashboard:settings_system' %}"
+                               class="settings-nav-item">
+                                <i class="fas fa-server me-2"></i>Informations système
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="settings-nav">
-                        <a href="{% url 'dashboard:settings_general' %}" class="settings-nav-item active">
+            </div>
+            <!-- Contenu des paramètres -->
+            <div class="col-lg-9">
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
                             <i class="fas fa-sliders-h me-2"></i>Paramètres généraux
-                        </a>
-                        <a href="{% url 'dashboard:settings_email' %}" class="settings-nav-item">
-                            <i class="fas fa-envelope me-2"></i>Configuration email
-                        </a>
-                        <a href="{% url 'dashboard:settings_payment' %}" class="settings-nav-item">
-                            <i class="fas fa-credit-card me-2"></i>Méthodes de paiement
-                        </a>
-                        <a href="{% url 'dashboard:settings_seo' %}" class="settings-nav-item">
-                            <i class="fas fa-chart-line me-2"></i>SEO & Intégrations
-                        </a>
-                        <a href="{% url 'dashboard:settings_backup' %}" class="settings-nav-item">
-                            <i class="fas fa-database me-2"></i>Sauvegarde & Restauration
-                        </a>
-                        <a href="{% url 'dashboard:settings_system' %}" class="settings-nav-item">
-                            <i class="fas fa-server me-2"></i>Informations système
-                        </a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" id="settings-form">
+                            {% csrf_token %}
+                            <!-- Informations du site -->
+                            <div class="settings-section mb-4">
+                                <h6 class="settings-section-title">Informations du site</h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="site_name" class="form-label">Nom du site</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="site_name"
+                                               name="site_name"
+                                               value="{{ settings.site_name }}">
+                                        <div class="form-text">Le nom qui apparaîtra dans les titres de pages et emails.</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="site_tagline" class="form-label">Slogan</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="site_tagline"
+                                               name="site_tagline"
+                                               value="{{ settings.site_tagline }}">
+                                        <div class="form-text">Un court slogan qui décrit votre site.</div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="contact_email" class="form-label">Email de contact</label>
+                                        <input type="email"
+                                               class="form-control"
+                                               id="contact_email"
+                                               name="contact_email"
+                                               value="{{ settings.contact_email }}">
+                                        <div class="form-text">Adresse email principale pour les contacts clients.</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone_number" class="form-label">Numéro de téléphone</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="phone_number"
+                                               name="phone_number"
+                                               value="{{ settings.phone_number }}">
+                                        <div class="form-text">Numéro de téléphone de contact principal.</div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="site_description" class="form-label">Description du site</label>
+                                        <textarea class="form-control"
+                                                  id="site_description"
+                                                  name="site_description"
+                                                  rows="3">{{ settings.site_description }}</textarea>
+                                        <div class="form-text">Une brève description de votre site (utilisée pour le SEO).</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Logos et Favicon -->
+                            <div class="settings-section mb-4">
+                                <h6 class="settings-section-title">Logos et Favicon</h6>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Logo principal</label>
+                                        <div class="logo-preview mb-2">
+                                            {% if settings.logo %}
+                                                <img src="{{ settings.logo.url }}"
+                                                     alt="Logo principal"
+                                                     class="img-thumbnail">
+                                            {% else %}
+                                                <div class="no-image">
+                                                    <i class="fas fa-image"></i>
+                                                    <span>Pas de logo</span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <input type="file"
+                                               class="form-control"
+                                               id="logo"
+                                               name="logo"
+                                               accept="image/*">
+                                        <div class="form-text">Taille recommandée: 200x60 pixels. Format: PNG, JPG.</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Logo pied de page</label>
+                                        <div class="logo-preview mb-2">
+                                            {% if settings.footer_logo %}
+                                                <img src="{{ settings.footer_logo.url }}"
+                                                     alt="Logo pied de page"
+                                                     class="img-thumbnail">
+                                            {% else %}
+                                                <div class="no-image">
+                                                    <i class="fas fa-image"></i>
+                                                    <span>Pas de logo</span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <input type="file"
+                                               class="form-control"
+                                               id="footer_logo"
+                                               name="footer_logo"
+                                               accept="image/*">
+                                        <div class="form-text">Version alternative pour le pied de page.</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Favicon</label>
+                                        <div class="logo-preview mb-2">
+                                            {% if settings.favicon %}
+                                                <img src="{{ settings.favicon.url }}"
+                                                     alt="Favicon"
+                                                     class="img-thumbnail"
+                                                     style="max-width: 32px">
+                                            {% else %}
+                                                <div class="no-image" style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-image"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <input type="file"
+                                               class="form-control"
+                                               id="favicon"
+                                               name="favicon"
+                                               accept="image/png,image/x-icon">
+                                        <div class="form-text">Taille: 32x32 pixels. Format: ICO, PNG.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Réseaux sociaux -->
+                            <div class="settings-section mb-4">
+                                <h6 class="settings-section-title">Réseaux sociaux</h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="facebook_url" class="form-label">
+                                            <i class="fab fa-facebook text-primary me-2"></i>Facebook
+                                        </label>
+                                        <input type="url"
+                                               class="form-control"
+                                               id="facebook_url"
+                                               name="facebook_url"
+                                               value="{{ settings.facebook_url }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="twitter_url" class="form-label">
+                                            <i class="fab fa-twitter text-info me-2"></i>Twitter
+                                        </label>
+                                        <input type="url"
+                                               class="form-control"
+                                               id="twitter_url"
+                                               name="twitter_url"
+                                               value="{{ settings.twitter_url }}">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="instagram_url" class="form-label">
+                                            <i class="fab fa-instagram text-danger me-2"></i>Instagram
+                                        </label>
+                                        <input type="url"
+                                               class="form-control"
+                                               id="instagram_url"
+                                               name="instagram_url"
+                                               value="{{ settings.instagram_url }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="youtube_url" class="form-label">
+                                            <i class="fab fa-youtube text-danger me-2"></i>YouTube
+                                        </label>
+                                        <input type="url"
+                                               class="form-control"
+                                               id="youtube_url"
+                                               name="youtube_url"
+                                               value="{{ settings.youtube_url }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Paramètres généraux -->
+                            <div class="settings-section mb-4">
+                                <h6 class="settings-section-title">Paramètres de la plateforme</h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="max_event_per_page" class="form-label">Événements par page</label>
+                                        <input type="number"
+                                               class="form-control"
+                                               id="max_event_per_page"
+                                               name="max_event_per_page"
+                                               value="{{ settings.max_event_per_page|default:12 }}"
+                                               min="1"
+                                               max="100">
+                                        <div class="form-text">Nombre d'événements à afficher par page.</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="maintenance_mode" class="form-label">Mode maintenance</label>
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="maintenance_mode"
+                                                   name="maintenance_mode"
+                                                   {% if settings.maintenance_mode %}checked{% endif %}>
+                                            <label class="form-check-label" for="maintenance_mode">Activer le mode maintenance</label>
+                                        </div>
+                                        <div class="form-text">Si activé, seuls les administrateurs pourront accéder au site.</div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="currency" class="form-label">Devise</label>
+                                        <select class="form-select" id="currency" name="currency">
+                                            <option value="XOF" {% if settings.currency == 'XOF' %}selected{% endif %}>Franc CFA (FCFA)</option>
+                                            <option value="EUR" {% if settings.currency == 'EUR' %}selected{% endif %}>Euro (€)</option>
+                                            <option value="USD" {% if settings.currency == 'USD' %}selected{% endif %}>Dollar américain ($)</option>
+                                        </select>
+                                        <div class="form-text">Devise utilisée pour les paiements.</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="default_language" class="form-label">Langue par défaut</label>
+                                        <select class="form-select" id="default_language" name="default_language">
+                                            <option value="fr"
+                                                    {% if settings.default_language == 'fr' %}selected{% endif %}>
+                                                Français
+                                            </option>
+                                            <option value="en"
+                                                    {% if settings.default_language == 'en' %}selected{% endif %}>
+                                                Anglais
+                                            </option>
+                                        </select>
+                                        <div class="form-text">Langue par défaut du site.</div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Options d'inscription</label>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="enable_registration"
+                                                   name="enable_registration"
+                                                   {% if settings.enable_registration %}checked{% endif %}>
+                                            <label class="form-check-label" for="enable_registration">Autoriser les inscriptions</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="require_email_verification"
+                                                   name="require_email_verification"
+                                                   {% if settings.require_email_verification %}checked{% endif %}>
+                                            <label class="form-check-label" for="require_email_verification">Vérification d'email obligatoire</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="timezone" class="form-label">Fuseau horaire</label>
+                                        <select class="form-select" id="timezone" name="timezone">
+                                            <option value="Africa/Abidjan"
+                                                    {% if settings.timezone == 'Africa/Abidjan' %}selected{% endif %}>
+                                                Africa/Abidjan (GMT+0)
+                                            </option>
+                                            <option value="Africa/Accra"
+                                                    {% if settings.timezone == 'Africa/Accra' %}selected{% endif %}>
+                                                Africa/Accra (GMT+0)
+                                            </option>
+                                            <option value="Africa/Dakar"
+                                                    {% if settings.timezone == 'Africa/Dakar' %}selected{% endif %}>
+                                                Africa/Dakar (GMT+0)
+                                            </option>
+                                            <option value="Africa/Lagos"
+                                                    {% if settings.timezone == 'Africa/Lagos' %}selected{% endif %}>
+                                                Africa/Lagos (GMT+1)
+                                            </option>
+                                            <option value="Europe/Paris"
+                                                    {% if settings.timezone == 'Europe/Paris' %}selected{% endif %}>
+                                                Europe/Paris (GMT+1)
+                                            </option>
+                                        </select>
+                                        <div class="form-text">Fuseau horaire utilisé pour les dates et heures.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Boutons d'action -->
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="button"
+                                        class="btn btn-outline-secondary me-2"
+                                        id="reset-settings">
+                                    <i class="fas fa-undo me-2"></i>Réinitialiser
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Contenu des paramètres -->
-        <div class="col-lg-9">
-            <div class="card dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-sliders-h me-2"></i>Paramètres généraux
-                    </h5>
+    </div>
+    <!-- Modal de confirmation de réinitialisation -->
+    <div class="modal fade"
+         id="resetModal"
+         tabindex="-1"
+         aria-labelledby="resetModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resetModalLabel">Confirmation de réinitialisation</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                 </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" id="settings-form">
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir réinitialiser tous les paramètres aux valeurs par défaut ?</p>
+                    <p class="text-danger">Cette action ne peut pas être annulée.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form method="post" action="{% url 'dashboard:settings_reset' %}">
                         {% csrf_token %}
-
-                        <!-- Informations du site -->
-                        <div class="settings-section mb-4">
-                            <h6 class="settings-section-title">Informations du site</h6>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="site_name" class="form-label">Nom du site</label>
-                                    <input type="text" class="form-control" id="site_name" name="site_name" value="{{ settings.site_name }}">
-                                    <div class="form-text">Le nom qui apparaîtra dans les titres de pages et emails.</div>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="site_tagline" class="form-label">Slogan</label>
-                                    <input type="text" class="form-control" id="site_tagline" name="site_tagline" value="{{ settings.site_tagline }}">
-                                    <div class="form-text">Un court slogan qui décrit votre site.</div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="contact_email" class="form-label">Email de contact</label>
-                                    <input type="email" class="form-control" id="contact_email" name="contact_email" value="{{ settings.contact_email }}">
-                                    <div class="form-text">Adresse email principale pour les contacts clients.</div>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="phone_number" class="form-label">Numéro de téléphone</label>
-                                    <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ settings.phone_number }}">
-                                    <div class="form-text">Numéro de téléphone de contact principal.</div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label for="site_description" class="form-label">Description du site</label>
-                                    <textarea class="form-control" id="site_description" name="site_description" rows="3">{{ settings.site_description }}</textarea>
-                                    <div class="form-text">Une brève description de votre site (utilisée pour le SEO).</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Logos et Favicon -->
-                        <div class="settings-section mb-4">
-                            <h6 class="settings-section-title">Logos et Favicon</h6>
-
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Logo principal</label>
-                                    <div class="logo-preview mb-2">
-                                        {% if settings.logo %}
-                                        <img src="{{ settings.logo.url }}" alt="Logo principal" class="img-thumbnail">
-                                        {% else %}
-                                        <div class="no-image">
-                                            <i class="fas fa-image"></i>
-                                            <span>Pas de logo</span>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
-                                    <div class="form-text">Taille recommandée: 200x60 pixels. Format: PNG, JPG.</div>
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Logo pied de page</label>
-                                    <div class="logo-preview mb-2">
-                                        {% if settings.footer_logo %}
-                                        <img src="{{ settings.footer_logo.url }}" alt="Logo pied de page" class="img-thumbnail">
-                                        {% else %}
-                                        <div class="no-image">
-                                            <i class="fas fa-image"></i>
-                                            <span>Pas de logo</span>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    <input type="file" class="form-control" id="footer_logo" name="footer_logo" accept="image/*">
-                                    <div class="form-text">Version alternative pour le pied de page.</div>
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Favicon</label>
-                                    <div class="logo-preview mb-2">
-                                        {% if settings.favicon %}
-                                        <img src="{{ settings.favicon.url }}" alt="Favicon" class="img-thumbnail" style="max-width: 32px;">
-                                        {% else %}
-                                        <div class="no-image" style="width: 32px; height: 32px;">
-                                            <i class="fas fa-image"></i>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    <input type="file" class="form-control" id="favicon" name="favicon" accept="image/png,image/x-icon">
-                                    <div class="form-text">Taille: 32x32 pixels. Format: ICO, PNG.</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Réseaux sociaux -->
-                        <div class="settings-section mb-4">
-                            <h6 class="settings-section-title">Réseaux sociaux</h6>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="facebook_url" class="form-label">
-                                        <i class="fab fa-facebook text-primary me-2"></i>Facebook
-                                    </label>
-                                    <input type="url" class="form-control" id="facebook_url" name="facebook_url" value="{{ settings.facebook_url }}">
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="twitter_url" class="form-label">
-                                        <i class="fab fa-twitter text-info me-2"></i>Twitter
-                                    </label>
-                                    <input type="url" class="form-control" id="twitter_url" name="twitter_url" value="{{ settings.twitter_url }}">
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="instagram_url" class="form-label">
-                                        <i class="fab fa-instagram text-danger me-2"></i>Instagram
-                                    </label>
-                                    <input type="url" class="form-control" id="instagram_url" name="instagram_url" value="{{ settings.instagram_url }}">
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="youtube_url" class="form-label">
-                                        <i class="fab fa-youtube text-danger me-2"></i>YouTube
-                                    </label>
-                                    <input type="url" class="form-control" id="youtube_url" name="youtube_url" value="{{ settings.youtube_url }}">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Paramètres généraux -->
-                        <div class="settings-section mb-4">
-                            <h6 class="settings-section-title">Paramètres de la plateforme</h6>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="max_event_per_page" class="form-label">Événements par page</label>
-                                    <input type="number" class="form-control" id="max_event_per_page" name="max_event_per_page" value="{{ settings.max_event_per_page|default:12 }}" min="1" max="100">
-                                    <div class="form-text">Nombre d'événements à afficher par page.</div>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="maintenance_mode" class="form-label">Mode maintenance</label>
-                                    <div class="form-check form-switch mt-2">
-                                        <input class="form-check-input" type="checkbox" id="maintenance_mode" name="maintenance_mode" {% if settings.maintenance_mode %}checked{% endif %}>
-                                        <label class="form-check-label" for="maintenance_mode">Activer le mode maintenance</label>
-                                    </div>
-                                    <div class="form-text">Si activé, seuls les administrateurs pourront accéder au site.</div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="currency" class="form-label">Devise</label>
-                                    <select class="form-select" id="currency" name="currency">
-                                        <option value="XOF" {% if settings.currency == 'XOF' %}selected{% endif %}>Franc CFA (FCFA)</option>
-                                        <option value="EUR" {% if settings.currency == 'EUR' %}selected{% endif %}>Euro (€)</option>
-                                        <option value="USD" {% if settings.currency == 'USD' %}selected{% endif %}>Dollar américain ($)</option>
-                                    </select>
-                                    <div class="form-text">Devise utilisée pour les paiements.</div>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="default_language" class="form-label">Langue par défaut</label>
-                                    <select class="form-select" id="default_language" name="default_language">
-                                        <option value="fr" {% if settings.default_language == 'fr' %}selected{% endif %}>Français</option>
-                                        <option value="en" {% if settings.default_language == 'en' %}selected{% endif %}>Anglais</option>
-                                    </select>
-                                    <div class="form-text">Langue par défaut du site.</div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Options d'inscription</label>
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="enable_registration" name="enable_registration" {% if settings.enable_registration %}checked{% endif %}>
-                                        <label class="form-check-label" for="enable_registration">
-                                            Autoriser les inscriptions
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="require_email_verification" name="require_email_verification" {% if settings.require_email_verification %}checked{% endif %}>
-                                        <label class="form-check-label" for="require_email_verification">
-                                            Vérification d'email obligatoire
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="timezone" class="form-label">Fuseau horaire</label>
-                                    <select class="form-select" id="timezone" name="timezone">
-                                        <option value="Africa/Abidjan" {% if settings.timezone == 'Africa/Abidjan' %}selected{% endif %}>Africa/Abidjan (GMT+0)</option>
-                                        <option value="Africa/Accra" {% if settings.timezone == 'Africa/Accra' %}selected{% endif %}>Africa/Accra (GMT+0)</option>
-                                        <option value="Africa/Dakar" {% if settings.timezone == 'Africa/Dakar' %}selected{% endif %}>Africa/Dakar (GMT+0)</option>
-                                        <option value="Africa/Lagos" {% if settings.timezone == 'Africa/Lagos' %}selected{% endif %}>Africa/Lagos (GMT+1)</option>
-                                        <option value="Europe/Paris" {% if settings.timezone == 'Europe/Paris' %}selected{% endif %}>Europe/Paris (GMT+1)</option>
-                                    </select>
-                                    <div class="form-text">Fuseau horaire utilisé pour les dates et heures.</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Boutons d'action -->
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="button" class="btn btn-outline-secondary me-2" id="reset-settings">
-                                <i class="fas fa-undo me-2"></i>Réinitialiser
-                            </button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Enregistrer les modifications
-                            </button>
-                        </div>
+                        <button type="submit" class="btn btn-danger">Réinitialiser</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Modal de confirmation de réinitialisation -->
-<div class="modal fade" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="resetModalLabel">Confirmation de réinitialisation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir réinitialiser tous les paramètres aux valeurs par défaut ?</p>
-                <p class="text-danger">Cette action ne peut pas être annulée.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form method="post" action="{% url 'dashboard:settings_reset' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Réinitialiser</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock content %}
-
 {% block extra_css %}
-<style>
+    <style>
     /* Style pour le menu de navigation des paramètres */
     .settings-nav {
         display: flex;
@@ -385,11 +463,10 @@
     .no-image span {
         font-size: 0.85rem;
     }
-</style>
+    </style>
 {% endblock extra_css %}
-
 {% block extra_js %}
-<script>
+    <script>
     $(document).ready(function() {
         // Gestion de la réinitialisation des paramètres
         $('#reset-settings').click(function() {
@@ -416,5 +493,5 @@
             }
         });
     });
-</script>
+    </script>
 {% endblock extra_js %}

@@ -1,259 +1,245 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
-
-{% block title %}Gestion des Demandes{% endblock title %}
-
-{% block page_title %}Gestion des Demandes{% endblock page_title %}
-
+{% block title %}
+    Gestion des Demandes
+{% endblock title %}
+{% block page_title %}
+    Gestion des Demandes
+{% endblock page_title %}
 {% block content %}
-<div class="demande-management">
-    <!-- Actions bar -->
-    <div class="actions-bar mb-4">
-        <div class="row align-items-center">
-            <div class="col-md-6 mb-3 mb-md-0">
-                <h2 class="section-title mb-0">Liste des demandes</h2>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-outline-success" id="btn-export-excel">
-                        <i class="fas fa-file-excel me-2"></i>Exporter Excel
-                    </button>
-                    <button type="button" class="btn btn-outline-danger" id="btn-export-pdf">
-                        <i class="fas fa-file-pdf me-2"></i>Exporter PDF
-                    </button>
+    <div class="demande-management">
+        <!-- Actions bar -->
+        <div class="actions-bar mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <h2 class="section-title mb-0">Liste des demandes</h2>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Filtres -->
-    <div class="card dashboard-card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">Filtres</h5>
-        </div>
-        <div class="card-body">
-            <form method="get" action="{% url 'dashboard:demande_list' %}" class="row g-3">
-                <div class="col-md-3">
-                    <label for="service" class="form-label">Service</label>
-                    <select name="service" id="service" class="form-select">
-                        <option value="">Tous les services</option>
-                        <option value="event" {% if request.GET.service == 'event' %}selected{% endif %}>Événement</option>
-                        <option value="ticket" {% if request.GET.service == 'ticket' %}selected{% endif %}>Billetterie</option>
-                        <option value="hostess" {% if request.GET.service == 'hostess' %}selected{% endif %}>Hôtesses</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="status" class="form-label">Statut</label>
-                    <select name="status" id="status" class="form-select">
-                        <option value="">Tous les statuts</option>
-                        <option value="1" {% if request.GET.status == '1' %}selected{% endif %}>Acceptée</option>
-                        <option value="0" {% if request.GET.status == '0' %}selected{% endif %}>En attente</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="user_type" class="form-label">Type d'utilisateur</label>
-                    <select name="user_type" id="user_type" class="form-select">
-                        <option value="">Tous les utilisateurs</option>
-                        <option value="anonymous" {% if request.GET.user_type == 'anonymous' %}selected{% endif %}>Anonyme</option>
-                        <option value="registered" {% if request.GET.user_type == 'registered' %}selected{% endif %}>Enregistré</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="search" class="form-label">Recherche</label>
-                    <input type="text" class="form-control" id="search" name="search" placeholder="Nom, email..." value="{{ request.GET.search }}">
-                </div>
-                <div class="col-12 mt-3 text-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-filter me-2"></i>Filtrer
-                    </button>
-                    <a href="{% url 'dashboard:demande_list' %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-redo me-2"></i>Réinitialiser
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Tableau des demandes -->
-    <div class="card dashboard-card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle datatable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Demandeur</th>
-                            <th>Services demandés</th>
-                            <th>Événement</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for demande in demandes %}
-                        <tr>
-                            <td><span class="badge bg-primary">#{{ demande.id }}</span></td>
-                            <td>
-                                <div class="user-info">
-                                    {% if demande.user %}
-                                    <span class="user-name">{{ demande.user.get_full_name|default:demande.user.email }}</span>
-                                    <small class="d-block text-muted">{{ demande.user.email }}</small>
-                                    <span class="badge bg-info">Utilisateur</span>
-                                    {% elif demande.anonymous_user %}
-                                    <span class="user-name">{{ demande.anonymous_user.first_name }} {{ demande.anonymous_user.last_name }}</span>
-                                    <small class="d-block text-muted">{{ demande.anonymous_user.email }}</small>
-                                    <span class="badge bg-secondary">Anonyme</span>
-                                    {% else %}
-                                    <span class="text-muted">Utilisateur inconnu</span>
-                                    {% endif %}
-                                </div>
-                            </td>
-                            <td>
-                                {% for service in demande.service.all %}
-                                <span class="badge bg-secondary mb-1 d-inline-block">{{ service.name }}</span>
-                                {% empty %}
-                                <span class="text-muted">Aucun service spécifié</span>
-                                {% endfor %}
-                            </td>
-                            <td>
-                                {% if demande.event %}
-                                <span class="event-name">{{ demande.event.title }}</span>
-                                <small class="d-block text-muted">{{ demande.event.date_event|date:"d/m/Y" }}</small>
-                                {% else %}
-                                <span class="text-muted">Aucun événement</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if demande.is_accepted %}
-                                <span class="badge bg-success">Acceptée</span>
-                                {% else %}
-                                <span class="badge bg-warning">En attente</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="{% url 'dashboard:demande_detail' uid=demande.uid %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Détails">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    {% if not demande.is_accepted %}
-                                    <button type="button" class="btn btn-sm btn-outline-success accept-demande-btn" data-demande-id="{{ demande.uid }}" data-bs-toggle="tooltip" title="Accepter">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                    {% else %}
-                                    <button type="button" class="btn btn-sm btn-outline-warning reject-demande-btn" data-demande-id="{{ demande.uid }}" data-bs-toggle="tooltip" title="Rejeter">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4">
-                                <div class="empty-state">
-                                    <i class="fas fa-file-alt fa-3x mb-3 text-muted"></i>
-                                    <h5>Aucune demande trouvée</h5>
-                                    <p class="text-muted">Il n'y a pas de demandes correspondant à vos critères.</p>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <!-- Filtres -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Filtres</h5>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de confirmation pour accepter une demande -->
-<div class="modal fade" id="acceptDemandeModal" tabindex="-1" aria-labelledby="acceptDemandeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="acceptDemandeModalLabel">Confirmer l'acceptation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir accepter cette demande ?</p>
-                <p>Si la demande concerne un événement, celui-ci sera automatiquement activé.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form id="acceptDemandeForm" method="post" action="">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-success">Accepter</button>
+            <div class="card-body">
+                <form method="get"
+                      action="{% url 'dashboard:demande_list' %}"
+                      class="row g-3">
+                    <div class="col-md-3">
+                        <label for="service" class="form-label">Service</label>
+                        <select name="service" id="service" class="form-control">
+                            <option value="">Tous les services</option>
+                            <option value="event"
+                                    {% if request.GET.service == 'event' %}selected{% endif %}>Événement</option>
+                            <option value="ticket"
+                                    {% if request.GET.service == 'ticket' %}selected{% endif %}>Billetterie</option>
+                            <option value="hostess"
+                                    {% if request.GET.service == 'hostess' %}selected{% endif %}>Hôtesses</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Statut</label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="">Tous les statuts</option>
+                            <option value="1" {% if request.GET.status == '1' %}selected{% endif %}>Acceptée</option>
+                            <option value="0" {% if request.GET.status == '0' %}selected{% endif %}>En attente</option>
+                            <option value="-1" {% if request.GET.status == '-1' %}selected{% endif %}>Rejetée</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="user_type" class="form-label">Type d'utilisateur</label>
+                        <select name="user_type" id="user_type" class="form-control">
+                            <option value="">Tous les utilisateurs</option>
+                            <option value="anonymous"
+                                    {% if request.GET.user_type == 'anonymous' %}selected{% endif %}>Anonyme</option>
+                            <option value="registered"
+                                    {% if request.GET.user_type == 'registered' %}selected{% endif %}>
+                                Enregistré
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Recherche</label>
+                        <input type="text"
+                               class="form-control"
+                               id="search"
+                               name="search"
+                               placeholder="Nom, email..."
+                               value="{{ request.GET.search }}">
+                    </div>
+                    <div class="col-12 mt-3 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-2"></i>Filtrer
+                        </button>
+                        <a href="{% url 'dashboard:demande_list' %}"
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Modal de confirmation pour rejeter une demande -->
-<div class="modal fade" id="rejectDemandeModal" tabindex="-1" aria-labelledby="rejectDemandeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="rejectDemandeModalLabel">Confirmer le rejet</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir rejeter cette demande ?</p>
-                <p>Si la demande concerne un événement, celui-ci restera désactivé.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form id="rejectDemandeForm" method="post" action="">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Rejeter</button>
-                </form>
+        <!-- Tableau des demandes -->
+        <div class="card dashboard-card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle datatable">
+                        <thead>
+                            <tr>
+                                <th>Numéro</th>
+                                <th>Demandeur</th>
+                                <th>Services demandés</th>
+                                <th>Événement</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for demande in demandes %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">#{{ demande.pk|stringformat:"06d" }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="user-info">
+                                            {% if demande.user %}
+                                                <span class="user-name">{{ demande.user.get_full_name|default:demande.user.email }}</span>
+                                                <small class="d-block text-muted">{{ demande.user.email }}</small>
+                                                <span class="badge bg-info">Utilisateur</span>
+                                            {% elif demande.anonymous_user %}
+                                                <span class="user-name">{{ demande.anonymous_user.first_name }} {{ demande.anonymous_user.last_name }}</span>
+                                                <small class="d-block text-muted">{{ demande.anonymous_user.email }}</small>
+                                                <span class="badge bg-secondary">Anonyme</span>
+                                            {% else %}
+                                                <span class="text-muted">Utilisateur inconnu</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="services-requested">
+                                            {% for service in demande.service.all %}
+                                                <div class="service-badge mb-1">
+                                                    <span class="badge {% if service.accronyme == 'event' %}bg-primary{% elif service.accronyme == 'ticket' %}bg-success{% else %}bg-info{% endif %} d-inline-block">
+                                                        <i class="fas fa-{% if service.accronyme == 'event' %}calendar-alt{% elif service.accronyme == 'ticket' %}ticket-alt{% else %}user-tie{% endif %} me-1"></i>
+                                                        {{ service.name }}
+                                                    </span>
+                                                </div>
+                                            {% empty %}
+                                                <span class="text-muted">Aucun service spécifié</span>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if demande.event %}
+                                            <span class="event-name">{{ demande.event.title }}</span>
+                                            <small class="d-block text-muted">{{ demande.event.start_date|date:"d/m/Y" }}</small>
+                                        {% else %}
+                                            <span class="text-muted">Aucun événement</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if demande.status == 'accepted' %}
+                                            <span class="badge bg-success">Acceptée</span>
+                                        {% elif demande.status == 'rejected' %}
+                                            <span class="badge bg-danger">Rejetée</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">En attente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'dashboard:demande_detail' uid=demande.uid %}"
+                                               class="btn btn-sm btn-outline-primary"
+                                               data-bs-toggle="tooltip"
+                                               title="Détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <div class="empty-state">
+                                            <i class="fas fa-file-alt fa-3x mb-3 text-muted"></i>
+                                            <h5>Aucune demande trouvée</h5>
+                                            <p class="text-muted">Il n'y a pas de demandes correspondant à vos critères.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock content %}
+{% block extra_css %}
+    <style>
+    .user-info .user-name {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 3px;
+    }
 
+    .services-requested {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .service-badge .badge {
+        font-size: 0.8rem;
+        padding: 5px 8px;
+    }
+
+    .event-name {
+        font-weight: 500;
+        display: block;
+    }
+
+    .btn-group form {
+        display: inline-block;
+    }
+
+    .badge {
+        margin-right: 3px;
+    }
+
+    .datatable {
+        font-size: 0.9rem;
+    }
+
+    .datatable th {
+        font-weight: 600;
+        background-color: #f8f9fa;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem 0;
+    }
+    </style>
+{% endblock extra_css %}
 {% block extra_js %}
-<script>
+    <script>
     $(document).ready(function() {
-        // DataTables
         $('.datatable').DataTable({
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json'
+                url: '//cdn.datatables.net/plug-ins/1.13.1/i18n/fr-FR.json'
             },
-            order: [[0, 'desc']], // Trier par ID (1ère colonne) par défaut
+            order: [[0, 'desc']],
             columnDefs: [
-                { orderable: false, targets: [5] } // Désactiver le tri pour la colonne d'actions
+                { orderable: false, targets: [5] }
             ]
         });
 
-        // Modals pour accepter/rejeter une demande
-        $('.accept-demande-btn').click(function() {
-            const demandeId = $(this).data('demande-id');
-            $('#acceptDemandeForm').attr('action', `/dashboard/demandes/${demandeId}/accept/`);
-            $('#acceptDemandeModal').modal('show');
-        });
-
-        $('.reject-demande-btn').click(function() {
-            const demandeId = $(this).data('demande-id');
-            $('#rejectDemandeForm').attr('action', `/dashboard/demandes/${demandeId}/reject/`);
-            $('#rejectDemandeModal').modal('show');
-        });
-
-        // Export Excel
-        $('#btn-export-excel').click(function() {
-            alert('Fonctionnalité d\'export Excel à implémenter');
-        });
-
-        // Export PDF
-        $('#btn-export-pdf').click(function() {
-            alert('Fonctionnalité d\'export PDF à implémenter');
-        });
-
-        // Activer les tooltips Bootstrap
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         });
+
     });
-</script>
+    </script>
 {% endblock extra_js %}

@@ -2,11 +2,13 @@ from django.urls import path
 
 from .views import (
     AboutView,
+    CheckTicketView,
     ContactView,
     DetailEventView,
     EventAddView,
     EventView,
     HomeView,
+    InvitationResponseView,
     ScanCodeView,
     TicketView,
 )
@@ -21,4 +23,17 @@ urlpatterns = [
     path("event/add/", EventAddView.as_view(), name="event_add"),
     path("event/ticket/", TicketView.as_view(), name="ticket"),
     path("event/<str:event_id>/scan/", ScanCodeView.as_view(), name="scan_code"),
+    path("check_ticket/<str:code>/", CheckTicketView.as_view(), name="check_ticket"),
+    path(
+        "invitation/<str:token>/accept/",
+        InvitationResponseView.as_view(),
+        {"action": "accept"},
+        name="accept_invitation",
+    ),
+    path(
+        "invitation/<str:token>/decline/",
+        InvitationResponseView.as_view(),
+        {"action": "decline"},
+        name="decline_invitation",
+    ),
 ]

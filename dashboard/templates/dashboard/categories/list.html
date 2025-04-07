@@ -1,0 +1,83 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+    Gestion
+    des Catégories
+{% endblock title %}
+{% block page_title %}
+    Gestion des
+    Catégories
+{% endblock page_title %}
+{% block content %}
+    <div class="category-management-container">
+        <!-- Fil d'Ariane -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:home' %}">Tableau de bord</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'dashboard:event_list' %}">Événements</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Catégories</li>
+            </ol>
+        </nav>
+        <!-- Entête avec bouton d'ajout -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0">Liste des catégories d'événements</h3>
+            <a href="{% url 'dashboard:category_add' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Ajouter une catégorie
+            </a>
+        </div>
+        <!-- Tableau des catégories -->
+        <div class="card dashboard-card">
+            <div class="card-body">
+                {% if categories %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nom</th>
+                                    <th>Nombre d'événements</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category in categories %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ category.name }}</td>
+                                        <td>
+                                            <span class="badge bg-info">{{ category.event_count }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{% url 'dashboard:category_edit' category.id %}"
+                                                   class="btn btn-outline-primary"
+                                                   title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'dashboard:category_delete' category.id %}"
+                                                   class="btn btn-outline-danger"
+                                                   title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucune catégorie n'a encore été créée.
+                        <a href="{% url 'dashboard:category_add' %}" class="alert-link">Créer une catégorie</a>.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}
