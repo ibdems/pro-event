@@ -1,251 +1,409 @@
-{% extends 'dashboard/base.html' %}
-{% load static %}
-{% block title %}
-    Ajouter un utilisateur
-{% endblock title %}
-{% block page_title %}
-    Ajouter un utilisateur
-{% endblock page_title %}
-{% block content %}
-    <div class="user-add">
-        <!-- Fil d'Ariane -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'dashboard:home' %}">Tableau de bord</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'dashboard:user_list' %}">Utilisateurs</a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">Ajouter</li>
-            </ol>
-        </nav>
-        <!-- Formulaire d'ajout -->
-        <div class="card dashboard-card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-user-plus me-2"></i>Ajouter un nouvel utilisateur
-                </h5>
-            </div>
-            <div class="card-body">
-                <form method="post" id="user-form">
-                    {% csrf_token %}
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="row">
-                        <!-- Informations de base -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="{{ form.username.id_for_label }}" class="form-label">
-                                    Nom d'utilisateur <span class="text-danger">*</span>
-                                </label>
-                                {{ form.username }}
-                                {% if form.username.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.username.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text">Le nom d'utilisateur doit être unique.</div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="{{ form.email.id_for_label }}" class="form-label">
-                                    Email <span class="text-danger">*</span>
-                                </label>
-                                {{ form.email }}
-                                {% if form.email.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.email.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                <label for="{{ form.first_name.id_for_label }}" class="form-label">Prénom</label>
-                                {{ form.first_name }}
-                                {% if form.first_name.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.first_name.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Nom</label>
-                                {{ form.last_name }}
-                                {% if form.last_name.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.last_name.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                <label for="{{ form.password1.id_for_label }}" class="form-label">
-                                    Mot de passe <span class="text-danger">*</span>
-                                </label>
-                                {{ form.password1 }}
-                                {% if form.password1.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.password1.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text">
-                                    <ul>
-                                        <li>Le mot de passe ne peut pas être trop similaire aux autres informations personnelles.</li>
-                                        <li>Le mot de passe doit contenir au moins 8 caractères.</li>
-                                        <li>Le mot de passe ne peut pas être un mot de passe couramment utilisé.</li>
-                                        <li>Le mot de passe ne peut pas être entièrement numérique.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="{{ form.password2.id_for_label }}" class="form-label">
-                                    Confirmer le mot de passe <span class="text-danger">*</span>
-                                </label>
-                                {{ form.password2 }}
-                                {% if form.password2.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.password2.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text">Entrez le même mot de passe que précédemment, pour vérification.</div>
-                            </div>
-                        </div>
-                        <!-- Rôles et permissions -->
-                        <div class="col-md-6">
-                            <div class="card mb-3">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">Statut et rôle</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label class="form-label">Statut</label>
-                                        <div class="form-check form-switch">
-                                            {{ form.is_active }}
-                                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Utilisateur actif</label>
-                                        </div>
-                                        <div class="form-text">Si désactivé, l'utilisateur ne pourra pas se connecter.</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Rôle</label>
-                                        <div class="form-check form-switch">
-                                            {{ form.is_staff }}
-                                            <label class="form-check-label" for="{{ form.is_staff.id_for_label }}">Organisateur</label>
-                                        </div>
-                                        <div class="form-text">Les organisateurs peuvent créer et gérer des événements.</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            {{ form.is_superuser }}
-                                            <label class="form-check-label" for="{{ form.is_superuser.id_for_label }}">Administrateur</label>
-                                        </div>
-                                        <div class="form-text">Les administrateurs ont accès à toutes les fonctionnalités.</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-3">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">Options supplémentaires</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input"
-                                                   type="checkbox"
-                                                   id="send_welcome_email"
-                                                   name="send_welcome_email"
-                                                   checked>
-                                            <label class="form-check-label" for="send_welcome_email">Envoyer un email de bienvenue</label>
-                                        </div>
-                                        <div class="form-text">Un email sera envoyé à l'utilisateur avec ses informations de connexion.</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input"
-                                                   type="checkbox"
-                                                   id="require_password_change"
-                                                   name="require_password_change"
-                                                   checked>
-                                            <label class="form-check-label" for="require_password_change">
-                                                Forcer le changement de mot de passe à la première connexion
-                                            </label>
-                                        </div>
-                                        <div class="form-text">L'utilisateur devra changer son mot de passe lors de sa première connexion.</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="alert alert-warning">
-                                <h6>
-                                    <i class="fas fa-exclamation-triangle me-2"></i>Attention
-                                </h6>
-                                <p class="mb-0">Accordez les permissions d'administration avec parcimonie.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-end mt-4">
-                        <a href="{% url 'dashboard:user_list' %}"
-                           class="btn btn-outline-secondary me-2">
-                            <i class="fas fa-times me-2"></i>Annuler
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Créer l'utilisateur
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+{% extends 'dashboard/base.html' %} {% load static %} {% block title %} Ajouter
+un utilisateur {% endblock title %} {% block page_title %} Ajouter un
+utilisateur {% endblock page_title %} {% block content %}
+<div class="user-add">
+  <!-- Fil d'Ariane -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'dashboard:home' %}">Tableau de bord</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'dashboard:user_list' %}">Utilisateurs</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Ajouter</li>
+    </ol>
+  </nav>
+
+  <!-- Formulaire d'ajout -->
+  <div class="card dashboard-card mb-4">
+    <div class="card-header bg-white">
+      <h5 class="card-title mb-0">
+        <i class="fas fa-user-plus me-2"></i>Ajouter un nouvel utilisateur
+      </h5>
     </div>
-{% endblock content %}
-{% block extra_css %}
-    <style>
-    /* Styles pour les champs de formulaire */
-    .form-control, .form-select {
-        border-radius: 0.375rem;
-        border: 1px solid #ced4da;
-        padding: 0.5rem 0.75rem;
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    }
+    <div class="card-body">
+      <form method="post" id="user-form">
+        {% csrf_token %} {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
 
-    .form-control:focus, .form-select:focus {
-        border-color: #86b7fe;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
+        <!-- Onglets de formulaire -->
+        <ul class="nav nav-tabs mb-4" id="userFormTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="info-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#info"
+              type="button"
+              role="tab"
+              aria-controls="info"
+              aria-selected="true"
+            >
+              <i class="fas fa-info-circle me-1"></i>Informations de base
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="role-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#role"
+              type="button"
+              role="tab"
+              aria-controls="role"
+              aria-selected="false"
+            >
+              <i class="fas fa-user-tag me-1"></i>Rôle et permissions
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="options-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#options"
+              type="button"
+              role="tab"
+              aria-controls="options"
+              aria-selected="false"
+            >
+              <i class="fas fa-cog me-1"></i>Options
+            </button>
+          </li>
+        </ul>
 
-    .invalid-feedback {
-        display: block;
-        color: #dc3545;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
+        <!-- Contenu des onglets -->
+        <div class="tab-content" id="userFormTabsContent">
+          <!-- Informations de base -->
+          <div
+            class="tab-pane fade show active"
+            id="info"
+            role="tabpanel"
+            aria-labelledby="info-tab"
+          >
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="{{ form.email.id_for_label }}" class="form-label">
+                    Email <span class="text-danger">*</span>
+                  </label>
+                  {{ form.email }} {% if form.email.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.email.errors %}{{ error }}{% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="{{ form.role.id_for_label }}" class="form-label"
+                    >Rôle</label
+                  >
+                  {{ form.role }} {% if form.role.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.role.errors %}{{ error }}{% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label
+                    for="{{ form.first_name.id_for_label }}"
+                    class="form-label"
+                    >Prénom</label
+                  >
+                  {{ form.first_name }} {% if form.first_name.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.first_name.errors %}{{ error }}
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label
+                    for="{{ form.last_name.id_for_label }}"
+                    class="form-label"
+                    >Nom</label
+                  >
+                  {{ form.last_name }} {% if form.last_name.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.last_name.errors %}{{ error }}
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label
+                    for="{{ form.contact.id_for_label }}"
+                    class="form-label"
+                    >Téléphone</label
+                  >
+                  {{ form.contact }} {% if form.contact.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.contact.errors %}{{ error }}{% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label
+                    for="{{ form.adresse.id_for_label }}"
+                    class="form-label"
+                    >Adresse</label
+                  >
+                  {{ form.adresse }} {% if form.adresse.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.adresse.errors %}{{ error }}{% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
 
-    /* Style pour le formulaire */
-    #user-form .form-text {
-        font-size: 0.85rem;
-        color: #6c757d;
-    }
+          <!-- Rôle et permissions -->
+          <div
+            class="tab-pane fade"
+            id="role"
+            role="tabpanel"
+            aria-labelledby="role-tab"
+          >
+            <div class="card border-light mb-3">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-3 text-muted">
+                  Définissez le niveau d'accès de l'utilisateur
+                </h6>
+                <div class="permissions-grid">
+                  <div class="permission-item p-3 rounded mb-3 border">
+                    <div class="form-check form-switch">
+                      {{ form.is_active }}
+                      <label
+                        class="form-check-label fw-bold"
+                        for="{{ form.is_active.id_for_label }}"
+                      >
+                        Utilisateur actif
+                      </label>
+                    </div>
+                    <div class="ms-4 mt-2">
+                      <small class="text-muted"
+                        >Si désactivé, l'utilisateur ne pourra pas se connecter
+                        à la plateforme.</small
+                      >
+                    </div>
+                  </div>
 
-    #user-form .form-text ul {
-        padding-left: 1.2rem;
-        margin-bottom: 0;
-    }
+                  <div class="permission-item p-3 rounded mb-3 border">
+                    <div class="form-check form-switch">
+                      {{ form.is_staff }}
+                      <label
+                        class="form-check-label fw-bold"
+                        for="{{ form.is_staff.id_for_label }}"
+                      >
+                        Organisateur
+                      </label>
+                    </div>
+                    <div class="ms-4 mt-2">
+                      <small class="text-muted"
+                        >Les organisateurs peuvent créer et gérer des événements
+                        sur la plateforme.</small
+                      >
+                    </div>
+                  </div>
 
-    /* Style pour les form-switch */
-    .form-switch .form-check-input {
-        width: 2.5em;
-        margin-left: -2.8em;
-        height: 1.25em;
-    }
+                  <div class="permission-item p-3 rounded mb-3 border">
+                    <div class="form-check form-switch">
+                      {{ form.is_superuser }}
+                      <label
+                        class="form-check-label fw-bold"
+                        for="{{ form.is_superuser.id_for_label }}"
+                      >
+                        Administrateur
+                      </label>
+                    </div>
+                    <div class="ms-4 mt-2">
+                      <small class="text-muted"
+                        >Les administrateurs ont un accès complet à toutes les
+                        fonctionnalités de la plateforme.</small
+                      >
+                    </div>
+                  </div>
+                </div>
 
-    /* Style pour les alertes */
-    .alert-warning {
-        background-color: #fff3cd;
-        border-color: #ffecb5;
-        color: #664d03;
-    }
+                <div class="alert alert-warning mt-3">
+                  <h6>
+                    <i class="fas fa-exclamation-triangle me-2"></i>Attention
+                  </h6>
+                  <p class="mb-0">
+                    Accordez les permissions d'administration avec parcimonie.
+                    Les administrateurs ont accès à toutes les données
+                    sensibles.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-    /* Style pour les cards */
-    .card-header.bg-light {
-        background-color: #f8f9fa;
-    }
-    </style>
-{% endblock extra_css %}
+          <!-- Options -->
+          <div
+            class="tab-pane fade"
+            id="options"
+            role="tabpanel"
+            aria-labelledby="options-tab"
+          >
+            <div class="card border-light mb-3">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-3 text-muted">
+                  Options additionnelles pour le nouvel utilisateur
+                </h6>
+
+                <div class="option-item p-3 rounded mb-3 border">
+                  <div class="form-check">
+                    {{ form.send_welcome_email }}
+                    <label
+                      class="form-check-label fw-bold"
+                      for="{{ form.send_welcome_email.id_for_label }}"
+                    >
+                      Envoyer un email de bienvenue
+                    </label>
+                  </div>
+                  <div class="ms-4 mt-2">
+                    <small class="text-muted"
+                      >Un email contenant les informations de connexion sera
+                      envoyé à l'adresse email de l'utilisateur.</small
+                    >
+                  </div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                  <h6><i class="fas fa-info-circle me-2"></i>Information</h6>
+                  <p class="mb-0">
+                    Un mot de passe aléatoire sécurisé sera généré et envoyé à
+                    l'utilisateur par email s'il est coché ci-dessus. Le mot de
+                    passe s'affichera également après la création du compte.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <a
+            href="{% url 'dashboard:user_list' %}"
+            class="btn btn-outline-secondary"
+          >
+            <i class="fas fa-arrow-left me-1"></i>Retour à la liste
+          </a>
+          <div>
+            <button type="reset" class="btn btn-outline-danger me-2">
+              <i class="fas fa-redo me-1"></i>Réinitialiser
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i>Créer l'utilisateur
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %} {% block extra_css %}
+<style>
+  /* Styles pour les champs de formulaire */
+  .form-control,
+  .form-select {
+    border-radius: 0.375rem;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+
+  .invalid-feedback {
+    display: block;
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+
+  /* Style pour le formulaire */
+  #user-form .form-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+
+  /* Style pour les form-switch */
+  .form-switch .form-check-input {
+    width: 2.5em;
+    margin-left: -2.8em;
+    height: 1.25em;
+  }
+
+  /* Style pour les alertes */
+  .alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffecb5;
+    color: #664d03;
+  }
+
+  /* Style pour les onglets */
+  .nav-tabs .nav-link {
+    color: #495057;
+  }
+
+  .nav-tabs .nav-link.active {
+    font-weight: 600;
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+  }
+
+  /* Style pour les panels de permissions */
+  .permission-item,
+  .option-item {
+    transition: all 0.2s;
+    background-color: #f8f9fa;
+  }
+
+  .permission-item:hover,
+  .option-item:hover {
+    background-color: #f0f0f0;
+  }
+</style>
+{% endblock extra_css %} {% block extra_js %}
+<script>
+  $(document).ready(function () {
+    // Gestion des transitions entre onglets
+    $("#userFormTabs button").on("click", function (e) {
+      e.preventDefault();
+      $(this).tab("show");
+    });
+
+    // Activer les tooltips Bootstrap si nécessaire
+    var tooltipTriggerList = [].slice.call(
+      document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>
+{% endblock extra_js %}

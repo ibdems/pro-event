@@ -142,92 +142,92 @@
                                     <td>{{ event.category.name }}</td>
                                     <td>
                                         {{ event.start_date|date:"d/m/Y" }} <small class="d-block text-muted">{{ event.start_date|date:"H:i" }}</small>
-                                </td>
-                                <td>{{ event.location }}</td>
-                                <td>
-                                    {% if event.type_event == 'private' %}
-                                        <span class="badge bg-info">Privé</span>
-                                    {% else %}
-                                        <span class="badge bg-success">Public</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if event.statut %}
-                                        <span class="badge bg-success">Actif</span>
-                                    {% else %}
-                                        <span class="badge bg-warning">En attente</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group">
-                                        <a href="{% url 'dashboard:event_edit' uid=event.uid %}"
-                                           class="btn btn-sm btn-outline-primary"
-                                           data-bs-toggle="tooltip"
-                                           title="Modifier">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="{% url 'dashboard:event_detail' uid=event.uid %}"
-                                           class="btn btn-sm btn-outline-info"
-                                           data-bs-toggle="tooltip"
-                                           title="Voir">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
+                                    </td>
+                                    <td>{{ event.location }}</td>
+                                    <td>
                                         {% if event.type_event == 'private' %}
-                                            <a href="{% url 'dashboard:event_detail' uid=event.uid %}#invitations"
-                                               class="btn btn-sm btn-outline-purple"
-                                               data-bs-toggle="tooltip"
-                                               title="Gérer les invitations">
-                                                <i class="fas fa-envelope"></i>
-                                            </a>
-                                        {% endif %}
-                                        {% if event.statut %}
-                                            <form method="post"
-                                                  action="{% url 'dashboard:event_deactivate' uid=event.uid %}"
-                                                  class="d-inline">
-                                                {% csrf_token %}
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-outline-warning"
-                                                        data-bs-toggle="tooltip"
-                                                        title="Désactiver">
-                                                    <i class="fas fa-toggle-off"></i>
-                                                </button>
-                                            </form>
+                                            <span class="badge bg-info">Privé</span>
                                         {% else %}
-                                            <form method="post"
-                                                  action="{% url 'dashboard:event_activate' uid=event.uid %}"
-                                                  class="d-inline">
-                                                {% csrf_token %}
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-outline-success"
-                                                        data-bs-toggle="tooltip"
-                                                        title="Activer">
-                                                    <i class="fas fa-toggle-on"></i>
-                                                </button>
-                                            </form>
+                                            <span class="badge bg-success">Public</span>
                                         {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    <div class="empty-state">
-                                        <i class="fas fa-calendar-times fa-3x mb-3 text-muted"></i>
-                                        <h5>Aucun événement trouvé</h5>
-                                        <p class="text-muted">Il n'y a pas d'événements correspondant à vos critères.</p>
-                                        <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
-                                            <i class="fas fa-plus-circle me-2"></i>Créer un événement
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                    </td>
+                                    <td>
+                                        {% if event.statut %}
+                                            <span class="badge bg-success">Actif</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">En attente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'dashboard:event_edit' uid=event.uid %}"
+                                               class="btn btn-sm btn-outline-primary"
+                                               data-bs-toggle="tooltip"
+                                               title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'dashboard:event_detail' uid=event.uid %}"
+                                               class="btn btn-sm btn-outline-info"
+                                               data-bs-toggle="tooltip"
+                                               title="Voir">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if event.type_event == 'private' %}
+                                                <a href="{% url 'dashboard:event_detail' uid=event.uid %}#invitations"
+                                                   class="btn btn-sm btn-outline-purple"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Gérer les invitations">
+                                                    <i class="fas fa-envelope"></i>
+                                                </a>
+                                            {% endif %}
+                                            {% if event.statut %}
+                                                <form method="post"
+                                                      action="{% url 'dashboard:event_deactivate' uid=event.uid %}"
+                                                      class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-warning"
+                                                            data-bs-toggle="tooltip"
+                                                            title="Désactiver">
+                                                        <i class="fas fa-toggle-off"></i>
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <form method="post"
+                                                      action="{% url 'dashboard:event_activate' uid=event.uid %}"
+                                                      class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-success"
+                                                            data-bs-toggle="tooltip"
+                                                            title="Activer">
+                                                        <i class="fas fa-toggle-on"></i>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="empty-state">
+                                            <i class="fas fa-calendar-times fa-3x mb-3 text-muted"></i>
+                                            <h5>Aucun événement trouvé</h5>
+                                            <p class="text-muted">Il n'y a pas d'événements correspondant à vos critères.</p>
+                                            <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
+                                                <i class="fas fa-plus-circle me-2"></i>Créer un événement
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock content %}
 {% block extra_js %}
     <script>

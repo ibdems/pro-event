@@ -1,11 +1,11 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Invitation: {{ event.title }}</title>
-    <style>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Invitation: {{ event.title }}</title>
+        <style>
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         line-height: 1.6;
@@ -104,67 +104,56 @@
           margin: 10px auto;
         }
       }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <img
-          src="{% static 'img/logo.jpg' %}"
-          alt="ProEvent Logo"
-          class="logo"
-        />
-        <h1 class="event-title">Vous êtes invité(e) à {{ event.title }}</h1>
-        <p>
-          {{ invitation.name }}, vous avez été invité(e) à cet événement privé.
-        </p>
-      </div>
-
-      <div class="event-info">
-        <div class="info-row">
-          <span class="info-label">Date:</span>
-          <span>{{ event.start_date|date:"d F Y à H:i" }}</span>
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <img src="{% static 'img/logo.jpg' %}" alt="ProEvent Logo" class="logo" />
+                <h1 class="event-title">Vous êtes invité(e) à {{ event.title }}</h1>
+                <p>{{ invitation.name }}, vous avez été invité(e) à cet événement privé.</p>
+            </div>
+            <div class="event-info">
+                <div class="info-row">
+                    <span class="info-label">Date:</span>
+                    <span>{{ event.start_date|date:"d F Y à H:i" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Lieu:</span>
+                    <span>{{ event.location }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Type:</span>
+                    <span>{{ invitation.get_ticket_type_display }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Catégorie:</span>
+                    <span>{{ event.category.name }}</span>
+                </div>
+            </div>
+            {% if event.description %}
+                <div class="description">
+                    <h3>À propos de l'événement:</h3>
+                    <p>{{ event.description|linebreaks }}</p>
+                </div>
+            {% endif %}
+            {% if invitation.message %}
+                <div class="message">
+                    <h3>Message personnel:</h3>
+                    <p>{{ invitation.message|linebreaks }}</p>
+                </div>
+            {% endif %}
+            <div class="action-buttons">
+                <a href="{{ accept_url }}" class="btn btn-accept">Accepter l'invitation</a>
+                <a href="{{ decline_url }}" class="btn btn-decline">Décliner</a>
+            </div>
+            <div class="footer">
+                <p>
+                    Si vous avez des questions, n'hésitez pas à contacter l'organisateur
+                    de l'événement.
+                </p>
+                <p>&copy; {{ now.year }} ProEvent. Tous droits réservés.</p>
+            </div>
         </div>
-        <div class="info-row">
-          <span class="info-label">Lieu:</span>
-          <span>{{ event.location }}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Type:</span>
-          <span>{{ invitation.get_ticket_type_display }}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Catégorie:</span>
-          <span>{{ event.category.name }}</span>
-        </div>
-      </div>
-
-      {% if event.description %}
-      <div class="description">
-        <h3>À propos de l'événement:</h3>
-        <p>{{ event.description|linebreaks }}</p>
-      </div>
-      {% endif %} {% if invitation.message %}
-      <div class="message">
-        <h3>Message personnel:</h3>
-        <p>{{ invitation.message|linebreaks }}</p>
-      </div>
-      {% endif %}
-
-      <div class="action-buttons">
-        <a href="{{ accept_url }}" class="btn btn-accept"
-          >Accepter l'invitation</a
-        >
-        <a href="{{ decline_url }}" class="btn btn-decline">Décliner</a>
-      </div>
-
-      <div class="footer">
-        <p>
-          Si vous avez des questions, n'hésitez pas à contacter l'organisateur
-          de l'événement.
-        </p>
-        <p>&copy; {{ now.year }} ProEvent. Tous droits réservés.</p>
-      </div>
-    </div>
-  </body>
+    </body>
 </html>

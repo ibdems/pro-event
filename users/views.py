@@ -37,7 +37,7 @@ class CustomLoginView(LoginView):
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return self.request.GET.get("next", "/proevent/")
+        return self.request.GET.get("next", "/dashboard/")
 
 
 class CustomUserCreationView(CreateView):

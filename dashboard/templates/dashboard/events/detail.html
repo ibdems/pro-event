@@ -341,303 +341,304 @@
                                 <div class="ticket-revenue mt-2">
                                     <small>Revenu:
                                         <strong>{{ event.get_disponibilite.normal.revenu|default:0|floatformat:0 }} FG</strong></small>
+                                </div>
+                            </div>
+                            <!-- Stats Ticket VIP -->
+                            {% if event.infoticket_event.prix_vip > 0 %}
+                                <div class="ticket-stats-card mb-3">
+                                    <div class="ticket-header d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-star me-2 text-warning"></i>VIP
+                                        </h6>
+                                        <span class="ticket-price">{{ event.infoticket_event.prix_vip|floatformat:0 }} FG</span>
+                                    </div>
+                                    <div class="progress my-2" style="height: 5px">
+                                        <div class="progress-bar bg-warning"
+                                             role="progressbar"
+                                             style="--progress-width: {{ event.get_disponibilite.vip.vendus|default:0|floatformat:0 }}%"
+                                             aria-valuenow="{{ event.get_disponibilite.vip.vendus|default:0|floatformat:0 }}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <small>Vendus: {{ event.get_disponibilite.vip.vendus|default:0 }}</small>
+                                        <small>Disponibles: {{ event.get_disponibilite.vip.disponibles|default:0 }}</small>
+                                    </div>
+                                    <div class="ticket-revenue mt-2">
+                                        <small>Revenu:
+                                            <strong>{{ event.get_disponibilite.vip.revenu|default:0|floatformat:0 }} FG</strong></small>
                                     </div>
                                 </div>
-                                <!-- Stats Ticket VIP -->
-                                {% if event.infoticket_event.prix_vip > 0 %}
-                                    <div class="ticket-stats-card mb-3">
-                                        <div class="ticket-header d-flex justify-content-between align-items-center">
-                                            <h6 class="mb-0">
-                                                <i class="fas fa-star me-2 text-warning"></i>VIP
-                                            </h6>
-                                            <span class="ticket-price">{{ event.infoticket_event.prix_vip|floatformat:0 }} FG</span>
-                                        </div>
-                                        <div class="progress my-2" style="height: 5px">
-                                            <div class="progress-bar bg-warning"
-                                                 role="progressbar"
-                                                 style="--progress-width: {{ event.get_disponibilite.vip.vendus|default:0|floatformat:0 }}%"
-                                                 aria-valuenow="{{ event.get_disponibilite.vip.vendus|default:0|floatformat:0 }}"
-                                                 aria-valuemin="0"
-                                                 aria-valuemax="100"></div>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <small>Vendus: {{ event.get_disponibilite.vip.vendus|default:0 }}</small>
-                                            <small>Disponibles: {{ event.get_disponibilite.vip.disponibles|default:0 }}</small>
-                                        </div>
-                                        <div class="ticket-revenue mt-2">
-                                            <small>Revenu:
-                                                <strong>{{ event.get_disponibilite.vip.revenu|default:0|floatformat:0 }} FG</strong></small>
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                    <!-- Stats Ticket VVIP -->
-                                    {% if event.infoticket_event.prix_vvip > 0 %}
-                                        <div class="ticket-stats-card mb-3">
-                                            <div class="ticket-header d-flex justify-content-between align-items-center">
-                                                <h6 class="mb-0">
-                                                    <i class="fas fa-crown me-2 text-danger"></i>VVIP
-                                                </h6>
-                                                <span class="ticket-price">{{ event.infoticket_event.prix_vvip|floatformat:0 }} FG</span>
-                                            </div>
-                                            <div class="progress my-2" style="height: 5px">
-                                                <div class="progress-bar bg-danger"
-                                                     role="progressbar"
-                                                     style="--progress-width: {{ event.get_disponibilite.vvip.vendus|default:0|floatformat:0 }}%"
-                                                     aria-valuenow="{{ event.get_disponibilite.vvip.vendus|default:0|floatformat:0 }}"
-                                                     aria-valuemin="0"
-                                                     aria-valuemax="100"></div>
-                                            </div>
-                                            <div class="d-flex justify-content-between">
-                                                <small>Vendus:
-                                                {{ event.get_disponibilite.vvip.vendus|default:0 }}</small>
-                                                <small>Disponibles: {{
-                                                event.get_disponibilite.vvip.disponibles|default:0 }}</small>
-                                            </div>
-                                            <div class="ticket-revenue mt-2">
-                                                <small>Revenu:
-                                                    <strong>{{ event.get_disponibilite.vvip.revenu|default:0|floatformat:0 }} FG</strong></small>
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                        <!-- Total des revenus -->
-                                        <div class="total-revenue p-3 bg-light rounded mt-3">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span>Total des revenus:</span>
-                                                <span class="fw-bold fs-5">{{ event.get_total_revenus|floatformat:0 }} FG</span>
-                                            </div>
-                                        </div>
+                            {% endif %}
+                            <!-- Stats Ticket VVIP -->
+                            {% if event.infoticket_event.prix_vvip > 0 %}
+                                <div class="ticket-stats-card mb-3">
+                                    <div class="ticket-header d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-crown me-2 text-danger"></i>VVIP
+                                        </h6>
+                                        <span class="ticket-price">{{ event.infoticket_event.prix_vvip|floatformat:0 }} FG</span>
                                     </div>
-                                    <!-- Actions liées aux tickets -->
-                                    <div class="ticket-actions mt-3">
-                                        <a href="{% url 'dashboard:ticket_list' %}?event={{ event.uid }}"
-                                           class="btn btn-outline-primary btn-sm w-100 mb-2">
-                                            <i class="fas fa-ticket-alt me-2"></i>Voir tous les tickets vendus
-                                        </a>
-                                        <a href="#" class="btn btn-outline-secondary btn-sm w-100">
-                                            <i class="fas fa-download me-2"></i>Exporter les données
-                                        </a>
+                                    <div class="progress my-2" style="height: 5px">
+                                        <div class="progress-bar bg-danger"
+                                             role="progressbar"
+                                             style="--progress-width: {{ event.get_disponibilite.vvip.vendus|default:0|floatformat:0 }}%"
+                                             aria-valuenow="{{ event.get_disponibilite.vvip.vendus|default:0|floatformat:0 }}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100"></div>
                                     </div>
+                                    <div class="d-flex justify-content-between">
+                                        <small>Vendus:
+                                        {{ event.get_disponibilite.vvip.vendus|default:0 }}</small>
+                                        <small>Disponibles: {{
+                                        event.get_disponibilite.vvip.disponibles|default:0 }}</small>
+                                    </div>
+                                    <div class="ticket-revenue mt-2">
+                                        <small>Revenu:
+                                            <strong>{{ event.get_disponibilite.vvip.revenu|default:0|floatformat:0 }} FG</strong></small>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <!-- Total des revenus -->
+                            <div class="total-revenue p-3 bg-light rounded mt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Total des revenus:</span>
+                                    <span class="fw-bold fs-5">{{ event.get_total_revenus|floatformat:0 }} FG</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- Section des tickets récents -->
-                    <div class="card dashboard-card mt-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Tickets récents</h5>
+                        <!-- Actions liées aux tickets -->
+                        <div class="ticket-actions mt-3">
                             <a href="{% url 'dashboard:ticket_list' %}?event={{ event.uid }}"
-                               class="btn btn-sm btn-link">Voir tout</a>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>Code ticket</th>
-                                            <th>Type</th>
-                                            <th>Acheteur</th>
-                                            <th>Date d'achat</th>
-                                            <th>Prix</th>
-                                            <th>Statut</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for ticket in tickets %}
-                                            <tr>
-                                                <td>
-                                                    <span class="badge bg-light text-dark">{{ ticket.code_ticket }}</span>
-                                                </td>
-                                                <td>
-                                                    {% if ticket.type_ticket == 'normal' %}
-                                                        <span class="badge bg-primary">Standard</span>
-                                                    {% elif ticket.type_ticket == 'vip' %}
-                                                        <span class="badge bg-warning">VIP</span>
-                                                    {% elif ticket.type_ticket == 'vvip' %}
-                                                        <span class="badge bg-danger">VVIP</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>{{ ticket.payement.nom_complet }}</td>
-                                                <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
-                                                <td>
-                                                    {% if ticket.type_ticket == 'normal' %}
-                                                        {{ event.infoticket_event.prix_normal|floatformat:0 }} FG
-                                                    {% elif icket.type_ticket == 'vip' %}
-                                                        {{ event.infoticket_event.prix_vip|floatformat:0 }} FG
-                                                    {% elif ticket.type_ticket == 'vvip' %}
-                                                        {{ event.infoticket_event.prix_vvip|floatformat:0 }} FG
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if ticket.scan_count > 0 %}
-                                                        <span class="badge bg-success">Utilisé</span>
-                                                    {% else %}
-                                                        <span class="badge bg-info">Non utilisé</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    <a href="{% url 'dashboard:ticket_detail' code=ticket.code_ticket %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
-                                                </td>
-                                            </tr>
-                                        {% empty %}
-                                            <tr>
-                                                <td colspan="7" class="text-center py-4">
-                                                    <i class="fas fa-ticket-alt fa-2x text-muted mb-3"></i>
-                                                    <p class="mb-0">Aucun ticket vendu pour cet événement.</p>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                               class="btn btn-outline-primary btn-sm w-100 mb-2">
+                                <i class="fas fa-ticket-alt me-2"></i>Voir tous les tickets vendus
+                            </a>
+                            <a href="#" class="btn btn-outline-secondary btn-sm w-100">
+                                <i class="fas fa-download me-2"></i>Exporter les données
+                            </a>
                         </div>
                     </div>
                 </div>
-                <!-- Modal d'invitation -->
-                <div class="modal fade"
-                     id="inviteModal"
-                     tabindex="-1"
-                     aria-labelledby="inviteModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="inviteModalLabel">Envoyer des invitations</h5>
-                                <button type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <ul class="nav nav-tabs" id="inviteTabs" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link active"
-                                                id="single-tab"
-                                                data-bs-target="#singleInvite"
-                                                type="button"
-                                                role="tab"
-                                                aria-controls="singleInvite"
-                                                aria-selected="true">Invitation individuelle</button>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link"
-                                                id="multiple-tab"
-                                                data-bs-target="#multipleInvite"
-                                                type="button"
-                                                role="tab"
-                                                aria-controls="multipleInvite"
-                                                aria-selected="false">Invitations multiples</button>
-                                    </li>
-                                </ul>
-                                <div class="tab-content mt-3" id="inviteTabsContent">
-                                    <!-- Onglet invitation individuelle -->
-                                    <div class="tab-pane fade show active"
-                                         id="singleInvite"
-                                         role="tabpanel"
-                                         aria-labelledby="single-tab">
-                                        <form action="{% url 'dashboard:event_send_invitation' uid=event.uid %}"
-                                              method="post">
-                                            {% csrf_token %}
-                                            <div class="mb-3">
-                                                <label for="inviteName" class="form-label">Nom de l'invité</label>
-                                                <input type="text" class="form-control" id="inviteName" name="name" required />
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="inviteEmail" class="form-label">Email</label>
-                                                <input type="email"
-                                                       class="form-control"
-                                                       id="inviteEmail"
-                                                       name="email"
-                                                       required />
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="ticketType" class="form-label">Type de ticket</label>
-                                                <select class="form-select" id="ticketType" name="ticket_type">
-                                                    <option value="normal">Standard</option>
-                                                    {% if event.infoticket_event.prix_vip > 0 %}<option value="vip">VIP</option>{% endif %}
-                                                    {% if event.infoticket_event.prix_vvip > 0 %}<option value="vvip">VVIP</option>{% endif %}
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="inviteMessage" class="form-label">Message personnalisé (optionnel)</label>
-                                                <textarea class="form-control" id="inviteMessage" name="message" rows="3"></textarea>
-                                            </div>
-                                            <div class="mb-3 form-check">
-                                                <input type="checkbox"
-                                                       class="form-check-input"
-                                                       id="sendNow"
-                                                       name="send_now"
-                                                       checked />
-                                                <label class="form-check-label" for="sendNow">Envoyer l'invitation immédiatement</label>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">Envoyer l'invitation</button>
-                                        </form>
-                                    </div>
-                                    <!-- Onglet invitations multiples -->
-                                    <div class="tab-pane fade"
-                                         id="multipleInvite"
-                                         role="tabpanel"
-                                         aria-labelledby="multiple-tab">
-                                        <div class="alert alert-info">
-                                            <i class="fas fa-info-circle me-2"></i>
-                                            Importez un fichier CSV contenant les invités. Le fichier doit
-                                            avoir les colonnes : Nom, Email.
-                                        </div>
-                                        <form id="csvUploadForm"
-                                              action="{% url 'dashboard:event_import_invitations' uid=event.uid %}"
-                                              method="post"
-                                              enctype="multipart/form-data">
-                                            {% csrf_token %}
-                                            <div class="mb-3">
-                                                <label for="invitationCsv" class="form-label">Fichier CSV d'invités</label>
-                                                <div class="input-group">
-                                                    <input type="file"
-                                                           class="form-control"
-                                                           id="invitationCsv"
-                                                           name="invitation_csv"
-                                                           accept=".csv"
-                                                           required />
-                                                    <a href="{% url 'dashboard:event_download_invitation_template' %}"
-                                                       class="btn btn-outline-secondary">
-                                                        <i class="fas fa-download me-1"></i> Modèle
-                                                    </a>
-                                                </div>
-                                                <small class="text-muted">Téléchargez le modèle pour voir le format attendu</small>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="inviteMessageMultiple" class="form-label">Message commun (optionnel)</label>
-                                                <textarea class="form-control"
-                                                          id="inviteMessageMultiple"
-                                                          name="message"
-                                                          rows="3"></textarea>
-                                            </div>
-                                            <div class="mb-3 form-check">
-                                                <input type="checkbox"
-                                                       class="form-check-input"
-                                                       id="sendNowMultiple"
-                                                       name="send_now"
-                                                       checked />
-                                                <label class="form-check-label" for="sendNowMultiple">Envoyer les invitations immédiatement</label>
-                                            </div>
-                                            <div class="d-flex justify-content-between">
-                                                <button type="submit" class="btn btn-primary">
-                                                    <i class="fas fa-file-import me-2"></i>Importer et envoyer
-                                                </button>
-                                                <a href="{% url 'dashboard:event_download_invitation_template' %}"
-                                                   class="btn btn-outline-secondary">
-                                                    <i class="fas fa-download me-2"></i>Télécharger le modèle
-                                                </a>
-                                            </div>
-                                        </form>
-                                    </div>
+            </div>
+        </div>
+        <!-- Section des tickets récents -->
+        <div class="card dashboard-card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Tickets récents</h5>
+                <a href="{% url 'dashboard:ticket_list' %}?event={{ event.uid }}"
+                   class="btn btn-sm btn-link">Voir tout</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Code ticket</th>
+                                <th>Type</th>
+                                <th>Acheteur</th>
+                                <th>Date d'achat</th>
+                                <th>Prix</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ticket in tickets %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-light text-dark">{{ ticket.code_ticket }}</span>
+                                    </td>
+                                    <td>
+                                        {% if ticket.type_ticket == 'normal' %}
+                                            <span class="badge bg-primary">Standard</span>
+                                        {% elif ticket.type_ticket == 'vip' %}
+                                            <span class="badge bg-warning">VIP</span>
+                                        {% elif ticket.type_ticket == 'vvip' %}
+                                            <span class="badge bg-danger">VVIP</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ ticket.payement.nom_complet }}</td>
+                                    <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if ticket.type_ticket == 'normal' %}
+                                            {{ event.infoticket_event.prix_normal|floatformat:0 }} FG
+                                        {% elif icket.type_ticket == 'vip' %}
+                                            {{ event.infoticket_event.prix_vip|floatformat:0 }} FG
+                                        {% elif ticket.type_ticket == 'vvip' %}
+                                            {{ event.infoticket_event.prix_vvip|floatformat:0 }} FG
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if ticket.scan_count > 0 %}
+                                            <span class="badge bg-success">Utilisé</span>
+                                        {% else %}
+                                            <span class="badge bg-info">Non utilisé</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'dashboard:ticket_detail' code=ticket.code_ticket %}"
+                                           class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <i class="fas fa-ticket-alt fa-2x text-muted mb-3"></i>
+                                        <p class="mb-0">Aucun ticket vendu pour cet événement.</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal d'invitation -->
+    <div class="modal fade"
+         id="inviteModal"
+         tabindex="-1"
+         aria-labelledby="inviteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inviteModalLabel">Envoyer des invitations</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="inviteTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active"
+                                    id="single-tab"
+                                    data-bs-target="#singleInvite"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="singleInvite"
+                                    aria-selected="true">Invitation individuelle</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link"
+                                    id="multiple-tab"
+                                    data-bs-target="#multipleInvite"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="multipleInvite"
+                                    aria-selected="false">Invitations multiples</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3" id="inviteTabsContent">
+                        <!-- Onglet invitation individuelle -->
+                        <div class="tab-pane fade show active"
+                             id="singleInvite"
+                             role="tabpanel"
+                             aria-labelledby="single-tab">
+                            <form action="{% url 'dashboard:event_send_invitation' uid=event.uid %}"
+                                  method="post">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="inviteName" class="form-label">Nom de l'invité</label>
+                                    <input type="text" class="form-control" id="inviteName" name="name" required />
                                 </div>
+                                <div class="mb-3">
+                                    <label for="inviteEmail" class="form-label">Email</label>
+                                    <input type="email"
+                                           class="form-control"
+                                           id="inviteEmail"
+                                           name="email"
+                                           required />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="ticketType" class="form-label">Type de ticket</label>
+                                    <select class="form-select" id="ticketType" name="ticket_type">
+                                        <option value="normal">Standard</option>
+                                        {% if event.infoticket_event.prix_vip > 0 %}<option value="vip">VIP</option>{% endif %}
+                                        {% if event.infoticket_event.prix_vvip > 0 %}<option value="vvip">VVIP</option>{% endif %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="inviteMessage" class="form-label">Message personnalisé (optionnel)</label>
+                                    <textarea class="form-control" id="inviteMessage" name="message" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox"
+                                           class="form-check-input"
+                                           id="sendNow"
+                                           name="send_now"
+                                           checked />
+                                    <label class="form-check-label" for="sendNow">Envoyer l'invitation immédiatement</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Envoyer l'invitation</button>
+                            </form>
+                        </div>
+                        <!-- Onglet invitations multiples -->
+                        <div class="tab-pane fade"
+                             id="multipleInvite"
+                             role="tabpanel"
+                             aria-labelledby="multiple-tab">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Importez un fichier CSV contenant les invités. Le fichier doit
+                                avoir les colonnes : Nom, Email.
                             </div>
+                            <form id="csvUploadForm"
+                                  action="{% url 'dashboard:event_import_invitations' uid=event.uid %}"
+                                  method="post"
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="invitationCsv" class="form-label">Fichier CSV d'invités</label>
+                                    <div class="input-group">
+                                        <input type="file"
+                                               class="form-control"
+                                               id="invitationCsv"
+                                               name="invitation_csv"
+                                               accept=".csv"
+                                               required />
+                                        <a href="{% url 'dashboard:event_download_invitation_template' %}"
+                                           class="btn btn-outline-secondary">
+                                            <i class="fas fa-download me-1"></i> Modèle
+                                        </a>
+                                    </div>
+                                    <small class="text-muted">Téléchargez le modèle pour voir le format attendu</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="inviteMessageMultiple" class="form-label">Message commun (optionnel)</label>
+                                    <textarea class="form-control"
+                                              id="inviteMessageMultiple"
+                                              name="message"
+                                              rows="3"></textarea>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox"
+                                           class="form-check-input"
+                                           id="sendNowMultiple"
+                                           name="send_now"
+                                           checked />
+                                    <label class="form-check-label" for="sendNowMultiple">Envoyer les invitations immédiatement</label>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-file-import me-2"></i>Importer et envoyer
+                                    </button>
+                                    <a href="{% url 'dashboard:event_download_invitation_template' %}"
+                                       class="btn btn-outline-secondary">
+                                        <i class="fas fa-download me-2"></i>Télécharger le modèle
+                                    </a>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
-            {% endblock content %}
-            {% block extra_css %}
-                <style>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_css %}
+    <style>
   .event-detail-image {
     max-width: 100%;
     border-radius: 10px;
@@ -803,10 +804,10 @@
       box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
     }
   }
-                </style>
-            {% endblock extra_css %}
-            {% block extra_js %}
-                <script>
+    </style>
+{% endblock extra_css %}
+{% block extra_js %}
+    <script>
   $(document).ready(function () {
     // Gestionnaire pour ouvrir le modal d'invitation via jQuery
     $("#openInviteModalBtn, #openInviteModalBtn2").on("click", function (e) {
@@ -880,5 +881,5 @@
       }
     });
   });
-                </script>
-            {% endblock extra_js %}
+    </script>
+{% endblock extra_js %}

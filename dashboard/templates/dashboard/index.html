@@ -1,359 +1,389 @@
-{% extends 'dashboard/base.html' %}
-{% load static %}
-{% block title %}
-    Tableau de Bord
-{% endblock title %}
-{% block page_title %}
-    Tableau de Bord
-{% endblock page_title %}
-{% block content %}
-    <div class="dashboard-overview">
-        <!-- Statistiques / Cartes récapitulatives -->
-        <div class="row stats-cards">
-            <!-- Événements -->
-            <div class="col-md-6 col-lg-3 mb-4">
-                <div class="stats-card">
-                    <div class="stats-card-body">
-                        <div class="stats-card-icon bg-primary">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        <div class="stats-card-info">
-                            <h3>{{ total_events }}</h3>
-                            <p>Événements</p>
-                        </div>
-                    </div>
-                    <div class="stats-card-footer">
-                        <a href="{% url 'dashboard:event_list' %}">Voir tous les événements</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Tickets -->
-            <div class="col-md-6 col-lg-3 mb-4">
-                <div class="stats-card">
-                    <div class="stats-card-body">
-                        <div class="stats-card-icon bg-success">
-                            <i class="fas fa-ticket-alt"></i>
-                        </div>
-                        <div class="stats-card-info">
-                            <h3>{{ total_tickets }}</h3>
-                            <p>Tickets</p>
-                        </div>
-                    </div>
-                    <div class="stats-card-footer">
-                        <a href="{% url 'dashboard:ticket_list' %}">Voir tous les tickets</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Paiements -->
-            <div class="col-md-6 col-lg-3 mb-4">
-                <div class="stats-card">
-                    <div class="stats-card-body">
-                        <div class="stats-card-icon bg-info">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
-                        <div class="stats-card-info">
-                            <h3>{{ total_payments }}</h3>
-                            <p>Paiements</p>
-                        </div>
-                    </div>
-                    <div class="stats-card-footer">
-                        <a href="#">Voir tous les paiements</a>
-                    </div>
-                </div>
-            </div>
-            {% if request.user.is_staff or request.user.is_superuser %}
-                <!-- Demandes -->
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="stats-card">
-                        <div class="stats-card-body">
-                            <div class="stats-card-icon bg-warning">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <div class="stats-card-info">
-                                <h3>{{ total_demandes }}</h3>
-                                <p>Demandes</p>
-                            </div>
-                        </div>
-                        <div class="stats-card-footer">
-                            <a href="{% url 'dashboard:demande_list' %}">Voir toutes les demandes</a>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+{% extends 'dashboard/base.html' %} {% load static %} {% block title %} Tableau
+de Bord {% endblock title %} {% block page_title %} Tableau de Bord
+{% endblock page_title %} {% block content %}
+<div class="dashboard-overview">
+  <!-- Statistiques / Cartes récapitulatives -->
+  <div class="row stats-cards">
+    <!-- Événements -->
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="stats-card">
+        <div class="stats-card-body">
+          <div class="stats-card-icon bg-primary">
+            <i class="fas fa-calendar-alt"></i>
+          </div>
+          <div class="stats-card-info">
+            <h3>{{ total_events }}</h3>
+            <p>Événements</p>
+          </div>
         </div>
-        <!-- Graphiques -->
-        <div class="row">
-            {% if events_by_category %}
-                <!-- Événements par catégorie -->
-                <div class="col-md-6 mb-4">
-                    <div class="card dashboard-card">
-                        <div class="card-header">
-                            <h5 class="card-title">Événements par catégorie</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="eventsByCategoryChart" height="300"></canvas>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-            {% if tickets_by_type %}
-                <!-- Tickets par type -->
-                <div class="col-md-6 mb-4">
-                    <div class="card dashboard-card">
-                        <div class="card-header">
-                            <h5 class="card-title">Tickets par type</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="ticketsByTypeChart" height="300"></canvas>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+        <div class="stats-card-footer">
+          <a href="{% url 'dashboard:event_list' %}"
+            >Voir tous les événements</a
+          >
         </div>
-        <!-- Liste des événements récents -->
-        <div class="row">
-            <div class="col-12 mb-4">
-                <div class="card dashboard-card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title">Événements récents</h5>
-                        <a href="{% url 'dashboard:event_list' %}"
-                           class="btn btn-sm btn-primary">Tous les événements</a>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Titre</th>
-                                        <th>Catégorie</th>
-                                        <th>Date</th>
-                                        <th>Lieu</th>
-                                        <th>Statut</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for event in recent_events %}
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    {% if event.image_event %}
-                                                        <img src="{{ event.image_event.url }}"
-                                                             alt="{{ event.title }}"
-                                                             class="event-thumb me-2">
-                                                    {% else %}
-                                                        <div class="event-thumb-placeholder me-2">
-                                                            <i class="fas fa-calendar"></i>
-                                                        </div>
-                                                    {% endif %}
-                                                    <span>{{ event.title }}</span>
-                                                </div>
-                                            </td>
-                                            <td>{{ event.category.name }}</td>
-                                            <td>{{ event.date_event|date:"d/m/Y" }}</td>
-                                            <td>{{ event.location }}</td>
-                                            <td>
-                                                {% if event.statut %}
-                                                    <span class="badge bg-success">Actif</span>
-                                                {% else %}
-                                                    <span class="badge bg-warning">En attente</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="{% url 'dashboard:event_edit' uid=event.uid %}"
-                                                       class="btn btn-sm btn-outline-primary"
-                                                       data-bs-toggle="tooltip"
-                                                       title="Modifier">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    <a href="{% url 'event:event_detail' uid=event.uid %}"
-                                                       class="btn btn-sm btn-outline-info"
-                                                       data-bs-toggle="tooltip"
-                                                       title="Voir">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% empty %}
-                                        <tr>
-                                            <td colspan="6" class="text-center">Aucun événement trouvé</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% if request.user.is_staff or request.user.is_superuser %}
-            <div class="row">
-                <!-- Demandes récentes -->
-                <div class="col-md-6 mb-4">
-                    <div class="card dashboard-card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title">Demandes récentes</h5>
-                            <a href="{% url 'dashboard:demande_list' %}"
-                               class="btn btn-sm btn-primary">Toutes les demandes</a>
-                        </div>
-                        <div class="card-body">
-                            <ul class="dashboard-list">
-                                {% for demande in recent_demandes %}
-                                    <li class="dashboard-list-item">
-                                        <div class="item-icon bg-info">
-                                            <i class="fas fa-file-alt"></i>
-                                        </div>
-                                        <div class="item-content">
-                                            <h6>Demande #{{ demande.id }}</h6>
-                                            <p>
-                                                {% if demande.anonymous_user %}
-                                                    Par: {{ demande.anonymous_user.first_name }} {{ demande.anonymous_user.last_name }}
-                                                {% elif demande.user %}
-                                                    Par: {{ demande.user.first_name }} {{ demande.user.last_name }}
-                                                {% else %}
-                                                    Utilisateur inconnu
-                                                {% endif %}
-                                            </p>
-                                            <div class="item-meta">
-                                                <span class="badge {% if demande.is_accepted %}bg-success{% else %}bg-warning{% endif %}">
-                                                    {% if demande.is_accepted %}
-                                                        Acceptée
-                                                    {% else %}
-                                                        En attente
-                                                    {% endif %}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="item-action">
-                                            <a href="{% url 'dashboard:demande_detail' uid=demande.uid %}"
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </div>
-                                    </li>
-                                {% empty %}
-                                    <li class="dashboard-list-item empty-list">
-                                        <p class="text-center">Aucune demande récente</p>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- Messages de contact récents -->
-                <div class="col-md-6 mb-4">
-                    <div class="card dashboard-card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title">Messages récents</h5>
-                            <a href="{% url 'dashboard:contact_list' %}"
-                               class="btn btn-sm btn-primary">Tous les messages</a>
-                        </div>
-                        <div class="card-body">
-                            <ul class="dashboard-list">
-                                {% for contact in recent_contacts %}
-                                    <li class="dashboard-list-item {% if not contact.is_read %}unread{% endif %}">
-                                        <div class="item-icon {% if not contact.is_read %}bg-danger{% else %}bg-success{% endif %}">
-                                            <i class="fas fa-envelope{% if contact.is_read %}-open{% endif %}"></i>
-                                        </div>
-                                        <div class="item-content">
-                                            <h6>{{ contact.subject }}</h6>
-                                            <p>De: {{ contact.name }} ({{ contact.email }})</p>
-                                            <div class="item-meta">
-                                                <span class="text-muted">{{ contact.created_at|date:"d/m/Y H:i" }}</span>
-                                                {% if not contact.is_read %}<span class="badge bg-danger">Non lu</span>{% endif %}
-                                            </div>
-                                        </div>
-                                        <div class="item-action">
-                                            <a href="{% url 'dashboard:contact_detail' pk=contact.id %}"
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </div>
-                                    </li>
-                                {% empty %}
-                                    <li class="dashboard-list-item empty-list">
-                                        <p class="text-center">Aucun message récent</p>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
+      </div>
     </div>
-{% endblock content %}
-{% block extra_js %}
-    <script>
-    // Événements par catégorie
+    <!-- Tickets -->
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="stats-card">
+        <div class="stats-card-body">
+          <div class="stats-card-icon bg-success">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          <div class="stats-card-info">
+            <h3>{{ total_tickets }}</h3>
+            <p>Tickets</p>
+          </div>
+        </div>
+        <div class="stats-card-footer">
+          <a href="{% url 'dashboard:ticket_list' %}">Voir tous les tickets</a>
+        </div>
+      </div>
+    </div>
+    <!-- Paiements -->
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="stats-card">
+        <div class="stats-card-body">
+          <div class="stats-card-icon bg-info">
+            <i class="fas fa-money-bill-wave"></i>
+          </div>
+          <div class="stats-card-info">
+            <h3>{{ total_payments }}</h3>
+            <p>Paiements</p>
+          </div>
+        </div>
+        <div class="stats-card-footer">
+          <a href="#">Voir tous les paiements</a>
+        </div>
+      </div>
+    </div>
+    {% if request.user.is_staff or request.user.is_superuser %}
+    <!-- Demandes -->
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="stats-card">
+        <div class="stats-card-body">
+          <div class="stats-card-icon bg-warning">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="stats-card-info">
+            <h3>{{ total_demandes }}</h3>
+            <p>Demandes</p>
+          </div>
+        </div>
+        <div class="stats-card-footer">
+          <a href="{% url 'dashboard:demande_list' %}"
+            >Voir toutes les demandes</a
+          >
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <!-- Graphiques -->
+  <div class="row">
     {% if events_by_category %}
-    const eventsCategoryCtx = document.getElementById('eventsByCategoryChart').getContext('2d');
-    const eventsByCategoryChart = new Chart(eventsCategoryCtx, {
-        type: 'doughnut',
-        data: {
-            labels: [{% for category, count in events_by_category.items %}'{{ category|default:"Non catégorisé" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
-            datasets: [{
-                label: 'Événements par catégorie',
-                data: [{% for category, count in events_by_category.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(255, 99, 132, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(153, 102, 255, 0.8)',
-                    'rgba(255, 159, 64, 0.8)',
-                    'rgba(199, 199, 199, 0.8)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'right',
-                }
-            }
-        }
-    });
+    <!-- Événements par catégorie -->
+    <div class="col-md-6 mb-4">
+      <div class="card dashboard-card">
+        <div class="card-header">
+          <h5 class="card-title">Événements par catégorie</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="eventsByCategoryChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+    {% endif %} {% if tickets_by_type %}
+    <!-- Tickets par type -->
+    <div class="col-md-6 mb-4">
+      <div class="card dashboard-card">
+        <div class="card-header">
+          <h5 class="card-title">Tickets par type</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="ticketsByTypeChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
     {% endif %}
+  </div>
+  <!-- Liste des événements récents -->
+  <div class="row">
+    <div class="col-12 mb-4">
+      <div class="card dashboard-card">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <h5 class="card-title">Événements récents</h5>
+          <a
+            href="{% url 'dashboard:event_list' %}"
+            class="btn btn-sm btn-primary"
+            >Tous les événements</a
+          >
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Titre</th>
+                  <th>Catégorie</th>
+                  <th>Date</th>
+                  <th>Lieu</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for event in recent_events %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      {% if event.image_event %}
+                      <img
+                        src="{{ event.image_event.url }}"
+                        alt="{{ event.title }}"
+                        class="event-thumb me-2"
+                      />
+                      {% else %}
+                      <div class="event-thumb-placeholder me-2">
+                        <i class="fas fa-calendar"></i>
+                      </div>
+                      {% endif %}
+                      <span>{{ event.title }}</span>
+                    </div>
+                  </td>
+                  <td>{{ event.category.name }}</td>
+                  <td>{{ event.date_event|date:"d/m/Y" }}</td>
+                  <td>{{ event.location }}</td>
+                  <td>
+                    {% if event.statut %}
+                    <span class="badge bg-success">Actif</span>
+                    {% else %}
+                    <span class="badge bg-warning">En attente</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <a
+                        href="{% url 'dashboard:event_edit' uid=event.uid %}"
+                        class="btn btn-sm btn-outline-primary"
+                        data-bs-toggle="tooltip"
+                        title="Modifier"
+                      >
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a
+                        href="{% url 'event:event_detail' uid=event.uid %}"
+                        class="btn btn-sm btn-outline-info"
+                        data-bs-toggle="tooltip"
+                        title="Voir"
+                      >
+                        <i class="fas fa-eye"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center">
+                    Aucun événement trouvé
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if request.user.is_staff or request.user.is_superuser %}
+  <div class="row">
+    <!-- Demandes récentes -->
+    <div class="col-md-6 mb-4">
+      <div class="card dashboard-card">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <h5 class="card-title">Demandes récentes</h5>
+          <a
+            href="{% url 'dashboard:demande_list' %}"
+            class="btn btn-sm btn-primary"
+            >Toutes les demandes</a
+          >
+        </div>
+        <div class="card-body">
+          <ul class="dashboard-list">
+            {% for demande in recent_demandes %}
+            <li class="dashboard-list-item">
+              <div class="item-icon bg-info">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <div class="item-content">
+                <h6>Demande #{{ demande.id }}</h6>
+                <p>
+                  {% if demande.anonymous_user %} Par: {{
+                  demande.anonymous_user.first_name }} {{
+                  demande.anonymous_user.last_name }} {% elif demande.user %}
+                  Par: {{ demande.user.first_name }} {{ demande.user.last_name
+                  }} {% else %} Utilisateur inconnu {% endif %}
+                </p>
+                <div class="item-meta">
+                  <span
+                    class="badge {% if demande.is_accepted %}bg-success{% else %}bg-warning{% endif %}"
+                  >
+                    {% if demande.is_accepted %} Acceptée {% else %} En attente
+                    {% endif %}
+                  </span>
+                </div>
+              </div>
+              <div class="item-action">
+                <a
+                  href="{% url 'dashboard:demande_detail' uid=demande.uid %}"
+                  class="btn btn-sm btn-outline-primary"
+                >
+                  <i class="fas fa-eye"></i>
+                </a>
+              </div>
+            </li>
+            {% empty %}
+            <li class="dashboard-list-item empty-list">
+              <p class="text-center">Aucune demande récente</p>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Messages de contact récents -->
+    <div class="col-md-6 mb-4">
+      <div class="card dashboard-card">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <h5 class="card-title">Messages récents</h5>
+          <a
+            href="{% url 'dashboard:contact_list' %}"
+            class="btn btn-sm btn-primary"
+            >Tous les messages</a
+          >
+        </div>
+        <div class="card-body">
+          <ul class="dashboard-list">
+            {% for contact in recent_contacts %}
+            <li
+              class="dashboard-list-item {% if not contact.is_read %}unread{% endif %}"
+            >
+              <div
+                class="item-icon {% if not contact.is_read %}bg-danger{% else %}bg-success{% endif %}"
+              >
+                <i
+                  class="fas fa-envelope{% if contact.is_read %}-open{% endif %}"
+                ></i>
+              </div>
+              <div class="item-content">
+                <h6>{{ contact.subject }}</h6>
+                <p>De: {{ contact.name }} ({{ contact.email }})</p>
+                <div class="item-meta">
+                  <span class="text-muted"
+                    >{{ contact.created_at|date:"d/m/Y H:i" }}</span
+                  >
+                  {% if not contact.is_read %}<span class="badge bg-danger"
+                    >Non lu</span
+                  >{% endif %}
+                </div>
+              </div>
+              <div class="item-action">
+                <a
+                  href="{% url 'dashboard:contact_detail' id=contact.id %}"
+                  class="btn btn-sm btn-outline-primary"
+                >
+                  <i class="fas fa-eye"></i>
+                </a>
+              </div>
+            </li>
+            {% empty %}
+            <li class="dashboard-list-item empty-list">
+              <p class="text-center">Aucun message récent</p>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %} {% block extra_js %}
+<script>
+  // Événements par catégorie
+  {% if events_by_category %}
+  const eventsCategoryCtx = document.getElementById('eventsByCategoryChart').getContext('2d');
+  const eventsByCategoryChart = new Chart(eventsCategoryCtx, {
+      type: 'doughnut',
+      data: {
+          labels: [{% for category, count in events_by_category.items %}'{{ category|default:"Non catégorisé" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+          datasets: [{
+              label: 'Événements par catégorie',
+              data: [{% for category, count in events_by_category.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+              backgroundColor: [
+                  'rgba(54, 162, 235, 0.8)',
+                  'rgba(255, 99, 132, 0.8)',
+                  'rgba(255, 206, 86, 0.8)',
+                  'rgba(75, 192, 192, 0.8)',
+                  'rgba(153, 102, 255, 0.8)',
+                  'rgba(255, 159, 64, 0.8)',
+                  'rgba(199, 199, 199, 0.8)'
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          responsive: true,
+          plugins: {
+              legend: {
+                  position: 'right',
+              }
+          }
+      }
+  });
+  {% endif %}
 
-    // Tickets par type
-    {% if tickets_by_type %}
-    const ticketsTypeCtx = document.getElementById('ticketsByTypeChart').getContext('2d');
-    const ticketsByTypeChart = new Chart(ticketsTypeCtx, {
-        type: 'pie',
-        data: {
-            labels: [{% for type, count in tickets_by_type.items %}'{{ type|default:"Non défini" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
-            datasets: [{
-                label: 'Tickets par type',
-                data: [{% for type, count in tickets_by_type.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
-                backgroundColor: [
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(255, 99, 132, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(54, 162, 235, 0.8)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'right',
-                }
-            }
-        }
-    });
-    {% endif %}
+  // Tickets par type
+  {% if tickets_by_type %}
+  const ticketsTypeCtx = document.getElementById('ticketsByTypeChart').getContext('2d');
+  const ticketsByTypeChart = new Chart(ticketsTypeCtx, {
+      type: 'pie',
+      data: {
+          labels: [{% for type, count in tickets_by_type.items %}'{{ type|default:"Non défini" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+          datasets: [{
+              label: 'Tickets par type',
+              data: [{% for type, count in tickets_by_type.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+              backgroundColor: [
+                  'rgba(75, 192, 192, 0.8)',
+                  'rgba(255, 99, 132, 0.8)',
+                  'rgba(255, 206, 86, 0.8)',
+                  'rgba(54, 162, 235, 0.8)'
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          responsive: true,
+          plugins: {
+              legend: {
+                  position: 'right',
+              }
+          }
+      }
+  });
+  {% endif %}
 
-    // Activer les tooltips Bootstrap
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
-    </script>
+  // Activer les tooltips Bootstrap
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+  });
+</script>
 {% endblock extra_js %}

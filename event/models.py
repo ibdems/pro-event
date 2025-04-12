@@ -300,15 +300,17 @@ class Ticket(models.Model):
 
 
 class Contact(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Nom", null=True)
-    email = models.EmailField(verbose_name="Email", null=True)
-    subject = models.CharField(max_length=200, verbose_name="Objet", null=True)
-    message = models.TextField(verbose_name="Message", null=True)
+    """Modèle pour stocker les messages de contact"""
+
+    name = models.CharField(max_length=100, null=True)
+    email = models.EmailField(null=True)
+    subject = models.CharField(max_length=200, null=True)
+    message = models.TextField(null=True)
+    is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
-    is_read = models.BooleanField(default=False, verbose_name="Lu", null=True)
 
     def __str__(self):
-        return self.subject
+        return f"{self.name} - {self.subject}"
 
     class Meta:
         verbose_name = "Contact"

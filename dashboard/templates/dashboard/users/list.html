@@ -135,7 +135,7 @@
                                                 </div>
                                             </div>
                                             <div>
-                                                <a href="{% url 'dashboard:user_detail' user.pk %}"
+                                                <a href="{% url 'dashboard:user_detail' pk=user.id %}"
                                                    class="text-body fw-medium">{{ user.email }}</a>
                                                 <p class="text-muted mb-0 small">
                                                     {% if user.first_name or user.last_name %}
@@ -171,34 +171,27 @@
                                         {% endif %}
                                     </td>
                                     <td class="text-end">
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                    type="button"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="false">Actions</button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                    <a class="dropdown-item"
-                                                       href="{% url 'dashboard:user_detail' user.pk %}">
-                                                        <i class="fas fa-eye me-2"></i>Voir
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="{% url 'dashboard:user_edit' user.pk %}">
-                                                        <i class="fas fa-edit me-2"></i>Modifier
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <hr class="dropdown-divider">
-                                                </li>
-                                                <li>
-                                                    <button class="dropdown-item text-danger"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#deleteUserModal{{ user.pk }}">
-                                                        <i class="fas fa-trash-alt me-2"></i>Supprimer
-                                                    </button>
-                                                </li>
-                                            </ul>
+                                        <div class="btn-group">
+                                            <a href="{% url 'dashboard:user_detail' pk=user.id %}"
+                                               class="btn btn-sm btn-outline-primary me-2"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-title="Voir les détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'dashboard:user_edit' pk=user.id %}"
+                                               class="btn btn-sm btn-outline-secondary me-2"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-title="Modifier l'utilisateur">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger me-2"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteUserModal{{user.id}}"
+                                                    data-bs-tooltip="tooltip"
+                                                    data-bs-title="Supprimer l'utilisateur">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -278,14 +271,14 @@
     <!-- Modal de suppression -->
     {% for user in users %}
         <div class="modal fade"
-             id="deleteUserModal{{ user.pk }}"
+             id="deleteUserModal{{ user.id }}"
              tabindex="-1"
-             aria-labelledby="deleteUserModalLabel{{ user.pk }}"
+             aria-labelledby="deleteUserModalLabel{{ user.id }}"
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="deleteUserModalLabel{{ user.pk }}">Confirmation de suppression</h5>
+                        <h5 class="modal-title" id="deleteUserModalLabel{{ user.id }}">Confirmation de suppression</h5>
                         <button type="button"
                                 class="btn-close"
                                 data-bs-dismiss="modal"
@@ -299,7 +292,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <form method="post" action="{% url 'dashboard:user_delete' user.pk %}">
+                        <form method="post" action="{% url 'dashboard:user_delete' pk=user.id %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-danger">Supprimer</button>
                         </form>
@@ -326,7 +319,7 @@
                 <div class="modal-body">
                     <form id="exportForm"
                           method="get"
-                          action="{% url 'dashboard:user_export' %}">
+                          action="">
                         <div class="mb-3">
                             <label for="export-format" class="form-label">Format</label>
                             <select class="form-select" id="export-format" name="format">
@@ -443,32 +436,48 @@
 {% endblock extra_css %}
 {% block extra_js %}
     <script>
-    $(document).ready(function() {
-        // DataTables
-        initializeDataTable('#users-table', {
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json'
-            },
-            "paging": false,  // Désactiver la pagination DataTable car nous utilisons celle de Django
-            "ordering": true,
-            "info": false,
-            "searching": false,  // Désactiver la recherche DataTable car nous utilisons notre propre formulaire
-            "columnDefs": [
-                { "orderable": false, "targets": [5] }  // Désactiver le tri sur la colonne Actions
-            ]
+        $(document).ready(function() {
+            // Initialiser DataTables
+            initializeDataTable('#users-table', {
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json"
+                },
+                columnDefs: [
+                    { orderable: false, targets: [5] } // Désactiver le tri pour la colonne des actions
+                ]
+            });
+
+            // Activer les tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
         });
 
-        // Gestion du modal de suppression
-        {% for user in users %}
-        $('#deleteUserModal{{ user.pk }}').on('show.bs.modal', function (event) {
-            const button = $(event.relatedTarget);
-            const userId = button.data('user-id');
-            const email = button.data('email');
+        // Fonction pour confirmer le changement de statut utilisateur
+        function confirmUserStatusChange(userId, action) {
+            const confirmTitle = action === 'activer' ? 'Activation d\'utilisateur' : 'Désactivation d\'utilisateur';
+            const confirmMessage = action === 'activer'
+                ? 'Êtes-vous sûr de vouloir activer cet utilisateur ? Il pourra se connecter à la plateforme.'
+                : 'Êtes-vous sûr de vouloir désactiver cet utilisateur ? Il ne pourra plus se connecter à la plateforme.';
 
-            $('#deleteUserModalLabel{{ user.pk }}').text('Confirmation de suppression de ' + email);
-            $('#deleteUserModal{{ user.pk }} form').attr('action', '{% url "dashboard:user_delete" pk=user.pk %}');
-        });
-        {% endfor %}
-    });
+            if (confirm(confirmMessage)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = action === 'activer'
+                    ? `/dashboard/users/${userId}/activate/`
+                    : `/dashboard/users/${userId}/deactivate/`;
+
+                // Ajouter le CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = 'csrfmiddlewaretoken';
+                csrfToken.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                form.appendChild(csrfToken);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
     </script>
 {% endblock extra_js %}

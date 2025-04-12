@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Ticket</title>
-    <!-- Styles CSS inline -->
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>E-Ticket</title>
+        <!-- Styles CSS inline -->
+        <style>
         @page {
             size: A4 landscape; /* A4 en mode paysage */
             margin: 1cm; /* Ajustez les marges si nécessaire */
@@ -171,50 +171,50 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
-</head>
-<body>
-    <div class="ticket">
-        <!-- Image de l'événement -->
-        <img src="http://localhost:8000{{ event.image.url }}" alt="Event" class="event-image" />
-
-        <div class="ticket-details" style="background-color: #1a1f36;">
-            <div>
-                <h1 class="event-title">{{ event.title }}</h1>
-                <div class="header-row">
-                    <div class="ticket-type">{{ ticket.get_type_ticket_display }}</div>
-                    <!-- Logo -->
-                    <img src="http://localhost:8000{% static 'img/logo.jpg' %}" class="logo" alt="">
+        </style>
+    </head>
+    <body>
+        <div class="ticket">
+            <!-- Image de l'événement -->
+            <img src="http://localhost:8000{{ event.image.url }}"
+                 alt="Event"
+                 class="event-image" />
+            <div class="ticket-details" style="background-color: #1a1f36;">
+                <div>
+                    <h1 class="event-title">{{ event.title }}</h1>
+                    <div class="header-row">
+                        <div class="ticket-type">{{ ticket.get_type_ticket_display }}</div>
+                        <!-- Logo -->
+                        <img src="http://localhost:8000{% static 'img/logo.jpg' %}"
+                             class="logo"
+                             alt="">
+                    </div>
+                </div>
+                <div class="info-grid" style="margin-bottom: 20px;">
+                    <div class="info-item">
+                        <span class="info-label">Date & Heure</span>
+                        <span class="info-value">{{ event.start_date|date:"d/m/Y" }} à {{ event.start_date|time:"H:i" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Lieu</span>
+                        <span class="info-value">{{ event.location }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Nom</span>
+                        <span class="info-value">{{ payement.nom_complet }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ payement.email_reception }}</span>
+                    </div>
                 </div>
             </div>
-
-            <div class="info-grid" style="margin-bottom: 20px;">
-                <div class="info-item">
-                    <span class="info-label">Date & Heure</span>
-                    <span class="info-value">{{ event.start_date|date:"d/m/Y" }} à {{ event.start_date|time:"H:i" }}</span>
-                </div>
-
-                <div class="info-item">
-                    <span class="info-label">Lieu</span>
-                    <span class="info-value">{{ event.location }}</span>
-                </div>
-
-                <div class="info-item">
-                    <span class="info-label">Nom</span>
-                    <span class="info-value">{{ payement.nom_complet }}</span>
-                </div>
-
-                <div class="info-item">
-                    <span class="info-label">Email</span>
-                    <span class="info-value">{{ payement.email_reception }}</span>
-                </div>
+            <!-- QR Code -->
+            <div class="qr-section" style="background-color: #1a1f36;">
+                <img src="http://localhost:8000{{ ticket.qr_code.url }}"
+                     alt="QR Code"
+                     class="qr-code" />
             </div>
         </div>
-
-        <!-- QR Code -->
-        <div class="qr-section" style="background-color: #1a1f36;">
-            <img src="http://localhost:8000{{ ticket.qr_code.url }}" alt="QR Code" class="qr-code" />
-        </div>
-    </div>
-</body>
+    </body>
 </html>

@@ -1,6 +1,8 @@
 from django.urls import path
 
 from dashboard.views.contact_views import (
+    ContactBulkDeleteView,
+    ContactDeleteView,
     ContactDetailView,
     ContactListView,
     ContactMarkReadView,
@@ -42,7 +44,9 @@ from dashboard.views.ticket_views import (
     TicketSendEmailView,
 )
 from dashboard.views.user_views import (
+    UserActivateView,
     UserAddView,
+    UserDeactivateView,
     UserDeleteView,
     UserDetailView,
     UserEditView,
@@ -117,14 +121,18 @@ urlpatterns = [
     ),
     # Gestion des contacts
     path("contacts/", ContactListView.as_view(), name="contact_list"),
-    path("contacts/<int:pk>/detail/", ContactDetailView.as_view(), name="contact_detail"),
-    path("contacts/<int:pk>/mark-read/", ContactMarkReadView.as_view(), name="contact_mark_read"),
+    path("contacts/<int:id>/detail/", ContactDetailView.as_view(), name="contact_detail"),
+    path("contacts/<int:id>/mark-read/", ContactMarkReadView.as_view(), name="contact_mark_read"),
+    path("contacts/<int:id>/delete/", ContactDeleteView.as_view(), name="contact_delete"),
+    path("contacts/bulk-delete/", ContactBulkDeleteView.as_view(), name="contact_bulk_delete"),
     # Gestion des utilisateurs (organisateurs)
     path("users/", UserListView.as_view(), name="user_list"),
     path("users/add/", UserAddView.as_view(), name="user_add"),
     path("users/<int:pk>/detail/", UserDetailView.as_view(), name="user_detail"),
     path("users/<int:pk>/edit/", UserEditView.as_view(), name="user_edit"),
     path("users/<int:pk>/delete/", UserDeleteView.as_view(), name="user_delete"),
+    path("users/<int:pk>/activate/", UserActivateView.as_view(), name="user_activate"),
+    path("users/<int:pk>/deactivate/", UserDeactivateView.as_view(), name="user_deactivate"),
     # Paramètres du système
     # path("settings/general/", views.settings_general, name="settings_general"),
     # path("settings/email/", views.settings_email, name="settings_email"),

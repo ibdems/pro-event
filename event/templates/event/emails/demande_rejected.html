@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Concernant votre demande - ProEvent</title>
-    <style>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Concernant votre demande - ProEvent</title>
+        <style>
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         line-height: 1.6;
@@ -66,64 +66,55 @@
         border-radius: 4px;
         margin: 20px 0;
       }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>ProEvent</h1>
-        <p>Votre partenaire événementiel</p>
-      </div>
-
-      <div class="content">
-        <h2>Cher(e) {{ name }},</h2>
-
-        <div class="status-message">
-          <p>
-            Nous avons bien examiné votre demande concernant nos services mais
-            malheureusement, nous ne sommes pas en mesure d'y donner suite pour
-            le moment.
-          </p>
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>ProEvent</h1>
+                <p>Votre partenaire événementiel</p>
+            </div>
+            <div class="content">
+                <h2>Cher(e) {{ name }},</h2>
+                <div class="status-message">
+                    <p>
+                        Nous avons bien examiné votre demande concernant nos services mais
+                        malheureusement, nous ne sommes pas en mesure d'y donner suite pour
+                        le moment.
+                    </p>
+                </div>
+                <h3>Services demandés :</h3>
+                {% for service in services %}
+                    <div class="service-card">
+                        <h4>{{ service.name }}</h4>
+                        <p>{{ service.description }}</p>
+                    </div>
+                {% endfor %}
+                <p>
+                    Les raisons peuvent être multiples : incompatibilité de calendrier,
+                    indisponibilité de nos services, détails insuffisants, etc.
+                </p>
+                <p>
+                    Nous vous invitons à nous contacter directement pour plus
+                    d'informations ou pour discuter des alternatives possibles qui
+                    conviendraient mieux à vos besoins.
+                </p>
+                <div style="text-align: center">
+                    <a href="mailto:contact@proevent.com" class="btn">Nous contacter</a>
+                </div>
+                <p>
+                    Nous vous remercions pour l'intérêt que vous portez à nos services et
+                    espérons avoir l'opportunité de travailler avec vous prochainement.
+                </p>
+                <p>Cordialement,</p>
+                <p>
+                    <strong>L'équipe ProEvent</strong>
+                </p>
+            </div>
+            <div class="footer">
+                <p>&copy; {% now "Y" %} ProEvent. Tous droits réservés.</p>
+                <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
+            </div>
         </div>
-
-        <h3>Services demandés :</h3>
-        {% for service in services %}
-        <div class="service-card">
-          <h4>{{ service.name }}</h4>
-          <p>{{ service.description }}</p>
-        </div>
-        {% endfor %}
-
-        <p>
-          Les raisons peuvent être multiples : incompatibilité de calendrier,
-          indisponibilité de nos services, détails insuffisants, etc.
-        </p>
-
-        <p>
-          Nous vous invitons à nous contacter directement pour plus
-          d'informations ou pour discuter des alternatives possibles qui
-          conviendraient mieux à vos besoins.
-        </p>
-
-        <div style="text-align: center">
-          <a href="mailto:contact@proevent.com" class="btn">Nous contacter</a>
-        </div>
-
-        <p>
-          Nous vous remercions pour l'intérêt que vous portez à nos services et
-          espérons avoir l'opportunité de travailler avec vous prochainement.
-        </p>
-
-        <p>Cordialement,</p>
-        <p><strong>L'équipe ProEvent</strong></p>
-      </div>
-
-      <div class="footer">
-        <p>&copy; {% now "Y" %} ProEvent. Tous droits réservés.</p>
-        <p>
-          Cet email a été envoyé automatiquement, merci de ne pas y répondre.
-        </p>
-      </div>
-    </div>
-  </body>
+    </body>
 </html>
