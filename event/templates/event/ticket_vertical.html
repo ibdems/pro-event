@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>E-Ticket</title>
-    <style>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>E-Ticket</title>
+        <style>
       :root {
         --primary-blue: #010089;
         --bg-color: #1a1f36;
@@ -109,76 +109,62 @@
         border-radius: 10px;
         margin: 20px auto;
       }
-    </style>
-  </head>
-  <body>
-    <div class="ticket">
-      {% if event.image %}
-      <img
-        src="{{ domain }}{{ event.image.url }}"
-        alt="Event"
-        class="event-image"
-      />
-      {% else %}
-      <div
-        class="event-image"
-        style="
-          background-color: #010089;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        "
-      >
-        <h2 style="color: white">{{ event.title }}</h2>
-      </div>
-      {% endif %}
-      <div class="ticket-details" style="background-color: #1a1f36">
-        <h1 class="event-title">{{ event.title }}</h1>
-        <div class="header-row">
-          <div class="ticket-type">{{ ticket.get_type_ticket_display }}</div>
-          <img
-            src="{{ absolute_static_url }}img/logo.jpg"
-            class="logo"
-            alt=""
-          />
+        </style>
+    </head>
+    <body>
+        <div class="ticket">
+            {% if event.image %}
+                <img src="{{ domain }}{{ event.image.url }}"
+                     alt="Event"
+                     class="event-image" />
+            {% else %}
+                <div class="event-image"
+                     style="background-color: #010089;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center">
+                    <h2 style="color: white">{{ event.title }}</h2>
+                </div>
+            {% endif %}
+            <div class="ticket-details" style="background-color: #1a1f36">
+                <h1 class="event-title">{{ event.title }}</h1>
+                <div class="header-row">
+                    <div class="ticket-type">{{ ticket.get_type_ticket_display }}</div>
+                    <img src="{{ absolute_static_url }}img/logo.jpg" class="logo" alt="" />
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Date & Heure</span>
+                        <span class="info-value">{{ event.start_date|date:"d/m/Y" }} à {{
+                        event.start_date|time:"H:i" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Lieu</span>
+                        <span class="info-value">{{ event.location }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Nom</span>
+                        <span class="info-value">{{ payement.nom_complet }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ payement.email_reception }}</span>
+                    </div>
+                </div>
+                <div class="qr-code" style="background-color: #1a1f36">
+                    {% if ticket.qr_code %}
+                        <img src="{{ domain }}{{ ticket.qr_code.url }}"
+                             alt="QR Code"
+                             style="width: 100%;
+                                    height: 100%" />
+                    {% else %}
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ ticket.code_ticket }}"
+                             alt="QR Code"
+                             style="width: 100%;
+                                    height: 100%" />
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-label">Date & Heure</span>
-            <span class="info-value"
-              >{{ event.start_date|date:"d/m/Y" }} à {{
-              event.start_date|time:"H:i" }}</span
-            >
-          </div>
-          <div class="info-item">
-            <span class="info-label">Lieu</span>
-            <span class="info-value">{{ event.location }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Nom</span>
-            <span class="info-value">{{ payement.nom_complet }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Email</span>
-            <span class="info-value">{{ payement.email_reception }}</span>
-          </div>
-        </div>
-        <div class="qr-code" style="background-color: #1a1f36">
-          {% if ticket.qr_code %}
-          <img
-            src="{{ domain }}{{ ticket.qr_code.url }}"
-            alt="QR Code"
-            style="width: 100%; height: 100%"
-          />
-          {% else %}
-          <img
-            src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ ticket.code_ticket }}"
-            alt="QR Code"
-            style="width: 100%; height: 100%"
-          />
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </body>
+    </body>
 </html>

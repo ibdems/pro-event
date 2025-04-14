@@ -187,7 +187,7 @@
                                             <button type="button"
                                                     class="btn btn-sm btn-outline-danger me-2"
                                                     data-bs-toggle="modal"
-                                                    data-bs-target="#deleteUserModal{{user.id}}"
+                                                    data-bs-target="#deleteUserModal{{ user.id }}"
                                                     data-bs-tooltip="tooltip"
                                                     data-bs-title="Supprimer l'utilisateur">
                                                 <i class="fas fa-trash"></i>
@@ -317,9 +317,7 @@
                             aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="exportForm"
-                          method="get"
-                          action="">
+                    <form id="exportForm" method="get" action="">
                         <div class="mb-3">
                             <label for="export-format" class="form-label">Format</label>
                             <select class="form-select" id="export-format" name="format">

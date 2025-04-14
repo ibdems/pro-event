@@ -1,26 +1,45 @@
-from django.urls import include, path
+from django.urls import path
 
 from .views import (
     ActivationUserView,
     CustomLoginView,
-    CustomPasswordConfirmView,
+    CustomPasswordResetCompleteView,
+    CustomPasswordResetConfirmView,
+    CustomPasswordResetDoneView,
+    CustomPasswordResetView,
     CustomUserCreationView,
-    PasswordResetView,
     lock,
     logout_view,
 )
 
 urlpatterns = [
     path("login/", CustomLoginView.as_view(), name="login"),
-    path("register/", CustomUserCreationView.as_view(), name="register"),
+    path("register/", CustomUserCreationView.as_view(), name="signup"),
     path("activation/<uid>/<token>/", ActivationUserView.as_view(), name="confirm_user_activation"),
-    path("reset_password/", PasswordResetView.as_view(), name="reset_password"),
     path(
-        "password_confirm/<uid>/<token>/",
-        CustomPasswordConfirmView.as_view(),
-        name="password_confirmation",
+        "accounts/activation/<uid>/<token>/",
+        ActivationUserView.as_view(),
+        name="accounts_user_activation",
     ),
-    path("lock/", lock, name="locked"),
+    # URLs de réinitialisation de mot de passe
+    path("reset_password/", CustomPasswordResetView.as_view(), name="password_reset"),
+    path("reset_password/done/", CustomPasswordResetDoneView.as_view(), name="password_reset_done"),
+    path(
+        "reset/<uidb64>/<token>/",
+        CustomPasswordResetConfirmView.as_view(),
+        name="password_reset_confirm",
+    ),
+    path(
+        "accounts/reset/<uidb64>/<token>/",
+        CustomPasswordResetConfirmView.as_view(),
+        name="accounts_password_reset_confirm",
+    ),
+    path(
+        "reset/done/",
+        CustomPasswordResetCompleteView.as_view(),
+        name="password_reset_complete",
+    ),
+    # Autres URLs
+    path("lock/", lock, name="lock"),
     path("logout/", logout_view, name="logout"),
-    path("", include("django.contrib.auth.urls")),
 ]

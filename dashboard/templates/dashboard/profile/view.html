@@ -1,30 +1,39 @@
-{% extends 'dashboard/base.html' %} {% load static %} {% block title %} Mon
-Profil | Tableau de Bord {% endblock title %} {% block page_title %} Mon Profil
-{% endblock page_title %} {% block content %}
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+    Mon
+    Profil | Tableau de Bord
+{% endblock title %}
+{% block page_title %}
+    Mon Profil
+{% endblock page_title %}
+{% block content %}
     <div class="row">
         <div class="col-md-4">
-    <div class="card dashboard-card mb-4">
+            <div class="card dashboard-card mb-4">
                 <div class="card-body text-center">
                     <div class="avatar-xl mx-auto mb-3">
-          {% if request.user.photo %}
-          <img
-            src="{{ request.user.photo.url }}"
+                        {% if request.user.photo %}
+                            <img src="{{ request.user.photo.url }}"
                                  class="rounded-circle img-thumbnail"
-            alt="Photo de profil"
-          />
+                                 alt="Photo de profil" />
                         {% else %}
                             <div class="avatar-circle bg-primary">
                                 <span>{{ request.user.email|slice:":1"|upper }}</span>
                             </div>
                         {% endif %}
                     </div>
-        <h5 class="mb-1">
-          {{ request.user.get_full_name|default:request.user.email }}
-        </h5>
+                    <h5 class="mb-1">{{ request.user.get_full_name|default:request.user.email }}</h5>
                     <p class="text-muted">
-          {% if request.user.is_superuser %} Administrateur {% elif
-          request.user.is_staff %} Organisateur {% else %} Utilisateur {% endif
-          %}
+                        {% if request.user.is_superuser %}
+                            Administrateur
+                        {% elif
+                            request.user.is_staff %}
+                            Organisateur
+                        {% else %}
+                            Utilisateur
+                        {% endif
+                        %}
                     </p>
                     <div class="d-grid gap-2">
                         <a href="{% url 'dashboard:profile_edit' %}" class="btn btn-primary">
@@ -33,111 +42,87 @@ Profil | Tableau de Bord {% endblock title %} {% block page_title %} Mon Profil
                     </div>
                 </div>
                 <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-          <div class="d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-envelope me-2"></i>Email</span>
-                        <span>{{ request.user.email }}</span>
-          </div>
-          <div class="d-flex justify-content-end mt-2">
-            <div class="btn-group">
-              <button
-                class="btn btn-sm btn-outline-primary copy-email-btn"
-                data-email="{{ request.user.email }}"
-              >
-                <i class="fas fa-copy me-1"></i>Copier
-              </button>
-              <a
-                href="mailto:{{ request.user.email }}"
-                class="btn btn-sm btn-outline-secondary mailto-link"
-                data-email="{{ request.user.email }}"
-              >
-                <i class="fas fa-envelope me-1"></i>Ouvrir
-              </a>
-            </div>
-          </div>
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-envelope me-2"></i>Email</span>
+                            <span>{{ request.user.email }}</span>
+                        </div>
+                        <div class="d-flex justify-content-end mt-2">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary copy-email-btn"
+                                        data-email="{{ request.user.email }}">
+                                    <i class="fas fa-copy me-1"></i>Copier
+                                </button>
+                                <a href="mailto:{{ request.user.email }}"
+                                   class="btn btn-sm btn-outline-secondary mailto-link"
+                                   data-email="{{ request.user.email }}">
+                                    <i class="fas fa-envelope me-1"></i>Ouvrir
+                                </a>
+                            </div>
+                        </div>
                     </li>
-        <li
-          class="list-group-item d-flex justify-content-between align-items-center"
-        >
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-phone me-2"></i>Téléphone</span>
                         <span>{{ request.user.profile.phone|default:"Non renseigné" }}</span>
                     </li>
-        <li
-          class="list-group-item d-flex justify-content-between align-items-center"
-        >
-          <span><i class="fas fa-home me-2"></i>Adresse</span>
-          <span
-            >{{ request.user.profile.address|default:"Non renseignée" }}</span
-          >
-        </li>
-        <li
-          class="list-group-item d-flex justify-content-between align-items-center"
-        >
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-home me-2"></i>Adresse</span>
+                        <span>{{ request.user.profile.address|default:"Non renseignée" }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-calendar me-2"></i>Date d'inscription</span>
                         <span>{{ request.user.date_joined|date:"d/m/Y" }}</span>
                     </li>
-        <li
-          class="list-group-item d-flex justify-content-between align-items-center"
-        >
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-clock me-2"></i>Dernière connexion</span>
-          <span
-            >{{ request.user.last_login|date:"d/m/Y H:i"|default:"Jamais"
-            }}</span
-          >
+                        <span>{{ request.user.last_login|date:"d/m/Y H:i"|default:"Jamais"
+                        }}</span>
                     </li>
                 </ul>
-      <div class="card-footer bg-white">
-        <div class="d-grid">
-          <button
-            class="btn btn-outline-danger"
-            data-bs-toggle="modal"
-            data-bs-target="#changePasswordModal"
-          >
-            <i class="fas fa-key me-2"></i>Changer mon mot de passe
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Actions rapides -->
-    <div class="card dashboard-card mb-4">
-      <div class="card-header">
-        <h5 class="card-title mb-0">
-          <i class="fas fa-bolt me-2"></i>Actions rapides
-        </h5>
-      </div>
-      <div class="card-body">
-        <div class="d-grid gap-2">
-          <a href="{% url 'dashboard:event_add' %}" class="btn btn-success">
-            <i class="fas fa-calendar-plus me-2"></i>Créer un événement
-          </a>
-          <a href="{% url 'dashboard:ticket_list' %}" class="btn btn-info">
-            <i class="fas fa-ticket-alt me-2"></i>Gérer mes tickets
-          </a>
-          <a
-            href="{% url 'dashboard:contact_list' %}"
-            class="btn btn-secondary"
-          >
-            <i class="fas fa-envelope me-2"></i>Messages de contact
-          </a>
-        </div>
-      </div>
+                <div class="card-footer bg-white">
+                    <div class="d-grid">
+                        <button class="btn btn-outline-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#changePasswordModal">
+                            <i class="fas fa-key me-2"></i>Changer mon mot de passe
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Actions rapides -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Actions rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'dashboard:event_add' %}" class="btn btn-success">
+                            <i class="fas fa-calendar-plus me-2"></i>Créer un événement
+                        </a>
+                        <a href="{% url 'dashboard:ticket_list' %}" class="btn btn-info">
+                            <i class="fas fa-ticket-alt me-2"></i>Gérer mes tickets
+                        </a>
+                        <a href="{% url 'dashboard:contact_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-envelope me-2"></i>Messages de contact
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-md-8">
             <!-- Statistiques de l'utilisateur -->
-    <div class="card dashboard-card mb-4">
-      <div
-        class="card-header d-flex justify-content-between align-items-center"
-      >
-        <h5 class="card-title mb-0">
-          <i class="fas fa-chart-bar me-2"></i>Vos statistiques
-        </h5>
-        <div class="card-actions">
-          <button class="btn btn-sm btn-outline-primary refresh-stats">
-            <i class="fas fa-sync-alt me-1"></i>Actualiser
-          </button>
-        </div>
+            <div class="card dashboard-card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Vos statistiques
+                    </h5>
+                    <div class="card-actions">
+                        <button class="btn btn-sm btn-outline-primary refresh-stats">
+                            <i class="fas fa-sync-alt me-1"></i>Actualiser
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -148,7 +133,7 @@ Profil | Tableau de Bord {% endblock title %} {% block page_title %} Mon Profil
                                         <i class="fas fa-calendar-alt"></i>
                                     </div>
                                     <div class="stats-card-info">
-                  <h3>{{ user_events_count|default:"0" }}</h3>
+                                        <h3>{{ user_events_count|default:"0" }}</h3>
                                         <p>Événements</p>
                                     </div>
                                 </div>
@@ -161,7 +146,7 @@ Profil | Tableau de Bord {% endblock title %} {% block page_title %} Mon Profil
                                         <i class="fas fa-ticket-alt"></i>
                                     </div>
                                     <div class="stats-card-info">
-                  <h3>{{ user_tickets_count|default:"0" }}</h3>
+                                        <h3>{{ user_tickets_count|default:"0" }}</h3>
                                         <p>Tickets vendus</p>
                                     </div>
                                 </div>
@@ -174,7 +159,7 @@ Profil | Tableau de Bord {% endblock title %} {% block page_title %} Mon Profil
                                         <i class="fas fa-money-bill-wave"></i>
                                     </div>
                                     <div class="stats-card-info">
-                  <h3>{{ user_revenue|default:"0 FCFA" }}</h3>
+                                        <h3>{{ user_revenue|default:"0 FCFA" }}</h3>
                                         <p>Revenus totaux</p>
                                     </div>
                                 </div>
@@ -183,97 +168,83 @@ Profil | Tableau de Bord {% endblock title %} {% block page_title %} Mon Profil
                     </div>
                 </div>
             </div>
-
-    <!-- Événements récents -->
-    <div class="card dashboard-card mb-4">
-      <div
-        class="card-header d-flex justify-content-between align-items-center"
-      >
-        <h5 class="card-title mb-0">
-          <i class="fas fa-calendar-check me-2"></i>Vos événements récents
-        </h5>
-        <a href="{% url 'dashboard:event_list' %}" class="btn btn-sm btn-link">
-          Voir tous <i class="fas fa-arrow-right ms-1"></i>
-        </a>
-      </div>
-      <div class="card-body">
-        {% if user_events %}
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead>
-              <tr>
-                <th>Événement</th>
-                <th>Date</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for event in user_events|slice:":5" %}
-              <tr>
-                <td>
-                  <a
-                    href="{% url 'dashboard:event_detail' uid=event.uid %}"
-                    class="fw-medium text-decoration-none"
-                  >
-                    {{ event.title }}
-                  </a>
-                </td>
-                <td>{{ event.date_event|date:"d/m/Y H:i" }}</td>
-                <td>
-                  {% if event.is_published %}
-                  <span class="badge bg-success">Publié</span>
-                  {% else %}
-                  <span class="badge bg-warning">Brouillon</span>
-                  {% endif %}
-                </td>
-                <td>
-                  <div class="btn-group">
-                    <a
-                      href="{% url 'dashboard:event_detail' uid=event.uid %}"
-                      class="btn btn-sm btn-outline-primary"
-                    >
-                      <i class="fas fa-edit"></i>
+            <!-- Événements récents -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-check me-2"></i>Vos événements récents
+                    </h5>
+                    <a href="{% url 'dashboard:event_list' %}" class="btn btn-sm btn-link">
+                        Voir tous <i class="fas fa-arrow-right ms-1"></i>
                     </a>
-                    <a
-                      href="{% url 'event:event_detail' uid=event.uid %}"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      <i class="fas fa-external-link-alt"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        {% else %}
-        <div class="text-center py-4">
-          <div class="empty-state">
-            <div class="empty-state-icon">
-              <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="card-body">
+                    {% if user_events %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Événement</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for event in user_events|slice:":5" %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'dashboard:event_detail' uid=event.uid %}"
+                                                   class="fw-medium text-decoration-none">{{ event.title }}</a>
+                                            </td>
+                                            <td>{{ event.date_event|date:"d/m/Y H:i" }}</td>
+                                            <td>
+                                                {% if event.is_published %}
+                                                    <span class="badge bg-success">Publié</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Brouillon</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'dashboard:event_detail' uid=event.uid %}"
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="{% url 'event:event_detail' uid=event.uid %}"
+                                                       target="_blank"
+                                                       class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fas fa-external-link-alt"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <h6>Vous n'avez pas encore créé d'événements</h6>
+                                <p class="text-muted">Commencez à créer vos événements pour les voir apparaître ici.</p>
+                                <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Créer un événement
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-            <h6>Vous n'avez pas encore créé d'événements</h6>
-            <p class="text-muted">
-              Commencez à créer vos événements pour les voir apparaître ici.
-            </p>
-            <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
-              <i class="fas fa-plus me-2"></i>Créer un événement
-            </a>
-          </div>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-
             <!-- Activité récente -->
-    <div class="card dashboard-card">
+            <div class="card dashboard-card">
                 <div class="card-header">
-        <h5 class="card-title mb-0">
-          <i class="fas fa-history me-2"></i>Activité récente
-        </h5>
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Activité récente
+                    </h5>
                 </div>
                 <div class="card-body">
                     <ul class="timeline">
@@ -285,9 +256,7 @@ Profil | Tableau de Bord {% endblock title %} {% block page_title %} Mon Profil
                                 <div class="timeline-content">
                                     <h6 class="timeline-title">{{ activity.title }}</h6>
                                     <p class="text-muted mb-0">{{ activity.description }}</p>
-              <small class="text-muted"
-                >{{ activity.timestamp|date:"d/m/Y H:i" }}</small
-              >
+                                    <small class="text-muted">{{ activity.timestamp|date:"d/m/Y H:i" }}</small>
                                 </div>
                             </li>
                         {% empty %}
@@ -297,9 +266,7 @@ Profil | Tableau de Bord {% endblock title %} {% block page_title %} Mon Profil
                                         <i class="fas fa-history"></i>
                                     </div>
                                     <h6>Aucune activité récente</h6>
-              <p class="text-muted">
-                Votre historique d'activité apparaîtra ici.
-              </p>
+                                    <p class="text-muted">Votre historique d'activité apparaîtra ici.</p>
                                 </div>
                             </div>
                         {% endfor %}
@@ -308,97 +275,68 @@ Profil | Tableau de Bord {% endblock title %} {% block page_title %} Mon Profil
             </div>
         </div>
     </div>
-
-<!-- Modal de changement de mot de passe -->
-<div
-  class="modal fade"
-  id="changePasswordModal"
-  tabindex="-1"
-  aria-labelledby="changePasswordModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="changePasswordModalLabel">
-          Changer mon mot de passe
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <form method="post" action="#" id="password-change-form">
-        <div class="modal-body">
-          {% csrf_token %}
-          <input type="hidden" name="password_change" value="1" />
-          <div class="mb-3">
-            <label for="current_password" class="form-label"
-              >Mot de passe actuel</label
-            >
-            <input
-              type="password"
-              class="form-control"
-              id="current_password"
-              name="current_password"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="new_password1" class="form-label"
-              >Nouveau mot de passe</label
-            >
-            <input
-              type="password"
-              class="form-control"
-              id="new_password1"
-              name="new_password1"
-              required
-            />
-            <div class="form-text">
-              Votre mot de passe doit contenir au moins 8 caractères et ne peut
-              pas être entièrement numérique.
+    <!-- Modal de changement de mot de passe -->
+    <div class="modal fade"
+         id="changePasswordModal"
+         tabindex="-1"
+         aria-labelledby="changePasswordModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Changer mon mot de passe</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <form method="post" action="#" id="password-change-form">
+                    <div class="modal-body">
+                        {% csrf_token %}
+                        <input type="hidden" name="password_change" value="1" />
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Mot de passe actuel</label>
+                            <input type="password"
+                                   class="form-control"
+                                   id="current_password"
+                                   name="current_password"
+                                   required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password1" class="form-label">Nouveau mot de passe</label>
+                            <input type="password"
+                                   class="form-control"
+                                   id="new_password1"
+                                   name="new_password1"
+                                   required />
+                            <div class="form-text">
+                                Votre mot de passe doit contenir au moins 8 caractères et ne peut
+                                pas être entièrement numérique.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password2" class="form-label">Confirmation du mot de passe</label>
+                            <input type="password"
+                                   class="form-control"
+                                   id="new_password2"
+                                   name="new_password2"
+                                   required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Changer le mot de passe</button>
+                    </div>
+                </form>
             </div>
-          </div>
-          <div class="mb-3">
-            <label for="new_password2" class="form-label"
-              >Confirmation du mot de passe</label
-            >
-            <input
-              type="password"
-              class="form-control"
-              id="new_password2"
-              name="new_password2"
-              required
-            />
-          </div>
         </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            Annuler
-          </button>
-          <button type="submit" class="btn btn-primary">
-            Changer le mot de passe
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
-</div>
-
-<!-- Container pour les toasts -->
-<div
-  id="toast-container"
-  class="toast-container position-fixed bottom-0 end-0 p-3"
-></div>
-{% endblock content %} {% block extra_css %}
-<style>
+    <!-- Container pour les toasts -->
+    <div id="toast-container"
+         class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+{% endblock content %}
+{% block extra_css %}
+    <style>
   .avatar-circle {
     width: 100px;
     height: 100px;
@@ -525,8 +463,9 @@ Profil | Tableau de Bord {% endblock title %} {% block page_title %} Mon Profil
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
     padding: 1rem 1.25rem;
   }
-</style>
-{% endblock extra_css %} {% block extra_js %}
+    </style>
+{% endblock extra_css %}
+{% block extra_js %}
     <script>
   $(document).ready(function () {
         // Initialisation des tooltips

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Activation de votre compte ProEvent</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background-color: #4e73df;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        padding: 20px;
+        background: #fff;
+        border: 1px solid #e3e6f0;
+      }
+      .button {
+        display: inline-block;
+        background-color: #4e73df;
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 4px;
+        font-weight: bold;
+        margin: 20px 0;
+      }
+      .footer {
+        font-size: 12px;
+        color: #858796;
+        text-align: center;
+        margin-top: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Bienvenue sur ProEvent</h1>
+      </div>
+      <div class="content">
+        <p>
+          Bonjour {% if user.first_name %}
+          {{ user.first_name }} {{ user.last_name }}
+          {% else %}{{ user.email }}{% endif %},
+        </p>
+
+        <p>
+          Nous vous remercions de vous être inscrit sur ProEvent. Pour activer
+          votre compte, veuillez cliquer sur le bouton ci-dessous :
+        </p>
+
+        <div style="text-align: center">
+          <a
+            href="http://{{ domain }}/accounts/activation/{{ uid }}/{{ token }}/"
+            class="button"
+            >Activer mon compte</a
+          >
+        </div>
+
+        <p>
+          Si le bouton ne fonctionne pas, vous pouvez copier et coller ce lien
+          dans votre navigateur :
+        </p>
+        <p>http://{{ domain }}/accounts/activation/{{ uid }}/{{ token }}/</p>
+
+        <p>
+          Si vous n'avez pas créé de compte sur ProEvent, vous pouvez simplement
+          ignorer cet email.
+        </p>
+
+        <p>Ce lien d'activation est valable pendant 24 heures.</p>
+
+        <p>Cordialement,<br />L'équipe ProEvent</p>
+      </div>
+      <div class="footer">
+        <p>
+          Cet email a été envoyé par ProEvent. Veuillez ne pas répondre à ce
+          message.
+        </p>
+        <p>&copy; {% now "Y" %} ProEvent. Tous droits réservés.</p>
+      </div>
+    </div>
+  </body>
+</html>

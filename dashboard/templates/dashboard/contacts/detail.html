@@ -1,186 +1,172 @@
-{% extends 'dashboard/base.html' %} {% load static %} {% block title %} Détail
-Contact - {{ contact.name }} {% endblock title %} {% block page_title %} Détail
-du Contact {% endblock page_title %} {% block content %}
-<div class="contact-detail-page">
-  <!-- En-tête avec actions -->
-  <div class="actions-bar mb-4">
-    <div class="row align-items-center">
-      <div class="col-md-6 mb-3 mb-md-0">
-        <h2 class="mb-0">
-          Message de {{ contact.name }} {% if not contact.is_read %}
-          <span class="badge bg-warning">Non lu</span>
-          {% endif %}
-        </h2>
-      </div>
-      <div class="col-md-6 text-md-end">
-        <div class="btn-group">
-          <a
-            href="{% url 'dashboard:contact_list' %}"
-            class="btn btn-outline-secondary"
-          >
-            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
-          </a>
-          <a href="mailto:{{ contact.email }}" class="btn btn-outline-primary">
-            <i class="fas fa-reply me-2"></i>Répondre
-          </a>
-          <button
-            type="button"
-            class="btn btn-outline-danger"
-            data-bs-toggle="modal"
-            data-bs-target="#deleteContactModal"
-          >
-            <i class="fas fa-trash me-2"></i>Supprimer
-          </button>
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+    Détail
+    Contact - {{ contact.name }}
+{% endblock title %}
+{% block page_title %}
+    Détail
+    du Contact
+{% endblock page_title %}
+{% block content %}
+    <div class="contact-detail-page">
+        <!-- En-tête avec actions -->
+        <div class="actions-bar mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <h2 class="mb-0">
+                        Message de {{ contact.name }}
+                        {% if not contact.is_read %}<span class="badge bg-warning">Non lu</span>{% endif %}
+                    </h2>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="btn-group">
+                        <a href="{% url 'dashboard:contact_list' %}"
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                        </a>
+                        <a href="mailto:{{ contact.email }}" class="btn btn-outline-primary">
+                            <i class="fas fa-reply me-2"></i>Répondre
+                        </a>
+                        <button type="button"
+                                class="btn btn-outline-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteContactModal">
+                            <i class="fas fa-trash me-2"></i>Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <!-- Informations du contact -->
-    <div class="col-12">
-      <div class="card dashboard-card mb-4">
-        <div class="card-header">
-          <h5 class="card-title">Détails du message</h5>
-          <small class="text-muted"
-            >Reçu le {{ contact.created_at|date:"d/m/Y à H:i" }}</small
-          >
-        </div>
-        <div class="card-body">
-          <div class="contact-info mb-4">
-            <div class="row mb-3">
-              <div class="col-md-3">
-                <strong>Nom :</strong>
-              </div>
-              <div class="col-md-9">{{ contact.name }}</div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-3">
-                <strong>Email :</strong>
-              </div>
-              <div class="col-md-9">
-                <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-3">
-                <strong>Sujet :</strong>
-              </div>
-              <div class="col-md-9">{{ contact.subject }}</div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-3">
-                <strong>Statut :</strong>
-              </div>
-              <div class="col-md-9">
-                {% if contact.is_read %}
-                <span class="badge bg-success">Lu</span>
-                {% else %}
-                <span class="badge bg-warning">Non lu</span>
+        <div class="row">
+            <!-- Informations du contact -->
+            <div class="col-12">
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Détails du message</h5>
+                        <small class="text-muted">Reçu le {{ contact.created_at|date:"d/m/Y à H:i" }}</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="contact-info mb-4">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <strong>Nom :</strong>
+                                </div>
+                                <div class="col-md-9">{{ contact.name }}</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <strong>Email :</strong>
+                                </div>
+                                <div class="col-md-9">
+                                    <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <strong>Sujet :</strong>
+                                </div>
+                                <div class="col-md-9">{{ contact.subject }}</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <strong>Statut :</strong>
+                                </div>
+                                <div class="col-md-9">
+                                    {% if contact.is_read %}
+                                        <span class="badge bg-success">Lu</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Non lu</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message-content">
+                            <h6 class="mb-3">Message :</h6>
+                            <div class="p-3 bg-light rounded">
+                                <p style="white-space: pre-wrap">{{ contact.message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Informations utilisateur si disponible -->
+                {% if user_info %}
+                    <div class="card dashboard-card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title">Informations utilisateur</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <strong>Compte utilisateur :</strong>
+                                </div>
+                                <div class="col-md-9">
+                                    <a href="{% url 'dashboard:user_detail' user_info.id %}"
+                                       class="d-flex align-items-center">
+                                        <img src="{{ user_info.profile_picture.url|default:'https://via.placeholder.com/40' }}"
+                                             alt="{{ user_info.get_full_name }}"
+                                             class="rounded-circle me-2"
+                                             width="40"
+                                             height="40" />
+                                        {{ user_info.get_full_name }} ({{ user_info.email }})
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <strong>Inscription :</strong>
+                                </div>
+                                <div class="col-md-9">{{ user_info.date_joined|date:"d/m/Y" }}</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <strong>Dernière connexion :</strong>
+                                </div>
+                                <div class="col-md-9">{{ user_info.last_login|date:"d/m/Y H:i"|default:"Jamais" }}</div>
+                            </div>
+                        </div>
+                    </div>
                 {% endif %}
-              </div>
             </div>
-          </div>
-          <div class="message-content">
-            <h6 class="mb-3">Message :</h6>
-            <div class="p-3 bg-light rounded">
-              <p style="white-space: pre-wrap">{{ contact.message }}</p>
-            </div>
-          </div>
         </div>
-      </div>
-      <!-- Informations utilisateur si disponible -->
-      {% if user_info %}
-      <div class="card dashboard-card mb-4">
-        <div class="card-header">
-          <h5 class="card-title">Informations utilisateur</h5>
-        </div>
-        <div class="card-body">
-          <div class="row mb-3">
-            <div class="col-md-3">
-              <strong>Compte utilisateur :</strong>
-            </div>
-            <div class="col-md-9">
-              <a
-                href="{% url 'dashboard:user_detail' user_info.id %}"
-                class="d-flex align-items-center"
-              >
-                <img
-                  src="{{ user_info.profile_picture.url|default:'https://via.placeholder.com/40' }}"
-                  alt="{{ user_info.get_full_name }}"
-                  class="rounded-circle me-2"
-                  width="40"
-                  height="40"
-                />
-                {{ user_info.get_full_name }} ({{ user_info.email }})
-              </a>
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-md-3">
-              <strong>Inscription :</strong>
-            </div>
-            <div class="col-md-9">{{ user_info.date_joined|date:"d/m/Y" }}</div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-md-3">
-              <strong>Dernière connexion :</strong>
-            </div>
-            <div class="col-md-9">
-              {{ user_info.last_login|date:"d/m/Y H:i"|default:"Jamais" }}
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
     </div>
-  </div>
-</div>
-<!-- Modal de confirmation pour la suppression -->
-<div
-  class="modal fade"
-  id="deleteContactModal"
-  tabindex="-1"
-  aria-labelledby="deleteContactModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteContactModalLabel">
-          Confirmer la suppression
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <p>
-          Êtes-vous sûr de vouloir supprimer ce message de contact de
-          <strong>{{ contact.name }}</strong> ?
-        </p>
-        <p class="text-danger">Cette action est irréversible.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Annuler
-        </button>
-        <form
-          id="deleteContactForm"
-          method="post"
-          action="{% url 'dashboard:contact_delete' id=contact.id %}"
-        >
-          {% csrf_token %}
-          <button type="submit" class="btn btn-danger">Supprimer</button>
-        </form>
-      </div>
+    <!-- Modal de confirmation pour la suppression -->
+    <div class="modal fade"
+         id="deleteContactModal"
+         tabindex="-1"
+         aria-labelledby="deleteContactModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteContactModalLabel">Confirmer la suppression</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Êtes-vous sûr de vouloir supprimer ce message de contact de
+                        <strong>{{ contact.name }}</strong> ?
+                    </p>
+                    <p class="text-danger">Cette action est irréversible.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form id="deleteContactForm"
+                          method="post"
+                          action="{% url 'dashboard:contact_delete' id=contact.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-{% endblock content %} {% block extra_css %}
-<style>
+{% endblock content %}
+{% block extra_css %}
+    <style>
   /* Style pour le badge de date */
   .date-badge {
     display: inline-block;
@@ -279,5 +265,5 @@ du Contact {% endblock page_title %} {% block content %}
     font-size: 1rem;
     line-height: 1.6;
   }
-</style>
+    </style>
 {% endblock extra_css %}

@@ -1,0 +1,65 @@
+{% extends 'accounts/base.html' %} {% load static %} {% block title %}Activation
+échouée - ProEvent{% endblock %} {% block auth_title %}Activation échouée
+{% endblock %} {% block auth_subtitle %}Un problème est survenu lors de
+l'activation de votre compte{% endblock %} {% block auth_content %}
+<div class="text-center mb-4">
+  <div class="error-icon mb-3">
+    <i class="fas fa-exclamation-triangle fa-5x text-warning"></i>
+  </div>
+  <h4 class="text-danger mb-3">Lien d'activation invalide</h4>
+  <p class="mb-4">
+    Le lien d'activation que vous avez utilisé est invalide ou a expiré.
+  </p>
+  <p>Causes possibles :</p>
+  <ul class="list-unstyled text-start">
+    <li>
+      <i class="fas fa-check-circle me-2 text-primary"></i> Le lien a expiré
+      (valable 24h)
+    </li>
+    <li>
+      <i class="fas fa-check-circle me-2 text-primary"></i> Votre compte a déjà
+      été activé
+    </li>
+    <li>
+      <i class="fas fa-check-circle me-2 text-primary"></i> Le lien est
+      incorrect ou incomplet
+    </li>
+  </ul>
+</div>
+
+<div class="text-center mt-4">
+  <a href="{% url 'login' %}" class="btn btn-primary auth-btn mb-3">
+    <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+  </a>
+  <p>
+    Besoin d'aide ?
+    <a href="{% url 'event:contact' %}" class="text-primary">Contactez-nous</a>
+  </p>
+</div>
+{% endblock %} {% block auth_links %}
+<a href="{% url 'event:home' %}">Accueil</a> |
+<a href="{% url 'login' %}">Connexion</a> |
+<a href="{% url 'signup' %}">Inscription</a>
+{% endblock %} {% block extra_css %}
+<style>
+  .error-icon {
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .list-unstyled {
+    padding-left: 1rem;
+  }
+</style>
+{% endblock %}

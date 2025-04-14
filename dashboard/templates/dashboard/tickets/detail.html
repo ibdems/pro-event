@@ -47,10 +47,10 @@
                             </button>
                         {% else %}
                             <a href="{% url 'dashboard:ticket_print' code=ticket.code_ticket %}"
-                           class="btn btn-primary me-2"
-                           target="_blank">
-                            <i class="fas fa-print me-2"></i>Imprimer
-                        </a>
+                               class="btn btn-primary me-2"
+                               target="_blank">
+                                <i class="fas fa-print me-2"></i>Imprimer
+                            </a>
                         {% endif %}
                         <a href="mailto:{{ ticket.payement.email_reception }}"
                            class="btn btn-success me-2">
@@ -92,8 +92,7 @@
                                 <div class="ticket-logo">
                                     <img src="{% static 'img/logo.png' %}" alt="Pro-Event Logo" />
                                 </div>
-                                <div class="ticket-type {% if ticket.type_ticket == 'normal' %}standard
-                                {% elif ticket.type_ticket == 'vip' %}vip{% else %}vvip{% endif %}">
+                                <div class="ticket-type {% if ticket.type_ticket == 'normal' %}standard {% elif ticket.type_ticket == 'vip' %}vip{% else %}vvip{% endif %}">
                                     {% if ticket.type_ticket == 'normal' %}
                                         STANDARD
                                     {% elif ticket.type_ticket == 'vip' %}
@@ -118,27 +117,27 @@
                                                 {{ ticket.event.infoticket_event.prix_normal|floatformat:0 }} FG
                                             {% elif ticket.type_ticket == 'vip' %}
                                                 {{ ticket.event.infoticket_event.prix_vip|floatformat:0 }} FG
-                                                {% elif ticket.type_ticket == 'vvip' %}
+                                            {% elif ticket.type_ticket == 'vvip' %}
                                                 {{ ticket.event.infoticket_event.prix_vvip|floatformat:0 }} FG
-                                                {% endif %}
-                                            {% else %}
-                                                {{ ticket.payement.amount|floatformat:0 }}
-                                                FG
                                             {% endif %}
-                                        </div>
+                                        {% else %}
+                                            {{ ticket.payement.amount|floatformat:0 }}
+                                            FG
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <div class="ticket-qr">
-                                        {% if ticket.qr_code %}
-                                            <img src="{{ ticket.qr_code.url }}" alt="QR Code" />
-                                        {% else %}
-                                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ ticket.code_ticket }}"
-                                         alt="QR Code" />
-                                        {% endif %}
+                                    {% if ticket.qr_code %}
+                                        <img src="{{ ticket.qr_code.url }}" alt="QR Code" />
+                                    {% else %}
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ ticket.code_ticket }}"
+                                             alt="QR Code" />
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="virtual-ticket-footer">
                                 <div class="ticket-note">Ce ticket est nominatif et non transférable.</div>
-                                    {% if ticket.payement.statut_payement %}
+                                {% if ticket.payement.statut_payement %}
                                     <div class="ticket-status paid">PAYÉ</div>
                                 {% else %}
                                     <div class="ticket-status pending">EN ATTENTE</div>
@@ -156,320 +155,330 @@
                     </div>
                     <div class="card-body">
                         <div class="event-header mb-3">
-                                {% if ticket.event.image %}
+                            {% if ticket.event.image %}
                                 <div class="event-image">
-                                        <img src="{{ ticket.event.image.url }}" alt="{{ ticket.event.title }}" />
+                                    <img src="{{ ticket.event.image.url }}" alt="{{ ticket.event.title }}" />
                                 </div>
                             {% endif %}
                             <div class="event-main-info">
                                 <h4>{{ ticket.event.title }}</h4>
                                 <div class="event-meta">
-                                        <span><i class="fas fa-map-marker-alt me-1"></i>
-                                          {{ ticket.event.location }}</span>
-                                        <span><i class="fas fa-calendar me-1"></i>{{ ticket.event.start_date|date:"d/m/Y H:i" }}</span>
-                                        <span><i class="fas fa-tag me-1"></i>{{ ticket.event.category.name }}</span>
-                                        <span><i class="fas fa-users me-1"></i>{{ ticket.event.get_type_event_display }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tickets-stats">
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <div class="stat-card">
-                                        <div class="stat-value">{{ ticket_stats.total_sold }}</div>
-                                        <div class="stat-label">Tickets vendus</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="stat-card">
-                                        <div class="stat-value">{{ ticket_stats.tickets_left }}</div>
-                                        <div class="stat-label">Tickets restants</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="stat-card">
-                                            <div class="stat-value">{{ ticket_stats.commission|floatformat:0 }} FG</div>
-                                            <div class="stat-label">Commission (8%)</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="event-actions mt-3">
-                            <a href="{% url 'dashboard:event_edit' uid=ticket.event.uid %}"
-                               class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-edit me-1"></i>Modifier l'événement
-                            </a>
-                            <a href="{% url 'dashboard:event_detail' uid=ticket.event.uid %}"
-                               target="_blank"
-                               class="btn btn-outline-info btn-sm">
-                                <i class="fas fa-eye me-1"></i>Voir la page publique
-                            </a>
+                                <span><i class="fas fa-map-marker-alt me-1"></i>
+                            {{ ticket.event.location }}</span>
+                            <span><i class="fas fa-calendar me-1"></i>{{ ticket.event.start_date|date:"d/m/Y H:i" }}</span>
+                            <span><i class="fas fa-tag me-1"></i>{{ ticket.event.category.name }}</span>
+                            <span><i class="fas fa-users me-1"></i>{{ ticket.event.get_type_event_display }}</span>
                         </div>
                     </div>
                 </div>
-                <!-- Historique du ticket -->
-                <div class="card dashboard-card">
-                    <div class="card-header">
-                        <h5 class="card-title">
-                            <i class="fas fa-history me-2"></i>Historique du ticket
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline-marker bg-primary">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </div>
-                                <div class="timeline-content">
-                                    <h6 class="timeline-title">Ticket créé</h6>
-                                    <p class="timeline-date">{{ ticket.created_at|date:"d/m/Y H:i" }}</p>
-                                        <p class="timeline-text">Réservation effectuée pour {{ ticket.payement.nom_complet }}.</p>
-                                    </div>
-                                </div>
-                                {% if ticket.payement.statut_payement %}
-                                <div class="timeline-item">
-                                    <div class="timeline-marker bg-success">
-                                        <i class="fas fa-check"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                        <h6 class="timeline-title">Paiement effectué</h6>
-                                            <p class="timeline-date">{{ ticket.payement.updated_at|date:"d/m/Y H:i" }}</p>
-                                        <p class="timeline-text">
-                                                Paiement reçu d'un montant de
-                                                {% if ticket.event.infoticket_event %}
-                                                    {% if ticket.type_ticket == 'normal' %}
-                                                        {{ ticket.event.infoticket_event.prix_normal|floatformat:0 }} FG
-                                                    {% elif ticket.type_ticket == 'vip' %}
-                                                        {{ ticket.event.infoticket_event.prix_vip|floatformat:0 }} FG
-                                                        {% elif ticket.type_ticket == 'vvip' %} {{ ticket.event.infoticket_event.prix_vvip|floatformat:0 }} FG
-                                                        {% endif %}
-                                                    {% else %}
-                                                        {{ ticket.payement.amount|floatformat:0 }}
-                                                        FG
-                                                    {% endif %}
-                                                    . Commission de 8% :
-                                                    {% if icket.event.infoticket_event %}
-                                                        {% if ticket.type_ticket == 'normal' %}
-                                                            {{ ticket.event.infoticket_event.prix_normal|floatformat:0|multiply:0.08|floatformat:0 }} FG
-                                                        {% elif ticket.type_ticket == 'vip' %}
-                                                            {{ ticket.event.infoticket_event.prix_vip|floatformat:0|multiply:0.08|floatformat:0 }} FG
-                                                        {% elif ticket.type_ticket == 'vvip' %}
-                                                            {{ ticket.event.infoticket_event.prix_vvip|floatformat:0|multiply:0.08|floatformat:0 }} FG
-                                                        {% endif %}
-                                                    {% else %}
-                                                        {{ ticket.payement.amount|floatformat:0|multiply:0.08|floatformat:0 }} FG
-                                                    {% endif %}
-                                        </p>
-                                    </div>
-                                </div>
-                            {% else %}
-                                <div class="timeline-item">
-                                    <div class="timeline-marker bg-warning">
-                                        <i class="fas fa-clock"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                        <h6 class="timeline-title">En attente de paiement</h6>
-                                        <p class="timeline-text">Le paiement est en attente de confirmation.</p>
-                                    </div>
-                                </div>
-                            {% endif %}
-                                    {% if ticket.ticket_pdf %}
-                                        <div class="timeline-item">
-                                            <div class="timeline-marker bg-info">
-                                                <i class="fas fa-file-pdf"></i>
-                                            </div>
-                                            <div class="timeline-content">
-                                                <h6 class="timeline-title">PDF généré</h6>
-                                                <p class="timeline-text">Le ticket au format PDF a été généré.</p>
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                    {% if ticket.scan_count > 0 %}
-                                        <div class="timeline-item">
-                                            <div class="timeline-marker bg-info">
-                                                <i class="fas fa-qrcode"></i>
-                                            </div>
-                                            <div class="timeline-content">
-                                                <h6 class="timeline-title">Ticket scanné</h6>
-                                                <p class="timeline-text">Ce ticket a été scanné {{ ticket.scan_count }} fois.</p>
-                                    </div>
-                                </div>
-                            {% endif %}
+                <div class="tickets-stats">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-value">{{ ticket_stats.total_sold }}</div>
+                                <div class="stat-label">Tickets vendus</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-value">{{ ticket_stats.tickets_left }}</div>
+                                <div class="stat-label">Tickets restants</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-value">{{ ticket_stats.commission|floatformat:0 }} FG</div>
+                                <div class="stat-label">Commission (8%)</div>
+                            </div>
                         </div>
                     </div>
+                </div>
+                <div class="event-actions mt-3">
+                    <a href="{% url 'dashboard:event_edit' uid=ticket.event.uid %}"
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit me-1"></i>Modifier l'événement
+                    </a>
+                    <a href="{% url 'dashboard:event_detail' uid=ticket.event.uid %}"
+                       target="_blank"
+                       class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-eye me-1"></i>Voir la page publique
+                    </a>
                 </div>
             </div>
-            <!-- Informations latérales -->
-            <div class="col-lg-4">
-                <!-- Informations sur l'acheteur -->
-                <div class="card dashboard-card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title">
-                            <i class="fas fa-user me-2"></i>Informations sur l'acheteur
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="buyer-details">
-                            <div class="detail-item">
-                                <div class="detail-label">Nom complet</div>
-                                        <div class="detail-value">{{ ticket.payement.nom_complet }}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Email</div>
-                                <div class="detail-value">
-                                            <a href="mailto:{{ ticket.payement.email_reception }}">{{ ticket.payement.email_reception }}</a>
-                                </div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Téléphone</div>
-                                        <div class="detail-value">{{ ticket.payement.telephone_payement }}</div>
-                                    </div>
-                                    {% if ticket.payement.telephone_reception and ticket.payement.telephone_reception != ticket.payement.telephone_payement %}
-                                <div class="detail-item">
-                                            <div class="detail-label">Téléphone de réception</div>
-                                            <div class="detail-value">{{ ticket.payement.telephone_reception }}</div>
-                                </div>
-                            {% endif %}
+        </div>
+        <!-- Historique du ticket -->
+        <div class="card dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-history me-2"></i>Historique du ticket
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-primary">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h6 class="timeline-title">Ticket créé</h6>
+                            <p class="timeline-date">{{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+                            <p class="timeline-text">Réservation effectuée pour {{ ticket.payement.nom_complet }}.</p>
                         </div>
                     </div>
-                </div>
-                <!-- Détails du ticket -->
-                <div class="card dashboard-card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title">
-                            <i class="fas fa-info-circle me-2"></i>Détails du ticket
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Référence</span>
-                                        <span class="badge bg-primary">{{ ticket.code_ticket }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Type de ticket</span>
-                                <span class="badge {% if ticket.type_ticket == 'normal' %}bg-secondary{% elif ticket.type_ticket == 'vip' %}bg-success{% else %}bg-warning{% endif %}">
-                                    {% if ticket.type_ticket == 'normal' %}
-                                        Standard
-                                            {% elif ticket.type_ticket == 'vip' %}
-                                        VIP
-                                    {% else %}
-                                        VVIP
-                                    {% endif %}
-                                </span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Prix</span>
-                                        <span>
-                                            {% if ticket.event.infoticket_event %}
-                                                {% if ticket.type_ticket == 'normal' %}
-                                                    {{ ticket.event.infoticket_event.prix_normal|floatformat:0 }} FG
-                                                    {% elif ticket.type_ticket == 'vip' %}
-                                                    {{ ticket.event.infoticket_event.prix_vip|floatformat:0 }} FG
-                                                    {% elif ticket.type_ticket == 'vvip' %}
-                                                    {{ ticket.event.infoticket_event.prix_vvip|floatformat:0 }} FG
-                                                    {% endif %}
-                                                {% else %}
-                                                    {{ ticket.payement.amount|floatformat:0 }} FG
-                                                {% endif %}
-                                            </span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span>Commission (8%)</span>
-                                            <span>
-                                                {% if ticket.event.infoticket_event %}
-                                                    {% if ticket.type_ticket == 'normal' %}
-                                                        {{ ticket.event.infoticket_event.prix_normal|floatformat:0|multiply:0.08|floatformat:0 }} FG
-                                                    {% elif ticket.type_ticket == 'vip' %}
-                                                        {{ ticket.event.infoticket_event.prix_vip|floatformat:0|multiply:0.08|floatformat:0 }} FG
-                                                    {% elif ticket.type_ticket == 'vvip' %}
-                                                        {{ ticket.event.infoticket_event.prix_vvip|floatformat:0|multiply:0.08|floatformat:0 }} FG
-                                                    {% endif %}
-                                                {% else %}
-                                                    {{ ticket.payement.amount|floatformat:0|multiply:0.08|floatformat:0 }} FG
-                                                {% endif %}
-                                            </span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Statut</span>
-                                            <span class="badge {% if ticket.payement.statut_payement %}bg-success{% else %}bg-warning{% endif %}">
-                                                {% if ticket.payement.statut_payement %}
-                                        Payé
-                                    {% else %}
-                                                    En
-                                                    attente
-                                    {% endif %}
-                                </span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Date d'achat</span>
-                                <span>{{ ticket.created_at|date:"d/m/Y H:i" }}</span>
-                            </li>
-                                        {% if ticket.payement.statut_payement %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>Date de paiement</span>
-                                                <span>{{ ticket.payement.updated_at|date:"d/m/Y H:i" }}</span>
-                                            </li>
+                    {% if ticket.payement.statut_payement %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Paiement effectué</h6>
+                                <p class="timeline-date">{{ ticket.payement.updated_at|date:"d/m/Y H:i" }}</p>
+                                <p class="timeline-text">
+                                    Paiement reçu d'un montant de
+                                    {% if ticket.event.infoticket_event %}
+                                        {% if ticket.type_ticket == 'normal' %}
+                                            {{ ticket.event.infoticket_event.prix_normal|floatformat:0 }} FG
+                                        {% elif ticket.type_ticket == 'vip' %}
+                                            {{ ticket.event.infoticket_event.prix_vip|floatformat:0 }} FG
+                                        {% elif ticket.type_ticket == 'vvip' %}
+                                            {{ ticket.event.infoticket_event.prix_vvip|floatformat:0 }} FG
                                         {% endif %}
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span>Méthode de paiement</span>
-                                            <span>
-                                                {{ ticket.payement.get_payment_method_display|default:"Non spécifiée" }}</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span>Statut événement</span>
-                                            <span class="badge {% if ticket.event.end_date > now %}bg-success{% else %}bg-secondary{% endif %}">
-                                                {% if ticket.event.end_date > now %}
-                                                    À venir
-                                                {% else %}
-                                                    Terminé
-                                                {% endif %}
-                                            </span>
-                                        </li>
-                                        {% if ticket.scan_count > 0 %}
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                <span>Nombre de scans</span>
-                                                <span>{{ ticket.scan_count }}</span>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Modal pour envoyer le ticket par email -->
-                <div class="modal fade" id="sendTicketModal" tabindex="-1" aria-labelledby="sendTicketModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="sendTicketModalLabel">Envoyer le ticket par email</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Voulez-vous envoyer ce ticket par email à <strong>{{ ticket.payement.email_reception }}</strong> ?</p>
-                                <p>Un email contenant le ticket au format PDF sera envoyé.</p>
-                                {% if not ticket.ticket_pdf %}
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle me-2"></i> Le PDF du ticket sera généré avant l'envoi.
-                                </div>
-                                {% endif %}
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                <form id="sendTicketForm" method="post" action="{% url 'dashboard:ticket_send_email' ticket_id=ticket.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-info">Envoyer</button>
-                        </form>
+                                    {% else %}
+                                        {{ ticket.payement.amount|floatformat:0 }}
+                                        FG
+                                    {% endif %}
+                                    . Commission de 8% :
+                                    {% if icket.event.infoticket_event %}
+                                        {% if ticket.type_ticket == 'normal' %}
+                                            {{ ticket.event.infoticket_event.prix_normal|floatformat:0|multiply:0.08|floatformat:0 }} FG
+                                        {% elif ticket.type_ticket == 'vip' %}
+                                            {{ ticket.event.infoticket_event.prix_vip|floatformat:0|multiply:0.08|floatformat:0 }} FG
+                                        {% elif ticket.type_ticket == 'vvip' %}
+                                            {{ ticket.event.infoticket_event.prix_vvip|floatformat:0|multiply:0.08|floatformat:0 }} FG
+                                        {% endif %}
+                                    {% else %}
+                                        {{ ticket.payement.amount|floatformat:0|multiply:0.08|floatformat:0 }} FG
+                                    {% endif %}
+                                </p>
                             </div>
                         </div>
-                    </div>
+                    {% else %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">En attente de paiement</h6>
+                                <p class="timeline-text">Le paiement est en attente de confirmation.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if ticket.ticket_pdf %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">PDF généré</h6>
+                                <p class="timeline-text">Le ticket au format PDF a été généré.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if ticket.scan_count > 0 %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Ticket scanné</h6>
+                                <p class="timeline-text">Ce ticket a été scanné {{ ticket.scan_count }} fois.</p>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
+    <!-- Informations latérales -->
+    <div class="col-lg-4">
+        <!-- Informations sur l'acheteur -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-user me-2"></i>Informations sur l'acheteur
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="buyer-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Nom complet</div>
+                        <div class="detail-value">{{ ticket.payement.nom_complet }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">
+                            <a href="mailto:{{ ticket.payement.email_reception }}">{{ ticket.payement.email_reception }}</a>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Téléphone</div>
+                        <div class="detail-value">{{ ticket.payement.telephone_payement }}</div>
+                    </div>
+                    {% if ticket.payement.telephone_reception and ticket.payement.telephone_reception != ticket.payement.telephone_payement %}
+                        <div class="detail-item">
+                            <div class="detail-label">Téléphone de réception</div>
+                            <div class="detail-value">{{ ticket.payement.telephone_reception }}</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Détails du ticket -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-info-circle me-2"></i>Détails du ticket
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Référence</span>
+                        <span class="badge bg-primary">{{ ticket.code_ticket }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Type de ticket</span>
+                        <span class="badge {% if ticket.type_ticket == 'normal' %}bg-secondary{% elif ticket.type_ticket == 'vip' %}bg-success{% else %}bg-warning{% endif %}">
+                            {% if ticket.type_ticket == 'normal' %}
+                                Standard
+                            {% elif ticket.type_ticket == 'vip' %}
+                                VIP
+                            {% else %}
+                                VVIP
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Prix</span>
+                        <span>
+                            {% if ticket.event.infoticket_event %}
+                                {% if ticket.type_ticket == 'normal' %}
+                                    {{ ticket.event.infoticket_event.prix_normal|floatformat:0 }} FG
+                                {% elif ticket.type_ticket == 'vip' %}
+                                    {{ ticket.event.infoticket_event.prix_vip|floatformat:0 }} FG
+                                {% elif ticket.type_ticket == 'vvip' %}
+                                    {{ ticket.event.infoticket_event.prix_vvip|floatformat:0 }} FG
+                                {% endif %}
+                            {% else %}
+                                {{ ticket.payement.amount|floatformat:0 }} FG
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Commission (8%)</span>
+                        <span>
+                            {% if ticket.event.infoticket_event %}
+                                {% if ticket.type_ticket == 'normal' %}
+                                    {{ ticket.event.infoticket_event.prix_normal|floatformat:0|multiply:0.08|floatformat:0 }} FG
+                                {% elif ticket.type_ticket == 'vip' %}
+                                    {{ ticket.event.infoticket_event.prix_vip|floatformat:0|multiply:0.08|floatformat:0 }} FG
+                                {% elif ticket.type_ticket == 'vvip' %}
+                                    {{ ticket.event.infoticket_event.prix_vvip|floatformat:0|multiply:0.08|floatformat:0 }} FG
+                                {% endif %}
+                            {% else %}
+                                {{ ticket.payement.amount|floatformat:0|multiply:0.08|floatformat:0 }} FG
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Statut</span>
+                        <span class="badge {% if ticket.payement.statut_payement %}bg-success{% else %}bg-warning{% endif %}">
+                            {% if ticket.payement.statut_payement %}
+                                Payé
+                            {% else %}
+                                En
+                                attente
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Date d'achat</span>
+                        <span>{{ ticket.created_at|date:"d/m/Y H:i" }}</span>
+                    </li>
+                    {% if ticket.payement.statut_payement %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Date de paiement</span>
+                            <span>{{ ticket.payement.updated_at|date:"d/m/Y H:i" }}</span>
+                        </li>
+                    {% endif %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Méthode de paiement</span>
+                        <span>{{ ticket.payement.get_payment_method_display|default:"Non spécifiée" }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Statut événement</span>
+                        <span class="badge {% if ticket.event.end_date > now %}bg-success{% else %}bg-secondary{% endif %}">
+                            {% if ticket.event.end_date > now %}
+                                À venir
+                            {% else %}
+                                Terminé
+                            {% endif %}
+                        </span>
+                    </li>
+                    {% if ticket.scan_count > 0 %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Nombre de scans</span>
+                            <span>{{ ticket.scan_count }}</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Modal pour envoyer le ticket par email -->
+<div class="modal fade"
+     id="sendTicketModal"
+     tabindex="-1"
+     aria-labelledby="sendTicketModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sendTicketModalLabel">Envoyer le ticket par email</h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Voulez-vous envoyer ce ticket par email à <strong>{{ ticket.payement.email_reception }}</strong> ?
+                </p>
+                <p>Un email contenant le ticket au format PDF sera envoyé.</p>
+                {% if not ticket.ticket_pdf %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Le PDF du ticket sera généré avant l'envoi.
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="sendTicketForm"
+                      method="post"
+                      action="{% url 'dashboard:ticket_send_email' ticket_id=ticket.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-info">Envoyer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
 {% endblock content %}
-
 {% block extra_css %}
     <style>
   /* Style pour le badge de statut */
@@ -722,7 +731,6 @@
   }
     </style>
 {% endblock extra_css %}
-
 {% block extra_js %}
     <script>
   $(document).ready(function () {

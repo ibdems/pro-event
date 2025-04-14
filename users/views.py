@@ -4,7 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import (
     LoginView,
+    PasswordResetCompleteView,
     PasswordResetConfirmView,
+    PasswordResetDoneView,
     PasswordResetView,
 )
 from django.db import transaction
@@ -17,7 +19,12 @@ from django.views.generic import CreateView
 
 from users.models import User
 
-from .forms import CustomCreateUserForm, CustomLoginForm
+from .forms import (
+    CustomCreateUserForm,
+    CustomLoginForm,
+    CustomPasswordResetForm,
+    CustomSetPasswordForm,
+)
 from .utils.send_emails import send_mail_activation, send_mail_reset_password
 
 
@@ -43,66 +50,132 @@ class CustomLoginView(LoginView):
 class CustomUserCreationView(CreateView):
     template_name = "accounts/sign-up.html"
     form_class = CustomCreateUserForm
-    success_url = reverse_lazy("register")
+    success_url = reverse_lazy("login")
 
     def form_valid(self, form):
-        with transaction.atomic():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
-            send_mail_activation(user)
-        messages.success(self.request, ("Votre compte compte a ete cree"))
-        return redirect(self.success_url)
+        try:
+            with transaction.atomic():
+                user = form.save(commit=False)
+                user.is_active = False
+                user.role = "organisateur"
+                user.save()
+
+                # Déclencher l'envoi de l'email d'activation en tâche de fond
+                task_id = send_mail_activation(user)
+                print(f"Tâche d'envoi d'email d'activation lancée avec ID: {task_id}")
+
+            messages.success(
+                self.request,
+                "Votre compte a été créé avec succès. Un email d'activation vous a été envoyé. "
+                "Veuillez vérifier votre boîte de réception (ainsi que vos spams)"
+                " pour activer votre compte.",
+            )
+            return super().form_valid(form)
+        except Exception as e:
+            print(f"Erreur lors de la création du compte: {e}")
+            messages.error(
+                self.request, f"Une erreur est survenue lors de la création de votre compte: {e}"
+            )
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        print(f"Formulaire invalide: {form.errors}")
+        return super().form_invalid(form)
 
 
 class ActivationUserView(View):
     login_url = reverse_lazy("login")
 
     def get(self, request, uid, token):
-        id = urlsafe_base64_decode(uid)
-
         try:
-            user = User.objects.get(id=id)
-        except User.DoesNotExist:
-            return render(request, "registration/activation_invalid.html")
+            id = urlsafe_base64_decode(uid).decode("utf-8")
+            user = User.objects.get(pk=id)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            # Log l'erreur
+            print(f"Activation échouée: uid={uid}, token={token}")
+            messages.error(request, "Le lien d'activation est invalide.")
+            return render(request, "accounts/activation_invalid.html")
 
         if default_token_generator.check_token(user, token):
-            user.is_active = True
-            user.save()
-
-            messages.success(self.request, "Votre a ete activer vous pouvez vous connectez")
+            if user.is_active:
+                messages.info(request, "Votre compte est déjà activé. Vous pouvez vous connecter.")
+            else:
+                user.is_active = True
+                user.save()
+                messages.success(
+                    request,
+                    "Votre compte a été activé avec succès. Vous pouvez maintenant vous connecter.",
+                )
             return redirect(self.login_url)
-        return render(request, "registration/activation_invalid.html")
+
+        messages.error(request, "Le lien d'activation a expiré ou est invalide.")
+        return render(request, "accounts/activation_invalid.html")
 
 
-class PasswordResetView(PasswordResetView):
-    template_name = "registration/password_reset.html"
-    post_reset_redirect = "password_confirmation"
+class CustomPasswordResetView(PasswordResetView):
+    template_name = "accounts/password_reset.html"
+    success_url = reverse_lazy("password_reset_done")
+    email_template_name = "accounts/password_reset_email.txt"
+    html_email_template_name = "accounts/password_reset_email.html"
+    form_class = CustomPasswordResetForm
 
     def form_valid(self, form):
-        email = form.cleaned_data.get("email")
-        user = User.objects.filter(email=email).first()
-        if user:
-            send_mail_reset_password(user)
+        """
+        Surcharge complète de la méthode form_valid pour éviter l'envoi synchrone d'email
+        """
+        # Récupérer l'email et chercher l'utilisateur correspondant
+        email = form.cleaned_data["email"]
+
+        try:
+            user = User.objects.get(email=email)
+
+            # Lancer la tâche Celery d'envoi d'email
+            task_id = send_mail_reset_password(user)
+            print(f"Tâche d'envoi d'email de réinitialisation lancée avec ID: {task_id}")
+
+            # Message de succès
             messages.success(
                 self.request,
-                "Vous avez recu un email de confirmation, Veuillez consulter votre boite mail",
+                "Vous allez recevoir un email de réinitialisation dans quelques instants. "
+                "Veuillez consulter votre boîte mail (et vos spams).",
             )
-        else:
-            messages.error(self.request, "Cet email n'est associé à aucun utilisateur.")
 
-        return render(self.request, "registration/password_reset.html")
+            # Redirection vers la page de confirmation
+            return redirect(self.success_url)
+
+        except User.DoesNotExist:
+            # Si l'utilisateur n'existe pas, on affiche un message
+            messages.error(self.request, "Aucun compte n'est associé à cet email.")
+            return self.form_invalid(form)
+        except Exception as e:
+            # En cas d'erreur, on log et on informe l'utilisateur
+            print(f"Erreur lors de la réinitialisation du mot de passe: {e}")
+            messages.error(
+                self.request,
+                "Une erreur est survenue lors de l'envoi de l'email de réinitialisation.",
+            )
+            return self.form_invalid(form)
 
 
-class CustomPasswordConfirmView(PasswordResetConfirmView):
-    template_name = "registration/password_confirm.html"
-    success_url = reverse_lazy("login")
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = "accounts/password_reset_done.html"
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = "accounts/password_reset_confirm.html"
+    success_url = reverse_lazy("password_reset_complete")
+    form_class = CustomSetPasswordForm
 
     def form_valid(self, form):
         messages.success(
-            self.request, "Votre mot de pass a ete bien modifier. Vous pouvez vous connectez"
+            self.request,
+            "Votre mot de passe a été modifié avec succès. Vous pouvez maintenant vous connecter.",
         )
         return super().form_valid(form)
+
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = "accounts/password_reset_complete.html"
 
 
 @login_required
@@ -118,11 +191,11 @@ def lock(request):
             login(request, user)
             request.session["locked"] = False
             request.session["last_activity"] = now().timestamp()
-            return redirect("dashboard")  # Redirection après succès
+            return redirect("dashboard:home")  # Redirection après succès
         else:
             return render(
                 request,
-                "accounts/lock.html",
+                "accounts/locked.html",
                 {
                     "error": "Mot de passe incorrect",
                     "user": request.user,

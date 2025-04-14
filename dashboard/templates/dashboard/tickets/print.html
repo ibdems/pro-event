@@ -263,7 +263,11 @@
         </div>
         <div class="print-container">
             <div class="header">
-                <img src="{% static 'img/logo.jpg' %}" alt="Pro-Event Logo" class="logo" height="50" width="50"/>
+                <img src="{% static 'img/logo.jpg' %}"
+                     alt="Pro-Event Logo"
+                     class="logo"
+                     height="50"
+                     width="50" />
                 <h1 class="title">Ticket d'événement</h1>
                 <p class="subtitle">Ticket officiel - Pro-Event</p>
             </div>
@@ -296,9 +300,7 @@
                             </div>
                             <div class="event-detail">
                                 <div class="detail-label">Organisateur :</div>
-                                <div>
-                                    {{ ticket.event.user.get_full_name|default:ticket.event.user.email|default:"Non spécifié" }}
-                                </div>
+                                <div>{{ ticket.event.user.get_full_name|default:ticket.event.user.email|default:"Non spécifié" }}</div>
                             </div>
                             <div class="event-detail">
                                 <div class="detail-label">Prix :</div>
@@ -308,23 +310,24 @@
                                             {{ ticket.event.infoticket_event.prix_normal|floatformat:0 }} FG
                                         {% elif ticket.type_ticket == 'vip' %}
                                             {{ ticket.event.infoticket_event.prix_vip|floatformat:0 }} FG
-                                            {% elif ticket.type_ticket == 'vvip' %} {{
+                                        {% elif ticket.type_ticket == 'vvip' %}
+                                            {{
                                             ticket.event.infoticket_event.prix_vvip|floatformat:0 }} FG
-                                            {% endif %}
-                                        {% else %}
-                                            {{ ticket.payement.amount|floatformat:0 }}
-                                            FG
                                         {% endif %}
-                                    </div>
+                                    {% else %}
+                                        {{ ticket.payement.amount|floatformat:0 }}
+                                        FG
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
-                        <div class="customer-info">
-                            <div class="customer-title">DÉTAILS DU PARTICIPANT</div>
-                            <div class="customer-name">{{ ticket.payement.nom_complet }}</div>
-                            <div class="customer-detail">{{ ticket.payement.email_reception }}</div>
-                            <div class="customer-detail">{{ ticket.payement.telephone_payement }}</div>
-                            <div class="ticket-qr">
+                    </div>
+                    <div class="customer-info">
+                        <div class="customer-title">DÉTAILS DU PARTICIPANT</div>
+                        <div class="customer-name">{{ ticket.payement.nom_complet }}</div>
+                        <div class="customer-detail">{{ ticket.payement.email_reception }}</div>
+                        <div class="customer-detail">{{ ticket.payement.telephone_payement }}</div>
+                        <div class="ticket-qr">
                             {% if ticket.qr_code %}
                                 <img src="{{ ticket.qr_code.url }}" alt="QR Code" class="qr-code" />
                             {% else %}
@@ -334,43 +337,42 @@
                             {% endif %}
                             <div class="ticket-reference">Référence: {{ ticket.code_ticket }}</div>
                         </div>
-                        </div>
-
-                    </div>
-                    <div class="ticket-footer">
-                        <div>Ce ticket est nominatif et non transférable.</div>
-                        {% if ticket.payement.statut_payement %}
-                            <div class="ticket-status paid">PAYÉ</div>
-                        {% else %}
-                            <div class="ticket-status pending">EN ATTENTE</div>
-                        {% endif %}
                     </div>
                 </div>
-                <div class="instructions">
-                    <div class="instructions-title">Instructions</div>
-                    <div class="instruction-item">
-                        1. Veuillez imprimer ce ticket ou le présenter sur votre téléphone à
-                        l'entrée de l'événement.
-                    </div>
-                    <div class="instruction-item">
-                        2. Une pièce d'identité pourra vous être demandée pour vérifier votre
-                        identité.
-                    </div>
-                    <div class="instruction-item">3. Présentez-vous au moins 30 minutes avant le début de l'événement.</div>
-                    <div class="instruction-item">
-                        4. Ce ticket est valable uniquement pour l'événement et la date
-                        indiqués.
-                    </div>
-                    <div class="instruction-item">
-                        5. En cas de problème, contactez l'organisateur ou le support de
-                        Pro-Event.
-                    </div>
-                </div>
-                <div class="footer">
-                    <img src="/static/img/logo.png" alt="Pro-Event Logo" class="footer-logo" />
-                    <div>Pro-Event - La plateforme des événements</div>
-                    <div class="contact-info">support@pro-event.com | +224 XXX XXX XXX</div>
+                <div class="ticket-footer">
+                    <div>Ce ticket est nominatif et non transférable.</div>
+                    {% if ticket.payement.statut_payement %}
+                        <div class="ticket-status paid">PAYÉ</div>
+                    {% else %}
+                        <div class="ticket-status pending">EN ATTENTE</div>
+                    {% endif %}
                 </div>
             </div>
-        </body>
-    </html>
+            <div class="instructions">
+                <div class="instructions-title">Instructions</div>
+                <div class="instruction-item">
+                    1. Veuillez imprimer ce ticket ou le présenter sur votre téléphone à
+                    l'entrée de l'événement.
+                </div>
+                <div class="instruction-item">
+                    2. Une pièce d'identité pourra vous être demandée pour vérifier votre
+                    identité.
+                </div>
+                <div class="instruction-item">3. Présentez-vous au moins 30 minutes avant le début de l'événement.</div>
+                <div class="instruction-item">
+                    4. Ce ticket est valable uniquement pour l'événement et la date
+                    indiqués.
+                </div>
+                <div class="instruction-item">
+                    5. En cas de problème, contactez l'organisateur ou le support de
+                    Pro-Event.
+                </div>
+            </div>
+            <div class="footer">
+                <img src="/static/img/logo.png" alt="Pro-Event Logo" class="footer-logo" />
+                <div>Pro-Event - La plateforme des événements</div>
+                <div class="contact-info">support@pro-event.com | +224 XXX XXX XXX</div>
+            </div>
+        </div>
+    </body>
+</html>

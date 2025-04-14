@@ -30,7 +30,6 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    "admin_volt.apps.AdminVoltConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -169,6 +168,7 @@ EMAIL_USE_TLS = True
 
 # URL de base pour les liens dans les emails
 BASE_URL = "http://127.0.0.1:8000"
+DOMAIN_URL = "127.0.0.1:8000"  # Utilisé dans les templates d'activation et de réinitialisation
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'localhost'
