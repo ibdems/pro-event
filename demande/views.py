@@ -30,7 +30,7 @@ class DemandeView(View):
 
         forms_data = {
             "anonymous_user": AnonymousUserForms(request.POST),
-            "event": EventForms(request.POST),
+            "event": EventForms(request.POST, request.FILES),
             "ticket": TicketForms(request.POST),
             "hostess": ServiceHotesseForms(request.POST),
         }
@@ -51,12 +51,11 @@ class DemandeView(View):
         # Validation des formulaires pour chaque service sélectionné
         if "event" in selected_services:
             if not forms_data["event"].is_valid():
-                print(forms_data["event"].errors)  # Affiche les erreurs de validation
+                print(forms_data["event"].errors)
                 is_valid = False
             else:
                 instances["event"] = forms_data["event"].save(commit=False)
                 instances["event"].statut = False
-                # Associer l'utilisateur à l'événement si authentifié
                 if request.user.is_authenticated:
                     instances["event"].user = request.user
 

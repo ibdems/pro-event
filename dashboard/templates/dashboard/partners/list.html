@@ -41,11 +41,14 @@
                                     <th>Logo</th>
                                     <th>Nom</th>
                                     <th>Type de partenariat</th>
+                                    {% if request.user.is_staff %}
+                                        <th>De ProEvent</th>
+                                    {% endif %}
                                     <th>Événements</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="text-center">
                                 {% for partner in partners %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
@@ -63,6 +66,15 @@
                                         <td>
                                             <span class="badge bg-info">{{ partner.partnership_type }}</span>
                                         </td>
+                                        {% if request.user.is_staff %}
+                                            <td>
+                                                {% if partner.is_platform_partner %}
+                                                    <span class="badge bg-success">Oui</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Non</span>
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
                                         <td>
                                             <span class="badge bg-primary">{{ partner.event_count }}</span>
                                         </td>

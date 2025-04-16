@@ -19,7 +19,7 @@ class EventFilter(FilterSet):
         ),
     )
     type_access = ChoiceFilter(
-        field_name="type_access",
+        field_name="infoticket_event__type_access",
         choices=InfoTicket._meta.get_field("type_access").choices,
         empty_label="Trier par type d'accès",
         widget=forms.Select(attrs={"class": "form-control"}),

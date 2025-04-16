@@ -1,128 +1,346 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <link rel="icon" href="{% static 'img/logo.jpg' %}" type="image/x-icon">
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title> ProEvent-
-            {% block title %}
-            {% endblock title %}
-        </title>
-        <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;700&display=swap"
-              rel="stylesheet">
-        <!-- Option 1: Include in HTML -->
-        <link rel="stylesheet"
-              href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-        <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
-        <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
-        <link rel="stylesheet" href="{% static 'css/style_event.css' %}">
-        <link rel="stylesheet" href="{% static 'css/style_demande.css' %}">
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-lg">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    <img src="{% static 'img/logo.jpg' %}" alt="ProEvent Logo">
-                </a>
-                <button class="navbar-toggler"
-                        type="button"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#navbarOffcanvas">
-                    <i class="bi bi-list-ul fs-1"></i>
-                </button>
-                <div class="offcanvas offcanvas-end" id="navbarOffcanvas">
-                    <div class="offcanvas-header">
-                        <h5 class="offcanvas-title">Menu</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-                    </div>
-                    <div class="offcanvas-body">
-                        <ul class="navbar-nav mx-auto">
-                            <li class="nav-item">
-                                <a class="nav-link {% if active_page == 'home' %}active{% endif %} "
-                                   href="{% url 'event:home' %}">Accueil</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if active_page == 'about' %}active{% endif %}"
-                                   href="{% url 'event:about' %}">A Propos</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if active_page == 'event' %}active{% endif %}"
-                                   href="{% url 'event:event' %}">Événements</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if active_page == 'contact' %}active{% endif %}"
-                                   href="{% url 'event:contact' %}">Contact</a>
-                            </li>
-                        </ul>
-                        <div class="ms-auto">
-                            <a href="{% url 'login' %}" class="btn btn-primary me-2">Connexion</a>
-                            <!-- <a href="#" class="btn btn-outline-primary">Inscription</a> -->
-                        </div>
-                    </div>
-                </div>
+  <head>
+    <link rel="icon" href="{% static 'img/logo.jpg' %}" type="image/x-icon" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="description"
+      content="ProEvent - Organisation professionnelle d'événements et billetterie sécurisée"
+    />
+    <meta
+      name="keywords"
+      content="organisation événements, billetterie, événementiel, Afrique, gestion événement"
+    />
+    <meta name="author" content="ProEvent" />
+    <meta
+      property="og:title"
+      content="ProEvent - Votre événement, notre mission"
+    />
+    <meta
+      property="og:description"
+      content="Organisation professionnelle d'événements et billetterie sécurisée"
+    />
+    <meta property="og:image" content="{% static 'img/logo.jpg' %}" />
+    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>ProEvent - {% block title %} {% endblock title %}</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Option 1: Include in HTML -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}" />
+    <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/style_event.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style_demande.css' %}" />
+    <style>
+      .card-img-top {
+        width: 100%;
+        height: auto;
+        max-height: 250px;
+        object-fit: cover;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .img-fluid {
+        max-width: 100%;
+        height: auto;
+      }
+
+      /* Style pour la navbar */
+      .navbar {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 0.5rem 0;
+      }
+
+      .navbar-brand img {
+        height: 60px;
+        width: auto;
+      }
+
+      .nav-link {
+        padding: 0.6rem 1rem !important;
+        color: #333;
+        font-weight: 500;
+        transition: color 0.3s ease;
+        border-bottom: 2px solid transparent;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        color: var(--primary-blue);
+        border-bottom: 2px solid var(--primary-blue);
+      }
+
+      /* Style du footer amélioré */
+      .footer {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding-top: 3rem;
+        box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+        color: #333;
+      }
+
+      .footer h5 {
+        color: var(--primary-blue);
+        font-weight: 600;
+        margin-bottom: 1.2rem;
+      }
+
+      .footer-links {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.5rem;
+        transition: transform 0.3s ease;
+      }
+
+      .footer-links li:hover {
+        transform: translateX(5px);
+      }
+
+      .footer-links a {
+        color: #555;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary-blue);
+      }
+
+      .social-links a {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 36px;
+        height: 36px;
+        background: var(--primary-blue);
+        color: white;
+        border-radius: 50%;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .social-links a:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(1, 0, 137, 0.3);
+      }
+    </style>
+    {% block extra_css %}{% endblock extra_css %}
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'event:home' %}">
+          <img src="{% static 'img/logo.jpg' %}" alt="ProEvent Logo" />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarOffcanvas"
+          aria-controls="navbarOffcanvas"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <i class="bi bi-list-ul fs-1"></i>
+        </button>
+        <div
+          class="offcanvas offcanvas-end"
+          id="navbarOffcanvas"
+          tabindex="-1"
+          aria-labelledby="navbarOffcanvasLabel"
+        >
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="navbarOffcanvasLabel">
+              Menu ProEvent
+            </h5>
+            <button
+              type="button"
+              class="btn-close text-reset"
+              data-bs-dismiss="offcanvas"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <ul class="navbar-nav mx-auto">
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if active_page == 'home' %}active{% endif %}"
+                  href="{% url 'event:home' %}"
+                  >Accueil</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if active_page == 'event' %}active{% endif %}"
+                  href="{% url 'event:event' %}"
+                  >Événements</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if active_page == 'demande' %}active{% endif %}"
+                  href="{% url 'demande' %}"
+                  >Faire une demande</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if active_page == 'about' %}active{% endif %}"
+                  href="{% url 'event:about' %}"
+                  >À propos</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if active_page == 'contact' %}active{% endif %}"
+                  href="{% url 'event:contact' %}"
+                  >Contact</a
+                >
+              </li>
+            </ul>
+            <div class="ms-auto">
+              <a href="{% url 'login' %}" class="btn btn-primary btn-sm me-2"
+                >Connexion</a
+              >
+              <a
+                href="{% url 'signup' %}"
+                class="btn btn-outline-primary btn-sm"
+                >Inscription</a
+              >
             </div>
-        </nav>
-        <main class="main">
-            {% block content %}
-            {% endblock content %}
-        </main>
-        <footer class="footer">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-4 mb-2">
-                        <h5>Liens rapides</h5>
-                        <ul class="footer-links">
-                            <li>
-                                <a href="#">Politique de confidentialité</a>
-                            </li>
-                            <li>
-                                <a href="#">FAQ</a>
-                            </li>
-                            <li>
-                                <a href="#">Mentions légales</a>
-                            </li>
-                            <li>
-                                <a href="#">Conditions générales</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <h5>Contact</h5>
-                        <ul class="footer-links">
-                            <li>
-                                <i class="bi-envelope fs-5"></i> proevent62@gmail.com
-                            </li>
-                            <li>
-                                <i class="bi-phone fs-5"></i> 620 30 26 18
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <h5>Suivez-nous</h5>
-                        <div class="social-links">
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-twitter"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-12 text-center">
-                        <p class="mb-0">&copy; 2024 ProEvent. Tous droits réservés.</p>
-                    </div>
-                </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <main class="main">{% block content %} {% endblock content %}</main>
+    <footer class="footer">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-4 mb-4">
+            <div class="d-flex align-items-center mb-3">
+              <img
+                src="{% static 'img/logo.jpg' %}"
+                alt="ProEvent Logo"
+                style="height: 50px; width: auto; margin-right: 15px"
+              />
+              <h5 class="mb-0">ProEvent</h5>
             </div>
-            <button id="backToTop"
-                    class="btn btn-primary"
-                    style="display: none;
-                           position: fixed;
-                           bottom: 2rem;
-                           right: 2rem;
-                           z-index: 1000">↑</button>
-            <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-            <script src="{% static 'js/scripts.js' %}"></script>
-        </body>
-    </html>
+            <p class="mb-3">
+              Transformez vos idées en événements mémorables. Organisation
+              complète, billetterie sécurisée et services partenaires de
+              qualité.
+            </p>
+            <div class="social-links">
+              <a href="#" aria-label="Facebook"
+                ><i class="bi bi-facebook"></i
+              ></a>
+              <a href="#" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+              <a href="#" aria-label="Instagram"
+                ><i class="bi bi-instagram"></i
+              ></a>
+              <a href="#" aria-label="LinkedIn"
+                ><i class="bi bi-linkedin"></i
+              ></a>
+            </div>
+          </div>
+          <div class="col-md-2 mb-4">
+            <h5>Liens utiles</h5>
+            <ul class="footer-links">
+              <li><a href="{% url 'event:home' %}">Accueil</a></li>
+              <li><a href="{% url 'event:event' %}">Événements</a></li>
+              <li><a href="{% url 'event:about' %}">À propos</a></li>
+              <li><a href="{% url 'event:contact' %}">Contact</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Informations légales</h5>
+            <ul class="footer-links">
+              <li>
+                <a href="{% url 'event:politique_confidentialite' %}"
+                  >Politique de confidentialité</a
+                >
+              </li>
+              <li>
+                <a href="{% url 'event:conditions_utilisation' %}"
+                  >Conditions générales</a
+                >
+              </li>
+              <li>
+                <a href="{% url 'event:mentions_legales' %}"
+                  >Mentions légales</a
+                >
+              </li>
+              <li><a href="#">FAQ</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Contact</h5>
+            <ul class="footer-links">
+              <li><i class="bi bi-envelope me-2"></i> proevent62@gmail.com</li>
+              <li><i class="bi bi-phone me-2"></i> 620 30 26 18</li>
+              <li><i class="bi bi-geo-alt me-2"></i> Conakry, Guinée</li>
+            </ul>
+          </div>
+        </div>
+        <hr />
+        <div class="row mt-2">
+          <div class="col-12 text-center">
+            <div class="mb-2">
+              <a
+                href="{% url 'event:mentions_legales' %}"
+                class="text-decoration-none me-3"
+                >Mentions légales</a
+              >
+              <a
+                href="{% url 'event:conditions_utilisation' %}"
+                class="text-decoration-none me-3"
+                >Conditions d'utilisation</a
+              >
+              <a
+                href="{% url 'event:politique_confidentialite' %}"
+                class="text-decoration-none"
+                >Politique de confidentialité</a
+              >
+            </div>
+            <p class="mb-0">
+              &copy; {% now "Y" %} ProEvent. Tous droits réservés.
+            </p>
+          </div>
+        </div>
+      </div>
+      <button
+        id="backToTop"
+        class="btn btn-primary"
+        aria-label="Retour en haut"
+        style="
+          display: none;
+          position: fixed;
+          bottom: 2rem;
+          right: 2rem;
+          z-index: 1000;
+        "
+      >
+        <i class="fas fa-arrow-up"></i>
+      </button>
+    </footer>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+    {% block extra_js %}{% endblock extra_js %}
+  </body>
+</html>

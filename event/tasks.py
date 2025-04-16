@@ -1,4 +1,6 @@
+import base64
 import logging
+import os
 
 from celery import shared_task
 from celery.exceptions import MaxRetriesExceededError
@@ -257,4 +259,93 @@ def send_demande_rejected_email(self, demande_id):
             raise self.retry(exc=e, countdown=10)
         except MaxRetriesExceededError:
             logger.critical(f"Échec définitif d'envoi d'email de rejet pour demande {demande_id}")
+            raise
+
+
+@shared_task(bind=True, max_retries=3)
+def send_ticket_by_whatsapp(self, payement_id, result=None):
+    """Envoie les tickets générés par WhatsApp"""
+    try:
+        payement = Payement.objects.get(id=payement_id)
+        tickets = Ticket.objects.filter(payement=payement)
+
+        if not tickets.exists():
+            logger.error(f"Aucun ticket trouvé pour le paiement {payement_id}")
+            return
+
+        # Contenu du message
+        message_text = f"""
+        Bonjour {payement.nom_complet},
+
+        Merci pour votre achat. Voici votre(vos) ticket(s)
+        pour l'événement : {payement.event.title}.
+
+        Cordialement,
+        L'équipe ProEvent
+        """  # noqa
+
+        # Formater le numéro de téléphone (enlever les espaces, ajouter l'indicatif pays si besoin)
+        phone_number = payement.telephone_reception.strip()
+        if not phone_number.startswith("+"):
+            # Assumant que c'est un numéro guinéen si pas d'indicatif (ajouter +224)
+            if phone_number.startswith("0"):
+                phone_number = "+224" + phone_number[1:]
+            else:
+                phone_number = "+224" + phone_number
+
+        # Envoyer un message pour chaque ticket
+        success = True
+        for ticket in tickets:
+            if ticket.ticket_pdf and os.path.exists(ticket.ticket_pdf.path):
+                try:
+                    # Lire le fichier PDF en tant que bytes
+                    with open(ticket.ticket_pdf.path, "rb") as pdf_file:
+                        pdf_bytes = pdf_file.read()
+
+                    # Encodage en base64
+                    pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")  # noqa
+
+                    # Simuler l'appel à l'API WhatsApp Business
+                    # Dans un environnement réel, cela ressemblerait à:
+                    """
+                    response = requests.post(
+                        "https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages",
+                        headers={
+                            "Authorization": f"Bearer {settings.WHATSAPP_API_TOKEN}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "messaging_product": "whatsapp",
+                            "recipient_type": "individual",
+                            "to": phone_number,
+                            "type": "document",
+                            "document": {
+                                "filename": f"ticket_{ticket.code_ticket}.pdf",
+                                "caption": message_text,
+                                "link": f"{settings.BASE_URL}{ticket.ticket_pdf.url}"
+                            }
+                        }
+                    )
+
+                    if response.status_code != 200:
+                        logger.error(f"Échec de l'envoi WhatsApp: {response.text}")
+                        success = False
+                    """
+                except Exception as e:
+                    logger.error(
+                        f"Erreur lors de l'envoi du ticket {ticket.code_ticket} par WhatsApp: {e}"
+                    )
+                    success = False
+            else:
+                logger.error(f"Pas de PDF disponible pour le ticket {ticket.code_ticket}")
+                success = False
+
+        return success
+
+    except Exception as e:
+        logger.error(f"Erreur d'envoi WhatsApp pour le paiement {payement_id}: {e}")
+        try:
+            raise self.retry(exc=e, countdown=15)
+        except MaxRetriesExceededError:
+            logger.critical(f"Échec définitif d'envoi WhatsApp pour le paiement {payement_id}")
             raise

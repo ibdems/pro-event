@@ -1,183 +1,616 @@
-{% extends "event/base.html" %}
-{% load static %}
-{% block title %}
-    Accueil
-{% endblock title %}
-{% block content %}
-    <!-- Section Héros -->
-    <section class="hero-section position-relative">
-        <img src="{% static 'img/home.png' %}" alt="Background" class="hero-bg" />
-        <div class="container h-100 d-flex align-items-center">
-            <div class="hero-content shadow">
-                <h1 class="display-2 fw-bold text-primary">Votre événement, notre mission</h1>
-                <p class="fs-5 mb-4">
-                    Avec ProEvent, transformez vos idées en événements mémorables.
-                    Organisation complète, tickets sécurisés, et services partenaires de
-                    qualité, tout en un !
-                </p>
-                <div class="d-flex flex-column flex-lg-row gap-3">
-                    <a href="{% url 'event:event' %}" class="btn btn-primary">Explorer les événements</a>
-                    <a href="{% url 'demande' %}" class="btn btn-outline-primary">Demander un service</a>
-                </div>
+{% extends "event/base.html" %} {% load static %} {% block title %} Accueil
+{% endblock title %} {% block extra_css %}
+<style>
+  /* Animations spécifiques pour la page d'accueil */
+  .hero-content {
+    animation: fadeInFromLeft 1s ease-out;
+  }
+
+  @keyframes fadeInFromLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .advantages-card {
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 1 !important; /* Assurez-vous que les cartes sont toujours visibles */
+  }
+
+  .advantages-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 15px 30px rgba(1, 0, 137, 0.1);
+  }
+
+  .advantages-icon {
+    font-size: 3rem;
+    color: var(--primary-blue);
+    background: rgba(1, 0, 137, 0.1);
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .advantages-card:hover .advantages-icon {
+    background: var(--primary-blue);
+    color: white;
+    transform: rotateY(180deg);
+  }
+
+  .event-card {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    height: 100%;
+    position: relative;
+    z-index: 1;
+    opacity: 1 !important; /* Assurez-vous que les cartes sont toujours visibles */
+  }
+
+  .event-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, var(--primary-blue), transparent);
+    opacity: 0;
+    transition: all 0.4s ease;
+    z-index: -1;
+  }
+
+  .event-card:hover::before {
+    opacity: 0.05;
+  }
+
+  .event-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .event-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-weight: 500;
+    z-index: 10;
+  }
+
+  .count-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 6rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .count-section::before {
+    content: "";
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(1, 0, 137, 0.05);
+  }
+
+  .count-section::after {
+    content: "";
+    position: absolute;
+    bottom: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(1, 0, 137, 0.05);
+  }
+
+  .count-card {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s ease;
+  }
+
+  .count-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .count-value {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 1rem;
+  }
+
+  .count-icon {
+    font-size: 2.5rem;
+    color: var(--primary-blue);
+    margin-bottom: 1rem;
+  }
+
+  .count-label {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #333;
+  }
+
+  /* Styles pour la section des partenaires */
+  .partners-section {
+    width: 100%;
+    overflow-x: hidden;
+    padding: 40px 0;
+    position: relative;
+  }
+
+  .partners-slider {
+    overflow: hidden;
+    position: relative;
+    padding: 20px 0;
+    width: 100%;
+  }
+
+  .partners-container {
+    overflow: hidden;
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+  }
+
+  .partners-scroll {
+    display: flex;
+    animation: scrollPartners 40s linear infinite;
+    min-width: 100%;
+  }
+
+  .partners-scroll:hover {
+    animation-play-state: paused;
+  }
+
+  .partner-item {
+    flex: 0 0 auto;
+    transition: transform 0.3s ease;
+  }
+
+  .partner-item:hover {
+    transform: translateY(-5px);
+  }
+
+  .partner-logo {
+    transition: all 0.3s ease;
+    margin: 0 15px;
+  }
+
+  .partner-item:hover .partner-logo {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  @keyframes scrollPartners {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Assurez-vous que tous les éléments animés sont visibles */
+  .scroll-animated {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+</style>
+{% endblock extra_css %} {% block content %}
+<!-- Section Héros -->
+<section class="hero-section position-relative">
+  <img src="{% static 'img/home.png' %}" alt="Background" class="hero-bg" />
+  <div class="container h-100 d-flex align-items-center">
+    <div class="hero-content shadow">
+      <span class="badge bg-primary mb-3">Organisation événementielle</span>
+      <h1 class="display-2 fw-bold text-primary">
+        Votre événement, notre mission
+      </h1>
+      <p class="fs-5 mb-4">
+        Avec ProEvent, transformez vos idées en événements mémorables.
+        Organisation complète, tickets sécurisés, et services partenaires de
+        qualité, tout en un !
+      </p>
+      <div class="d-flex flex-column flex-lg-row gap-3">
+        <a href="{% url 'event:event' %}" class="btn btn-primary btn-lg">
+          <i class="fas fa-search me-2"></i>Explorer les événements
+        </a>
+        <a href="{% url 'demande' %}" class="btn btn-outline-primary btn-lg">
+          <i class="fas fa-paper-plane me-2"></i>Demander un service
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section Pourquoi choisir ProEvent -->
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge bg-primary rounded-pill px-3 py-2 mb-2"
+        >Nos avantages</span
+      >
+      <h2 class="display-5 fw-bold text-primary scroll-animated">
+        Pourquoi choisir ProEvent ?
+      </h2>
+      <p class="lead text-muted mb-0">
+        Des solutions complètes pour votre événement parfait
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="advantages-card p-4 text-center scroll-animated">
+          <div class="advantages-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <h3 class="h4 mb-3">Organisation complète</h3>
+          <p class="mb-0">
+            De la logistique à la gestion des invités, ProEvent s'occupe de tout
+            pour un événement sans stress.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="advantages-card p-4 text-center scroll-animated">
+          <div class="advantages-icon">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          <h3 class="h4 mb-3">Tickets sécurisés</h3>
+          <p class="mb-0">
+            Vendez ou achetez des tickets en toute sécurité avec nos solutions
+            digitales intégrées.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="advantages-card p-4 text-center scroll-animated">
+          <div class="advantages-icon">
+            <i class="fas fa-handshake"></i>
+          </div>
+          <h3 class="h4 mb-3">Partenaires fiables</h3>
+          <p class="mb-0">
+            Nous collaborons avec les meilleurs lieux et services pour offrir
+            des événements de qualité.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="advantages-card p-4 text-center scroll-animated">
+          <div class="advantages-icon">
+            <i class="fas fa-user-tie"></i>
+          </div>
+          <h3 class="h4 mb-3">Hôtesses expérimentées</h3>
+          <p class="mb-0">
+            Des professionnelles qualifiées pour accueillir et guider vos
+            invités avec élégance et efficacité.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section Statistiques -->
+<section class="count-section my-5">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-md-4">
+        <div class="count-card">
+          <div class="count-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="count-value" data-count="{{ event_count|default:'200' }}">
+            0
+          </div>
+          <div class="count-label">Événements organisés</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="count-card">
+          <div class="count-icon">
+            <i class="fas fa-handshake"></i>
+          </div>
+          <div
+            class="count-value"
+            data-count="{{ partner_count|default:'50' }}"
+          >
+            0
+          </div>
+          <div class="count-label">Partenaires de qualité</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="count-card">
+          <div class="count-icon">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          <div
+            class="count-value"
+            data-count="{{ ticket_count|default:'10000' }}"
+          >
+            0
+          </div>
+          <div class="count-label">Tickets vendus</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section Événements en Vedette -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge bg-primary rounded-pill px-3 py-2 mb-2"
+        >À découvrir</span
+      >
+      <h2 class="display-5 fw-bold text-primary scroll-animated">
+        Les événements en vedette
+      </h2>
+      <p class="lead text-muted mb-0">
+        Découvrez notre sélection d'événements à ne pas manquer
+      </p>
+    </div>
+
+    <div class="row">
+      {% for event in events %}
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="event-card shadow-sm scroll-animated">
+          <div class="position-relative overflow-hidden">
+            {% if event.image %}
+            <img
+              src="{{ event.image.url }}"
+              alt="{{ event.title }}"
+              class="card-img-top"
+              width="600"
+              height="400"
+              loading="lazy"
+              style="object-fit: cover"
+            />
+            {% else %}
+            <div
+                class="bg-primary text-white d-flex align-items-center justify-content-center rounded mb-3"
+                style="height: 190px"
+              >
+                <i class="fas fa-calendar-alt fa-5x"></i>
             </div>
-        </div>
-    </section>
-    <!-- Section Avantages -->
-    <section class="py-5">
-        <div class="container">
-            <h2 class="text-primary text-center mb-5 scroll-animated">Pourquoi choisir ProEvent ?</h2>
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="advantages-card p-4 scroll-animated">
-                        <i class="fas fa-calendar-check advantages-icon"></i>
-                        <h3 class="h4 mb-3">Organisation complète</h3>
-                        <p class="mb-0">
-                            De la logistique à la gestion des invités, ProEvent s'occupe de tout
-                            pour un événement sans stress.
-                        </p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="advantages-card p-4 scroll-animated">
-                        <i class="fas fa-ticket-alt advantages-icon"></i>
-                        <h3 class="h4 mb-3">Tickets sécurisés</h3>
-                        <p class="mb-0">
-                            Vendez ou achetez des tickets en toute sécurité avec nos solutions
-                            digitales intégrées.
-                        </p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="advantages-card p-4 scroll-animated">
-                        <i class="fas fa-handshake advantages-icon"></i>
-                        <h3 class="h4 mb-3">Partenaires fiables</h3>
-                        <p class="mb-0">
-                            Nous collaborons avec les meilleurs lieux et services pour offrir
-                            des événements de qualité.
-                        </p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="advantages-card p-4 scroll-animated">
-                        <i class="fas fa-handshake advantages-icon"></i>
-                        <h3 class="h4 mb-3">Hotesse experimentées</h3>
-                        <p class="mb-0">
-                            Nous collaborons avec les meilleurs lieux et services pour offrir
-                            des événements de qualité.
-                        </p>
-                    </div>
-                </div>
+            {% endif %}
+
+            <!-- Type d'accès affiché sur l'image -->
+            {% if event.infoticket_event %}
+            <div
+              class="event-badge bg-{% if event.infoticket_event.type_access == 'gratuit' %}success{% else %}info{% endif %}"
+            >
+              <i
+                class="fas fa-{% if event.infoticket_event.type_access == 'gratuit' %}unlock-alt{% else %}lock{% endif %} me-1"
+              ></i>
+              {{ event.infoticket_event.type_access|title }}
             </div>
-        </div>
-    </section>
-    <!-- Section Événements en Vedette -->
-    <section class="py-2 bg-light">
-        <div class="container">
-            <h2 class="text-primary text-center mb-5 scroll-animated">Les événements en vedette</h2>
-            <div class="row">
-                {% for event in events %}
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="event-card scroll-animated">
-                            <div class="position-relative overflow-hidden">
-                                {% if event.image %}
-                                    <img src="{{ event.image.url }}"
-                                         alt="Event {{ event.id }}"
-                                         class="card-img-top" />
-                                {% else %}
-                                    <img src="https://via.placeholder.com/600x400"
-                                         alt="Event {{ event.id }}"
-                                         class="card-img-top" />
-                                {% endif %}
-                                <!-- Type d'accès affiché sur l'image -->
-                                {% if event.infoticket_event %}
-                                    <div class="event-date position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom">
-                                        <i class="fas fa-{% if event.infoticket_event.type_access == 'gratuit' %}unlock-alt{% else %}lock {% endif %} me-2"></i>
-                                        {{ event.infoticket_event.type_access|title }}
-                                    </div>
-                                {% endif %}
-                                <!-- Dates affichées sous l'image -->
-                                <div class="event-date mt-2">
-                                    <i class="fas fa-calendar-days text-primary"></i>
-                                    {{ event.start_date }} - {{ event.end_date }}
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <!-- Lieu de l'événement -->
-                                <div class="event-location mb-2 d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="fas fa-map-marker-alt text-primary"></i>
-                                        {{ event.location }}
-                                    </div>
-                                    <span class="badge bg-secondary">{{ event.category.name }}</span>
-                                </div>
-                                <!-- Titre et catégorie -->
-                                <h5 class="card-title mb-2">{{ event.title }}</h5>
-                                <!-- Type d'événement -->
-                                <div class="mb-2">
-                                    {% if event.type_event == 'private' %}
-                                        <span class="badge bg-info">Privé</span>
-                                    {% else %}
-                                        <span class="badge bg-success">Public</span>
-                                    {% endif %}
-                                </div>
-                                <!-- Lien et type d'accès -->
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <a href="{% url 'event:event_detail' event.uid %}"
-                                       class="btn btn-primary">Voir les détails</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <!-- Date de l'événement -->
+            <div class="event-date mb-2">
+              <i class="fas fa-calendar-days text-primary me-2"></i>
+              {{ event.start_date|date:"d F Y" }} - {{ event.end_date|date:"d F Y" }}
             </div>
-        </div>
-    </section>
-    <!-- Témoignages -->
-    <section class="py-2">
-        <div class="container">
-            <h2 class="text-primary text-center mb-5 scroll-animated">Ce que disent nos clients</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="testimonial-card scroll-animated">
-                        <div class="text-center mb-4">
-                            <div class="testimonial-avatar mx-auto">
-                                <img src="{% static 'img/.jpg' %}"
-                                     alt="Aïssatou"
-                                     class="rounded-circle"
-                                     width="80" />
-                            </div>
-                            <div class="rating text-warning my-2">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                        <p class="mb-4">
-                            "Avec ProEvent, mon mariage a été un succès total. Tout était
-                            parfaitement organisé !"
-                        </p>
-                        <div class="text-end">
-                            <h5 class="mb-1">Aïssatou</h5>
-                            <small class="text-muted">Mariée</small>
-                        </div>
-                    </div>
-                </div>
-                <!-- Répéter pour les autres témoignages -->
-                <!-- [...] -->
+
+            <!-- Lieu de l'événement -->
+            <div class="event-location mb-2">
+              <i class="fas fa-map-marker-alt text-primary me-2"></i>
+              {{ event.location }}
             </div>
+
+            <!-- Titre et type d'événement -->
+            <h5 class="card-title mb-2">{{ event.title }}</h5>
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+              <span class="badge bg-secondary">{{ event.category.name }}</span>
+              {% if event.type_event == 'private' %}
+              <span class="badge bg-info">Privé</span>
+              {% else %}
+              <span class="badge bg-success">Public</span>
+              {% endif %}
+            </div>
+
+            <!-- Lien vers les détails -->
+            <a
+              href="{% url 'event:event_detail' event.uid %}"
+              class="btn btn-primary w-100"
+            >
+              <i class="fas fa-info-circle me-2"></i>Voir les détails
+            </a>
+          </div>
         </div>
-    </section>
-    <!-- Appel à l'action -->
-    <section class="cta-section text-center text-white py-5">
-        <div class="container">
-            <h2 class="display-4 mb-4">Prêt à faire de votre événement un succès ?</h2>
-            <p class="lead mb-4">
-                Rejoignez les centaines de clients satisfaits qui font confiance à
-                ProEvent.
-            </p>
-            <a href="" class="btn btn-outline-light btn-lg">Commencer maintenant</a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Lien vers tous les événements -->
+    <div class="text-center mt-4">
+      <a href="{% url 'event:event' %}" class="btn btn-outline-primary btn-lg">
+        <i class="fas fa-calendar-alt me-2"></i>Voir tous les événements
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Section Partenaires -->
+{% if platform_partners %}
+<section class="py-5 bg-light partners-section">
+  <div class="text-center mb-5">
+    <span class="badge bg-primary rounded-pill px-3 py-2 mb-2"
+      >Nos partenaires</span
+    >
+    <h2 class="display-5 fw-bold text-primary scroll-animated">
+      Ils nous font confiance
+    </h2>
+  </div>
+
+  <div class="partners-slider position-relative w-100">
+    <div class="partners-container" id="partnersContainer">
+      <div class="partners-scroll d-flex">
+        {% for partner in platform_partners %}
+        <div class="partner-item">
+          <div
+            class="partner-logo bg-white p-3 rounded shadow-sm d-flex align-items-center justify-content-center"
+            style="width: 180px; height: 120px"
+          >
+            {% if partner.logo %}
+            <img
+              src="{{ partner.logo.url }}"
+              alt="{{ partner.name }}"
+              class="img-fluid"
+              style="max-height: 90px; max-width: 160px; object-fit: contain"
+            />
+            {% else %}
+            <div class="text-center">
+              <i
+                class="fas fa-building text-primary mb-2"
+                style="font-size: 2.5rem"
+              ></i>
+              <p class="mb-0 small">{{ partner.name }}</p>
+            </div>
+            {% endif %}
+          </div>
         </div>
-    </section>
-{% endblock content %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Appel à l'action -->
+<section class="cta-section text-center text-white py-5">
+  <div class="container">
+    <h2 class="display-4 mb-4">Prêt à faire de votre événement un succès ?</h2>
+    <p class="lead mb-4">
+      Rejoignez les centaines de clients satisfaits qui font confiance à
+      ProEvent pour leurs événements.
+    </p>
+    <a href="{% url 'demande' %}" class="btn btn-outline-light btn-lg">
+      <i class="fas fa-rocket me-2"></i>Commencer maintenant
+    </a>
+  </div>
+</section>
+
+{% block extra_js %}
+<script>
+  // Animation des compteurs
+  document.addEventListener("DOMContentLoaded", function () {
+    // Fonction pour animer les compteurs
+    function animateCounter(element) {
+      const target = parseInt(element.getAttribute("data-count"));
+      if (isNaN(target) || target === 0) return; // Protection contre les valeurs non numériques
+
+      const duration = 2000; // ms
+      const frameDuration = 1000 / 60; // 60fps
+      const totalFrames = Math.round(duration / frameDuration);
+      const countIncrement = target / totalFrames;
+
+      let currentCount = 0;
+      const counter = setInterval(() => {
+        currentCount += countIncrement;
+        if (currentCount >= target) {
+          element.textContent = target.toLocaleString("fr-FR"); // Format français des nombres
+          clearInterval(counter);
+        } else {
+          element.textContent =
+            Math.floor(currentCount).toLocaleString("fr-FR");
+        }
+      }, frameDuration);
+    }
+
+    // Fonction pour vérifier si un élément est visible
+    function isElementInViewport(el) {
+      const rect = el.getBoundingClientRect();
+      return (
+        rect.top <=
+          (window.innerHeight || document.documentElement.clientHeight) * 0.7 &&
+        rect.bottom >= 0
+      );
+    }
+
+    // Animer les compteurs quand ils sont visibles
+    const counterElements = document.querySelectorAll(".count-value");
+
+    function checkCounters() {
+      counterElements.forEach((counter) => {
+        if (
+          isElementInViewport(counter) &&
+          !counter.classList.contains("animated")
+        ) {
+          counter.classList.add("animated");
+          animateCounter(counter);
+        }
+      });
+    }
+
+    // Effet de parallaxe pour l'image héros
+    const heroBg = document.querySelector(".hero-bg");
+    if (heroBg) {
+      window.addEventListener("scroll", function () {
+        const scrollPosition = window.pageYOffset;
+        heroBg.style.transform = `translateY(${scrollPosition * 0.4}px)`;
+      });
+    }
+
+    // Animation du défilement horizontal des partenaires
+    const partnersContainer = document.getElementById("partnersContainer");
+    if (partnersContainer) {
+      const partnersScrollElem =
+        partnersContainer.querySelector(".partners-scroll");
+      const partnerItems = partnersScrollElem.querySelectorAll(".partner-item");
+
+      // Vérifier si nous avons suffisamment d'éléments pour justifier un défilement
+      if (partnerItems.length > 0) {
+        // Cloner suffisamment d'éléments pour remplir plus que la largeur de l'écran
+        const numberOfClones = Math.max(
+          10,
+          Math.ceil(window.innerWidth / 200) * 2
+        );
+
+        // Cloner les éléments plusieurs fois pour assurer un défilement continu
+        for (let i = 0; i < numberOfClones; i++) {
+          partnerItems.forEach((item) => {
+            const clone = item.cloneNode(true);
+            partnersScrollElem.appendChild(clone);
+          });
+        }
+
+        // Inverser la direction de l'animation pour aller de droite à gauche
+        partnersScrollElem.style.animationDirection = "reverse";
+      }
+    }
+
+    // Vérifier au chargement et au scroll
+    window.addEventListener("scroll", checkCounters);
+    checkCounters();
+  });
+</script>
+{% endblock extra_js %} {% endblock content %}

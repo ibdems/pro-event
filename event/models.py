@@ -29,9 +29,12 @@ class Partner(models.Model):
     )
     name = models.CharField(max_length=100)
     logo = models.ImageField(upload_to="partner_logo/", blank=True, null=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     partnership_type = models.CharField(
         max_length=50, choices=partner_choices, default="collaborator"
+    )
+    is_platform_partner = models.BooleanField(
+        default=False,
     )
     created_at = models.DateTimeField(default=timezone.now)
     update_at = models.DateTimeField(auto_now=True)

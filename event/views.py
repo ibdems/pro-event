@@ -16,8 +16,12 @@ from django_filters.views import FilterView
 
 from .filter import EventFilter
 from .forms import ContactForm, EventForms, PayementForm
-from .models import Contact, Event, InfoTicket, Invitation, Ticket
-from .tasks import generate_and_save_ticket_pdf, send_ticket_by_email
+from .models import Contact, Event, InfoTicket, Invitation, Partner, Ticket
+from .tasks import (
+    generate_and_save_ticket_pdf,
+    send_ticket_by_email,
+    send_ticket_by_whatsapp,
+)
 
 
 class HomeView(ListView):
@@ -28,7 +32,7 @@ class HomeView(ListView):
     def get_queryset(self):
         qr = super().get_queryset()
         return (
-            qr.filter(statut=True)
+            qr.filter(statut=True, image__isnull=False)
             .only(
                 "uid",
                 "category",
@@ -48,6 +52,19 @@ class HomeView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["active_page"] = "home"
+
+        # Compter le nombre total d'événements
+        context["event_count"] = Event.objects.filter(statut=True).count()
+
+        # Compter le nombre de partenaires
+        context["partner_count"] = Partner.objects.count()
+
+        # Compter le nombre de tickets vendus
+        context["ticket_count"] = Ticket.objects.count()
+
+        # Récupérer les partenaires de la plateforme
+        context["platform_partners"] = Partner.objects.filter(is_platform_partner=True)
+
         return context
 
 
@@ -58,6 +75,24 @@ class AboutView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["active_page"] = "about"
         return context
+
+
+class MentionsLegalesView(TemplateView):
+    """Vue pour afficher la page des mentions légales."""
+
+    template_name = "legal/mentions_legales.html"
+
+
+class ConditionsUtilisationView(TemplateView):
+    """Vue pour afficher la page des conditions d'utilisation."""
+
+    template_name = "legal/conditions_utilisation.html"
+
+
+class PolitiqueConfidentialiteView(TemplateView):
+    """Vue pour afficher la page de politique de confidentialité."""
+
+    template_name = "legal/politique_confidentialite.html"
 
 
 class EventView(FilterView, ListView):
@@ -89,11 +124,8 @@ class EventView(FilterView, ListView):
             .prefetch_related(
                 Prefetch("infoticket_event", queryset=InfoTicket.objects.only("type_access"))
             )
+            .order_by("-created_at")
         )
-
-    def get_ordering(self):
-        order = super().get_ordering()
-        return order or "-created_at"
 
 
 class TicketView(TemplateView):
@@ -146,6 +178,7 @@ class DetailEventView(DetailView):
                 with transaction.atomic():
                     data = form.cleaned_data
                     event = self.object
+                    contact_method = data.get("contact_method", "email")
 
                     # Récupération des quantités
                     quantities = {
@@ -179,16 +212,20 @@ class DetailEventView(DetailView):
                     # Création des tickets
                     tasks = []
                     for type_ticket, quantite in quantities.items():
-                        for _ in range(quantite):
-                            ticket = Ticket.objects.create(
-                                payement=payement, event=event, type_ticket=type_ticket
-                            )
-                            tasks.append(
-                                generate_and_save_ticket_pdf.s(event.id, ticket.id, payement.id)
-                            )
+                        if quantite > 0:
+                            for _ in range(quantite):
+                                ticket = Ticket.objects.create(
+                                    payement=payement, event=event, type_ticket=type_ticket
+                                )
+                                tasks.append(
+                                    generate_and_save_ticket_pdf.s(event.id, ticket.id, payement.id)
+                                )
 
                     def send_email_after_commit():
-                        callback = send_ticket_by_email.si(payement.id)
+                        if contact_method == "email":
+                            callback = send_ticket_by_email.si(payement.id)
+                        else:
+                            callback = send_ticket_by_whatsapp.si(payement.id)
                         chord(group(tasks))(callback)
 
                     transaction.on_commit(send_email_after_commit)
@@ -196,12 +233,12 @@ class DetailEventView(DetailView):
                     messages.success(
                         request,
                         "Votre paiement a été effectué avec succès. "
-                        "Vous recevrez le/les ticket(s) dans l'option de réception choisie.",
+                        "Vous recevrez vos billets par email/WhatsApp dans quelques instants.",
                     )
                     return redirect("event:event_detail", uid=event.uid)
 
-            except Exception as e:
-                messages.error(request, f"Une erreur est survenue : {str(e)}")
+            except Exception:
+                messages.error(request, "Une erreur est survenue")
                 return self.render_to_response(self.get_context_data(form=form))
 
         messages.error(request, "Une erreur s'est produite lors du paiement.")

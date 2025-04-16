@@ -1,0 +1,240 @@
+{% extends "event/base.html" %} {% load static %} {% block title %}Mentions
+Légales{% endblock %} {% block content %}
+<div class="container my-5 mt-5">
+  <div class="row mt-5">
+    <div class="col-12">
+      <h1 class="mb-4">Mentions Légales</h1>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h2>1. Informations légales</h2>
+          <p>Le site Pro-Event est édité par :</p>
+          <p>
+            <strong>Pro-Event</strong><br />
+            Conakry, Guinée<br />
+            Email : proevent62@gmail.com<br />
+            Téléphone : 620 30 26 18<br />
+          </p>
+          <p>
+            <strong>Directeur de la publication :</strong> Fatoumata Diallo,
+            Fondatrice et CEO
+          </p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h2>2. Hébergement</h2>
+          <p>Le site Pro-Event est hébergé par :</p>
+          <p>
+            <strong>OVH</strong><br />
+            2 rue Kellermann<br />
+            59100 Roubaix, France<br />
+            www.ovh.com
+          </p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h2>3. Propriété intellectuelle</h2>
+          <p>
+            L'ensemble du contenu du site Pro-Event (structure, textes, logos,
+            graphismes, photographies, vidéos, sons, etc.) est la propriété
+            exclusive de Pro-Event ou de ses partenaires, et est protégé par les
+            lois guinéennes et internationales relatives à la propriété
+            intellectuelle.
+          </p>
+          <p>
+            Toute reproduction, représentation, modification, publication,
+            adaptation ou exploitation de tout ou partie des éléments du site,
+            quel que soit le moyen ou le procédé utilisé, est interdite sans
+            l'autorisation écrite préalable de Pro-Event.
+          </p>
+          <p>
+            Les marques et logos présents sur le site sont des marques déposées
+            par Pro-Event ou ses partenaires. Toute reproduction, imitation ou
+            utilisation, totale ou partielle de ces signes distinctifs sans
+            l'autorisation expresse de Pro-Event ou des titulaires des marques
+            est prohibée.
+          </p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h2>4. Liens hypertextes</h2>
+          <h3>4.1 Liens vers le site Pro-Event</h3>
+          <p>
+            La création de liens hypertextes vers le site Pro-Event est
+            autorisée, sous réserve que :
+          </p>
+          <ul>
+            <li>
+              Les liens ne portent pas atteinte aux intérêts, à la réputation et
+              à l'image de Pro-Event
+            </li>
+            <li>
+              Les liens s'ouvrent dans une nouvelle fenêtre ou un nouvel onglet
+              du navigateur
+            </li>
+            <li>
+              Les liens pointent vers la page d'accueil du site ou vers une page
+              profonde, en précisant clairement l'origine du lien
+            </li>
+          </ul>
+          <p>
+            Pro-Event se réserve le droit de demander la suppression de tout
+            lien pointant vers son site.
+          </p>
+
+          <h3>4.2 Liens depuis le site Pro-Event</h3>
+          <p>
+            Le site Pro-Event peut contenir des liens hypertextes vers d'autres
+            sites internet ou applications. Pro-Event n'exerce aucun contrôle
+            sur ces sites et n'assume aucune responsabilité quant à leur
+            contenu, leurs pratiques en matière de protection des données
+            personnelles ou leur accessibilité.
+          </p>
+          <p>
+            La présence de liens vers ces sites ne constitue en aucun cas une
+            recommandation, une validation ou une approbation de leur contenu.
+          </p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h2>5. Protection des données personnelles</h2>
+          <p>
+            Conformément aux réglementations en vigueur sur la protection des
+            données, Pro-Event s'engage à protéger la confidentialité, la
+            sécurité et l'intégrité des données personnelles collectées sur son
+            site.
+          </p>
+          <p>
+            Pour plus d'informations sur la collecte, le traitement et la
+            protection de vos données personnelles, veuillez consulter notre
+            <a href="{% url 'event:politique_confidentialite' %}"
+              >Politique de Confidentialité</a
+            >.
+          </p>
+
+          <h3>5.1 Responsable de la protection des données</h3>
+          <p>
+            Pour toute question relative à vos données personnelles, vous pouvez
+            contacter notre service dédié à la protection des données à
+            l'adresse suivante : privacy@pro-event.com.
+          </p>
+
+          <h3>5.2 Droit d'accès, de rectification et de suppression</h3>
+          <p>
+            Conformément à la législation en vigueur, vous disposez d'un droit
+            d'accès, de rectification, de suppression et de portabilité de vos
+            données personnelles, ainsi que d'un droit à la limitation du
+            traitement et d'opposition pour des motifs légitimes.
+          </p>
+          <p>
+            Pour exercer ces droits, vous pouvez nous contacter par email à
+            privacy@pro-event.com ou par courrier à l'adresse suivante :
+            Pro-Event, Service Protection des Données, Conakry, Guinée.
+          </p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h2>6. Cookies</h2>
+          <p>
+            Le site Pro-Event utilise des cookies pour améliorer l'expérience
+            utilisateur, analyser le trafic et personnaliser le contenu. Pour
+            plus d'informations sur l'utilisation des cookies et les moyens de
+            les gérer, veuillez consulter notre
+            <a href="#">Politique relative aux cookies</a>.
+          </p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h2>7. Conditions générales d'utilisation</h2>
+          <p>
+            L'utilisation du site Pro-Event est soumise au respect des
+            <a href="{% url 'event:conditions_utilisation' %}"
+              >Conditions Générales d'Utilisation</a
+            >.
+          </p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h2>8. Limitation de responsabilité</h2>
+          <p>
+            Pro-Event s'efforce d'assurer au mieux de ses possibilités
+            l'exactitude et la mise à jour des informations diffusées sur son
+            site. Toutefois, Pro-Event ne peut garantir l'exactitude, la
+            précision ou l'exhaustivité des informations mises à disposition sur
+            son site.
+          </p>
+          <p>En conséquence, Pro-Event décline toute responsabilité :</p>
+          <ul>
+            <li>
+              Pour toute imprécision, inexactitude ou omission portant sur des
+              informations disponibles sur le site
+            </li>
+            <li>
+              Pour tous dommages, directs ou indirects, quelles qu'en soient les
+              causes, origines, natures ou conséquences, résultant de l'accès ou
+              de l'impossibilité d'accéder au site
+            </li>
+            <li>
+              Pour l'utilisation des informations ou contenus du site par les
+              utilisateurs
+            </li>
+            <li>
+              Pour les décisions prises sur la base d'une information contenue
+              sur le site
+            </li>
+            <li>
+              En cas d'interruption temporaire pour des raisons techniques,
+              notamment liées à la maintenance du site ou en cas de force
+              majeure
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h2>9. Médiation</h2>
+          <p>
+            En cas de litige entre Pro-Event et un consommateur, les parties
+            s'efforceront de trouver une solution amiable.
+          </p>
+          <p>
+            À défaut d'accord amiable, le consommateur peut saisir un service de
+            médiation pour tenter de résoudre le litige. Pro-Event s'engage à
+            participer de bonne foi à toute procédure de médiation mise en
+            place.
+          </p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2>10. Droit applicable et juridiction compétente</h2>
+          <p>
+            Les présentes mentions légales sont régies par le droit guinéen. En
+            cas de litige, les tribunaux guinéens seront seuls compétents.
+          </p>
+          <p>
+            Pour toute question relative aux présentes mentions légales, vous
+            pouvez nous contacter à l'adresse suivante : contact@pro-event.com.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

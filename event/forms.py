@@ -1,9 +1,6 @@
 from django import forms
-from django.forms import ValidationError
 
 from .models import Category, Contact, Event, InfoTicket, Partner, Payement
-
-# from demande.models import Demande, ServiceHotesse, Service, AnonymousUser
 
 
 class CategoryForms(forms.ModelForm):
@@ -15,7 +12,7 @@ class CategoryForms(forms.ModelForm):
 class PartnerForms(forms.ModelForm):
     class Meta:
         model = Partner
-        fields = ("name", "logo", "description", "partnership_type")
+        fields = ("name", "logo", "description", "partnership_type", "is_platform_partner")
 
 
 class EventForms(forms.ModelForm):
@@ -207,8 +204,17 @@ class ContactForm(forms.ModelForm):
 
 
 class PayementForm(forms.ModelForm):
+    CONTACT_CHOICES = [
+        ("email", "Email"),
+        ("phone", "WhatsApp"),
+    ]
+
+    nom_complet = forms.CharField(max_length=150, required=True)
+    email_reception = forms.EmailField(required=False)
     email_reception2 = forms.EmailField(required=False)
+    telephone_reception = forms.CharField(max_length=20, required=False)
     telephone_reception2 = forms.CharField(max_length=20, required=False)
+    contact_method = forms.ChoiceField(choices=CONTACT_CHOICES, required=True, initial="email")
     quantity_normal = forms.IntegerField(min_value=0, required=False)
     quantity_vip = forms.IntegerField(min_value=0, required=False)
     quantity_vvip = forms.IntegerField(min_value=0, required=False)
@@ -230,20 +236,32 @@ class PayementForm(forms.ModelForm):
         email_reception2 = cleaned_data.get("email_reception2")
         telephone_reception = cleaned_data.get("telephone_reception")
         telephone_reception2 = cleaned_data.get("telephone_reception2")
+        contact_method = cleaned_data.get("contact_method")
 
-        # Vérifier si au moins une méthode de contact est fournie
-        if not email_reception and not telephone_reception:
-            raise ValidationError(
-                """Vous devez fournir un email ou un numéro de téléphone pour
-                  la réception de votre ticket."""
-            )
+        # Vérifier la méthode de contact
+        if contact_method == "email":
+            if not email_reception:
+                raise forms.ValidationError(
+                    "L'adresse email est requise pour recevoir les tickets par email"
+                )
 
-        # Vérification des emails
-        if email_reception and email_reception != email_reception2:
-            raise ValidationError("Les deux adresses email doivent être identiques.")
+            # Vérification des emails
+            if email_reception and email_reception != email_reception2:
+                raise forms.ValidationError("Les deux adresses email doivent être identiques.")
 
-        # Vérification des numéros de téléphone
-        if telephone_reception and telephone_reception != telephone_reception2:
-            raise ValidationError("Les deux numéros de téléphone doivent être identiques.")
+        elif contact_method == "phone":
+            if not telephone_reception:
+                raise forms.ValidationError(
+                    "Le numéro WhatsApp est requis pour recevoir les tickets par WhatsApp"
+                )
+
+            # Vérification des numéros WhatsApp
+            if telephone_reception and telephone_reception != telephone_reception2:
+                raise forms.ValidationError("Les deux numéros WhatsApp doivent être identiques.")
+
+            if telephone_reception and not telephone_reception.isdigit():
+                raise forms.ValidationError(
+                    "Le numéro WhatsApp doit contenir uniquement des chiffres"
+                )
 
         return cleaned_data

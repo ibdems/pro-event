@@ -469,6 +469,9 @@ class PartnerAddView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, CreateVi
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        if self.request.user.is_staff:
+            form.instance.is_platform_partner = True
+        form.save()
         messages.success(self.request, "Le partenaire a été créé avec succès.")
         return response
 
@@ -483,6 +486,9 @@ class PartnerEditView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, UpdateV
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        if self.request.user.is_staff:
+            form.instance.is_platform_partner = True
+        form.save()
         messages.success(self.request, "Le partenaire a été modifié avec succès.")
         return response
 

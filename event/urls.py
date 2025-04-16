@@ -3,12 +3,15 @@ from django.urls import path
 from .views import (
     AboutView,
     CheckTicketView,
+    ConditionsUtilisationView,
     ContactView,
     DetailEventView,
     EventAddView,
     EventView,
     HomeView,
     InvitationResponseView,
+    MentionsLegalesView,
+    PolitiqueConfidentialiteView,
     ScanCodeView,
     TicketView,
 )
@@ -35,5 +38,16 @@ urlpatterns = [
         InvitationResponseView.as_view(),
         {"action": "decline"},
         name="decline_invitation",
+    ),
+    path("mentions-legales/", MentionsLegalesView.as_view(), name="mentions_legales"),
+    path(
+        "conditions-utilisation/",
+        ConditionsUtilisationView.as_view(),
+        name="conditions_utilisation",
+    ),
+    path(
+        "politique-confidentialite/",
+        PolitiqueConfidentialiteView.as_view(),
+        name="politique_confidentialite",
     ),
 ]
