@@ -19,6 +19,7 @@ class DemandeView(View):
             "service_hotesse_forms": ServiceHotesseForms(),
             "event_forms": EventForms(),
             "ticket_forms": TicketForms(),
+            "active_page": "demande",
         }
         return render(request, "event/demande.html", context)
 

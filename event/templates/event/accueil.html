@@ -394,10 +394,10 @@
             />
             {% else %}
             <div
-                class="bg-primary text-white d-flex align-items-center justify-content-center rounded mb-3"
-                style="height: 190px"
-              >
-                <i class="fas fa-calendar-alt fa-5x"></i>
+              class="bg-primary text-white d-flex align-items-center justify-content-center rounded mb-3"
+              style="height: 190px"
+            >
+              <i class="fas fa-calendar-alt fa-5x"></i>
             </div>
             {% endif %}
 
@@ -417,7 +417,8 @@
             <!-- Date de l'événement -->
             <div class="event-date mb-2">
               <i class="fas fa-calendar-days text-primary me-2"></i>
-              {{ event.start_date|date:"d F Y" }} - {{ event.end_date|date:"d F Y" }}
+              {{ event.start_date|date:"d F Y" }} - {{ event.end_date|date:"d F
+              Y" }}
             </div>
 
             <!-- Lieu de l'événement -->

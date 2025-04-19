@@ -201,13 +201,6 @@
               </li>
               <li class="nav-item">
                 <a
-                  class="nav-link {% if active_page == 'about' %}active{% endif %}"
-                  href="{% url 'event:about' %}"
-                  >À propos</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
                   class="nav-link {% if active_page == 'contact' %}active{% endif %}"
                   href="{% url 'event:contact' %}"
                   >Contact</a
@@ -259,10 +252,7 @@
               <a href="#" aria-label="Facebook"
                 ><i class="bi bi-facebook"></i
               ></a>
-              <a href="#" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
-              <a href="#" aria-label="Instagram"
-                ><i class="bi bi-instagram"></i
-              ></a>
+              <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
               <a href="#" aria-label="LinkedIn"
                 ><i class="bi bi-linkedin"></i
               ></a>
@@ -273,7 +263,6 @@
             <ul class="footer-links">
               <li><a href="{% url 'event:home' %}">Accueil</a></li>
               <li><a href="{% url 'event:event' %}">Événements</a></li>
-              <li><a href="{% url 'event:about' %}">À propos</a></li>
               <li><a href="{% url 'event:contact' %}">Contact</a></li>
             </ul>
           </div>
