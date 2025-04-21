@@ -157,7 +157,7 @@
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
-          <i class="bi bi-list-ul fs-1"></i>
+          <i class="fas fa-bars fs-1"></i>
         </button>
         <div
           class="offcanvas offcanvas-end"
@@ -166,9 +166,9 @@
           aria-labelledby="navbarOffcanvasLabel"
         >
           <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="navbarOffcanvasLabel">
-              Menu ProEvent
-            </h5>
+            <a class="navbar-brand" href="{% url 'event:home' %}">
+              <img src="{% static 'img/logo.jpg' %}" alt="ProEvent Logo" />
+            </a>
             <button
               type="button"
               class="btn-close text-reset"

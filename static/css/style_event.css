@@ -104,11 +104,7 @@
         margin-top: 1rem;
     }
 }
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
+
 
 .page-title {
     text-align: center;
@@ -142,41 +138,74 @@
 }
 /* Hero Section améliorée */
 .hero-section {
-    position: relative;
+    background: var(--bg-white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
     min-height: 100vh;
-    padding-top: 100px;
-    overflow: hidden;
 }
 
-.hero-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* filter: brightness(0.7); */
-    animation: scaleIn 2.5s ease-out;
+.hero-image img {
+    width: 510px;
+    max-width: 100%;
+    height: auto;
+    animation: fadeIn 2s ease-out;
 }
 
 .hero-content {
-    position: relative;
-    background: transparent;
-    padding: 1rem;
-    border-radius: 10px;
-    max-width: 800px;
-    margin-top: 4rem;
-    margin-left: -5rem;
-    animation: fadeInUp 1s ease-out;
-    /* backdrop-filter: blur(10px); */
+    max-width: 520px;
+    margin-bottom: 2rem;
+}
+
+.hero-content p {
+    color: var(--text-black);
+    margin-bottom: 1.5rem;
+    font-size: larger;
 }
 
 .hero-content h1 {
-    font-size: 3.5rem;
-    margin-bottom: 1.5rem;
+    font-size: 3rem;
+    margin-bottom: 1.2rem;
     line-height: 1.2;
 }
 
+.hero-content .btn {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    white-space: nowrap;
+}
+
+/* Responsive mobile */
+@media (max-width: 991.98px) {
+    .hero-section {
+        flex-direction: column;
+        padding: 100px 0px;
+        text-align: center;
+    }
+
+    .hero-image {
+        margin-top: 2rem;
+    }
+
+    .hero-image img {
+        width: 100%;
+        max-width: 580px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.3rem;
+    }
+
+    .hero-content p {
+        font-size: 1.4rem;
+    }
+
+    .hero-content .btn {
+        font-size: 0.95rem;
+        padding: 0.6rem 0.7rem;
+    }
+}
 /* Avantages section */
 .advantages-card {
     height: 100%;

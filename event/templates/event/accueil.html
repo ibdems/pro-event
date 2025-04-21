@@ -223,28 +223,29 @@
 {% endblock extra_css %} {% block content %}
 <!-- Section Héros -->
 <section class="hero-section position-relative">
-  <img src="{% static 'img/home.png' %}" alt="Background" class="hero-bg" />
-  <div class="container h-100 d-flex align-items-center">
-    <div class="hero-content shadow">
-      <span class="badge bg-primary mb-3">Organisation événementielle</span>
-      <h1 class="display-2 fw-bold text-primary">
-        Votre événement, notre mission
-      </h1>
-      <p class="fs-5 mb-4">
-        Avec ProEvent, transformez vos idées en événements mémorables.
-        Organisation complète, tickets sécurisés, et services partenaires de
-        qualité, tout en un !
-      </p>
-      <div class="d-flex flex-column flex-lg-row gap-3">
-        <a href="{% url 'event:event' %}" class="btn btn-primary btn-lg">
-          <i class="fas fa-search me-2"></i>Explorer les événements
-        </a>
-        <a href="{% url 'demande' %}" class="btn btn-outline-primary btn-lg">
-          <i class="fas fa-paper-plane me-2"></i>Demander un service
-        </a>
-      </div>
+  <div class="container h-100 d-flex align-items-center justify-content-between flex-wrap">
+  <div class="hero-content mt-5 text-start">
+    <span class="badge bg-primary mb-3">Organisation événementielle</span>
+    <h1 class="display-2 fw-bold text-primary">
+      Votre événement, notre mission
+    </h1>
+    <p class=" mb-4 text-black">
+      Avec ProEvent, transformez vos idées en événements mémorables.<br>
+      Organisation complète, tickets sécurisés, hôtesses expérimentées et partenaires fiables.
+    </p>
+    <div class="d-flex flex-column flex-md-row gap-3">
+      <a href="{% url 'event:event' %}" class="btn btn-primary btn-lg">
+        <i class="fas fa-search p-0"></i>Explorer les événements
+      </a>
+      <a href="{% url 'demande' %}" class="btn btn-outline-primary btn-lg">
+        <i class="fas fa-paper-plane"></i>Demander un service
+      </a>
     </div>
   </div>
+  <div class="hero-image d-block">
+    <img src="{% static 'img/hero-proevent.png' %}" alt="Femme ProEvent" />
+  </div>
+</div>
 </section>
 
 <!-- Section Pourquoi choisir ProEvent -->
@@ -263,7 +264,7 @@
     </div>
 
     <div class="row g-4">
-      <div class="col-md-3">
+      <div class="col-lg-3 col-md-6 col-12">
         <div class="advantages-card p-4 text-center scroll-animated">
           <div class="advantages-icon">
             <i class="fas fa-calendar-check"></i>
@@ -275,7 +276,7 @@
           </p>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-lg-3 col-md-6 col-12">
         <div class="advantages-card p-4 text-center scroll-animated">
           <div class="advantages-icon">
             <i class="fas fa-ticket-alt"></i>
@@ -287,7 +288,7 @@
           </p>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-lg-3 col-md-6 col-12">
         <div class="advantages-card p-4 text-center scroll-animated">
           <div class="advantages-icon">
             <i class="fas fa-handshake"></i>
@@ -299,7 +300,7 @@
           </p>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-lg-3 col-md-6 col-12">
         <div class="advantages-card p-4 text-center scroll-animated">
           <div class="advantages-icon">
             <i class="fas fa-user-tie"></i>
