@@ -14,11 +14,19 @@
                 <div class="col-md-6 mb-3 mb-md-0">
                     <h2 class="section-title mb-0">Liste des événements</h2>
                 </div>
+                {% if request.user.is_staff %}
                 <div class="col-md-6 text-md-end">
                     <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
                         <i class="fas fa-plus-circle me-2"></i>Nouvel événement
                     </a>
                 </div>
+                {% else %}
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'dashboard:demande_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Faire une demande
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
         <!-- Filtres -->

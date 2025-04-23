@@ -43,7 +43,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="text-center">
                                 {% for category in categories %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
@@ -58,11 +58,14 @@
                                                    title="Modifier">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="{% url 'dashboard:category_delete' category.id %}"
-                                                   class="btn btn-outline-danger"
-                                                   title="Supprimer">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
+                                                {% if request.user.is_staff %}
+                                                   <a href="{% url 'dashboard:category_delete' category.id %}"
+                                                    class="btn btn-outline-danger"
+                                                    title="Supprimer">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                {% endif %}
+
                                             </div>
                                         </td>
                                     </tr>

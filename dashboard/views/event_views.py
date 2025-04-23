@@ -24,7 +24,6 @@ from event.tasks import send_invitation_email
 
 
 class AdminOrOrganizerRequiredMixin(UserPassesTestMixin):
-    """Mixin pour limiter l'accès aux administrateurs ou aux organisateurs de l'événement"""
 
     def test_func(self):
         return self.request.user.is_staff or self.request.user.is_superuser
@@ -383,9 +382,7 @@ class EventDeactivateView(LoginRequiredMixin, View):
         return redirect("dashboard:event_detail", uid=event.uid)
 
 
-class CategoryListView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, ListView):
-    """Vue pour afficher la liste des catégories"""
-
+class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = "dashboard/categories/list.html"
     context_object_name = "categories"
@@ -394,9 +391,7 @@ class CategoryListView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, ListVi
         return Category.objects.all().annotate(event_count=Count("event"))
 
 
-class CategoryAddView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, CreateView):
-    """Vue pour ajouter une nouvelle catégorie"""
-
+class CategoryAddView(LoginRequiredMixin, CreateView):
     model = Category
     form_class = CategoryForms
     template_name = "dashboard/categories/add.html"
@@ -408,7 +403,7 @@ class CategoryAddView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, CreateV
         return response
 
 
-class CategoryEditView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, UpdateView):
+class CategoryEditView(LoginRequiredMixin, UpdateView):
     """Vue pour modifier une catégorie existante"""
 
     model = Category
@@ -423,8 +418,6 @@ class CategoryEditView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, Update
 
 
 class CategoryDeleteView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, DeleteView):
-    """Vue pour supprimer une catégorie"""
-
     model = Category
     template_name = "dashboard/categories/delete.html"
     success_url = reverse_lazy("dashboard:category_list")
@@ -448,7 +441,7 @@ class CategoryDeleteView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, Dele
         return redirect(success_url)
 
 
-class PartnerListView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, ListView):
+class PartnerListView(LoginRequiredMixin, ListView):
     """Vue pour afficher la liste des partenaires"""
 
     model = Partner
@@ -459,7 +452,7 @@ class PartnerListView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, ListVie
         return Partner.objects.all().annotate(event_count=Count("event_partner"))
 
 
-class PartnerAddView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, CreateView):
+class PartnerAddView(LoginRequiredMixin, CreateView):
     """Vue pour ajouter un nouveau partenaire"""
 
     model = Partner
@@ -476,7 +469,7 @@ class PartnerAddView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, CreateVi
         return response
 
 
-class PartnerEditView(LoginRequiredMixin, AdminOrOrganizerRequiredMixin, UpdateView):
+class PartnerEditView(LoginRequiredMixin, UpdateView):
     """Vue pour modifier un partenaire existant"""
 
     model = Partner

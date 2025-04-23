@@ -9,6 +9,7 @@ from dashboard.views.contact_views import (
 )
 from dashboard.views.demande_views import (
     DemandeAcceptView,
+    DemandeCreateView,
     DemandeDetailView,
     DemandeListView,
     DemandeRejectView,
@@ -101,7 +102,8 @@ urlpatterns = [
     path("events/partners/<int:pk>/delete/", PartnerDeleteView.as_view(), name="partner_delete"),
     # Gestion des demandes
     path("demandes/", DemandeListView.as_view(), name="demande_list"),
-    path("demandes/<uuid:uid>/detail/", DemandeDetailView.as_view(), name="demande_detail"),
+    path("demandes/create/", DemandeCreateView.as_view(), name="demande_create"),
+    path("demandes/<uuid:uid>/", DemandeDetailView.as_view(), name="demande_detail"),
     path("demandes/<uuid:uid>/accept/", DemandeAcceptView.as_view(), name="demande_accept"),
     path("demandes/<uuid:uid>/reject/", DemandeRejectView.as_view(), name="demande_reject"),
     # Gestion des tickets

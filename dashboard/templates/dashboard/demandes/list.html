@@ -1,10 +1,10 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 {% block title %}
-    Gestion des Demandes
+    {% if request.user.is_staff %}Gestion des Demandes{% else %}Mes Demandes{% endif %}
 {% endblock title %}
 {% block page_title %}
-    Gestion des Demandes
+    {% if request.user.is_staff %}Gestion des Demandes{% else %}Mes Demandes{% endif %}
 {% endblock page_title %}
 {% block content %}
     <div class="demande-management">
@@ -12,10 +12,20 @@
         <div class="actions-bar mb-4">
             <div class="row align-items-center">
                 <div class="col-md-6 mb-3 mb-md-0">
-                    <h2 class="section-title mb-0">Liste des demandes</h2>
+                    <h2 class="section-title mb-0">
+                        {% if request.user.is_staff %}Liste des demandes{% else %}Liste de mes demandes{% endif %}
+                    </h2>
                 </div>
+                {% if not request.user.is_staff %}
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'dashboard:demande_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Nouvelle demande
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
+
         <!-- Filtres -->
         <div class="card dashboard-card mb-4">
             <div class="card-header">
@@ -25,7 +35,7 @@
                 <form method="get"
                       action="{% url 'dashboard:demande_list' %}"
                       class="row g-3">
-                    <div class="col-md-3">
+                    <div class="{% if request.user.is_staff %}col-md-3{% else %}col-md-4{% endif %}">
                         <label for="service" class="form-label">Service</label>
                         <select name="service" id="service" class="form-control">
                             <option value="">Tous les services</option>
@@ -37,7 +47,7 @@
                                     {% if request.GET.service == 'hostess' %}selected{% endif %}>Hôtesses</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="{% if request.user.is_staff %}col-md-3{% else %}col-md-4{% endif %}">
                         <label for="status" class="form-label">Statut</label>
                         <select name="status" id="status" class="form-control">
                             <option value="">Tous les statuts</option>
@@ -46,6 +56,7 @@
                             <option value="-1" {% if request.GET.status == '-1' %}selected{% endif %}>Rejetée</option>
                         </select>
                     </div>
+                    {% if request.user.is_staff %}
                     <div class="col-md-3">
                         <label for="user_type" class="form-label">Type d'utilisateur</label>
                         <select name="user_type" id="user_type" class="form-control">
@@ -58,13 +69,14 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    {% endif %}
+                    <div class="{% if request.user.is_staff %}col-md-3{% else %}col-md-4{% endif %}">
                         <label for="search" class="form-label">Recherche</label>
                         <input type="text"
                                class="form-control"
                                id="search"
                                name="search"
-                               placeholder="Nom, email..."
+                               placeholder="{% if request.user.is_staff %}Nom, email...{% else %}Titre de l'événement...{% endif %}"
                                value="{{ request.GET.search }}">
                     </div>
                     <div class="col-12 mt-3 text-end">
@@ -79,6 +91,7 @@
                 </form>
             </div>
         </div>
+
         <!-- Tableau des demandes -->
         <div class="card dashboard-card">
             <div class="card-body">
@@ -87,9 +100,14 @@
                         <thead>
                             <tr>
                                 <th>Numéro</th>
+                                {% if request.user.is_staff %}
                                 <th>Demandeur</th>
+                                {% endif %}
                                 <th>Services demandés</th>
                                 <th>Événement</th>
+                                {% if not request.user.is_staff %}
+                                <th>Date de demande</th>
+                                {% endif %}
                                 <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
@@ -100,6 +118,7 @@
                                     <td>
                                         <span class="badge bg-primary">#{{ demande.pk|stringformat:"06d" }}</span>
                                     </td>
+                                    {% if request.user.is_staff %}
                                     <td>
                                         <div class="user-info">
                                             {% if demande.user %}
@@ -115,6 +134,7 @@
                                             {% endif %}
                                         </div>
                                     </td>
+                                    {% endif %}
                                     <td>
                                         <div class="services-requested">
                                             {% for service in demande.service.all %}
@@ -137,6 +157,12 @@
                                             <span class="text-muted">Aucun événement</span>
                                         {% endif %}
                                     </td>
+                                    {% if not request.user.is_staff %}
+                                    <td>
+                                        {{ demande.created_at|date:"d/m/Y" }}
+                                        <small class="d-block text-muted">{{ demande.created_at|date:"H:i" }}</small>
+                                    </td>
+                                    {% endif %}
                                     <td>
                                         {% if demande.status == 'accepted' %}
                                             <span class="badge bg-success">Acceptée</span>
@@ -154,16 +180,43 @@
                                                title="Détails">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            {% if request.user.is_staff and demande.status == 'pending' %}
+                                                <form method="post" action="{% url 'dashboard:demande_accept' uid=demande.uid %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-success"
+                                                            data-bs-toggle="tooltip" title="Accepter">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="{% url 'dashboard:demande_reject' uid=demande.uid %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                            data-bs-toggle="tooltip" title="Rejeter">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
                             {% empty %}
                                 <tr>
-                                    <td colspan="6" class="text-center py-4">
+                                    <td colspan="{% if request.user.is_staff %}6{% else %}5{% endif %}" class="text-center py-4">
                                         <div class="empty-state">
                                             <i class="fas fa-file-alt fa-3x mb-3 text-muted"></i>
                                             <h5>Aucune demande trouvée</h5>
-                                            <p class="text-muted">Il n'y a pas de demandes correspondant à vos critères.</p>
+                                            <p class="text-muted">
+                                                {% if request.user.is_staff %}
+                                                Il n'y a pas de demandes correspondant à vos critères.
+                                                {% else %}
+                                                Vous n'avez pas encore fait de demande.
+                                                {% endif %}
+                                            </p>
+                                            {% if not request.user.is_staff %}
+                                            <a href="{% url 'dashboard:demande_create' %}" class="btn btn-primary">
+                                                <i class="fas fa-plus-circle me-2"></i>Faire une demande
+                                            </a>
+                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
@@ -231,7 +284,7 @@
             },
             order: [[0, 'desc']],
             columnDefs: [
-                { orderable: false, targets: [5] }
+                { orderable: false, targets: [{% if request.user.is_staff %}5{% else %}4{% endif %}] }
             ]
         });
 

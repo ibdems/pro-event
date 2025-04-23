@@ -205,6 +205,15 @@
         font-size: 0.95rem;
         padding: 0.6rem 0.7rem;
     }
+
+    #backToTop {
+        display: inline-block;
+        width: auto;
+        padding: 0.5rem;
+        font-size: 1.5rem;
+        bottom: 1rem;
+        right: 1rem;
+    }
 }
 /* Avantages section */
 .advantages-card {

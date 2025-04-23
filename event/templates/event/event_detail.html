@@ -59,15 +59,13 @@ l'événement {% endblock title %} {% block content %}
           <div class="col-lg-3 col-6 col-md-4 mb-3">
             <i class="fas fa-calendar-alt text-primary fa-2x"></i>
             <p class="mb-0 text-muted">
-              {{ event.start_date|date:"d M Y" }} - {{ event.end_date|date:"d M
-              Y" }}
+              {{ event.start_date|date:"d M Y" }} - {{ event.end_date|date:"d M Y" }}
             </p>
           </div>
           <div class="col-lg-3 col-6 col-md-4 mb-3">
             <i class="fas fa-clock text-primary fa-2x"></i>
             <p class="mb-0 text-muted">
-              {{ event.start_date|time:"H:i" }} - {{ event.end_date|time:"H:i"
-              }}
+              {{ event.start_date|time:"H:i" }} - {{ event.end_date|time:"H:i" }}
             </p>
           </div>
           <div class="col-lg-3 col-6 col-md-4 mb-3">
@@ -154,8 +152,7 @@ l'événement {% endblock title %} {% block content %}
                 >
                   <span
                     ><i class="fas fa-ticket-alt text-primary me-2"></i>Ticket
-                    Normal ({{ event.get_disponibilite.normal.disponibles
-                    }})</span
+                    Normal ({{ event.get_disponibilite.normal.disponibles }})</span
                   >
                   <span class="fs-5 fw-bold"
                     >{{ event.infoticket_event.prix_normal|floatformat:2 }}
@@ -176,8 +173,8 @@ l'événement {% endblock title %} {% block content %}
               </div>
               {% endif %}
               <!-- Ticket VIP -->
-              {% if event.infoticket_event.prix_vip > 0 %} {% if
-              event.get_disponibilite.vip.disponibles > 0 %}
+              {% if event.infoticket_event.prix_vip > 0 %}
+              {% if event.get_disponibilite.vip.disponibles > 0 %}
               <div class="ticket-card border p-3 mb-3">
                 <div
                   class="d-flex justify-content-between align-items-center mb-3"
@@ -205,8 +202,8 @@ l'événement {% endblock title %} {% block content %}
               </div>
               {% endif %} {% endif %}
               <!-- Ticket VVIP -->
-              {% if event.infoticket_event.prix_vvip > 0 %} {% if
-              event.get_disponibilite.vvip.disponibles %}
+              {% if event.infoticket_event.prix_vvip > 0 %}
+              {% if event.get_disponibilite.vvip.disponibles %}
               <div class="ticket-card border p-3 mb-3">
                 <div
                   class="d-flex justify-content-between align-items-center mb-3"
@@ -658,52 +655,6 @@ l'événement {% endblock title %} {% block content %}
               paymentFields.innerHTML = html;
           });
       });
-
-      // Gestion de la soumission du formulaire
-      /* document.getElementById('paymentForm').addEventListener('submit', function(e) {
-          e.preventDefault();
-
-          // Récupération des données du formulaire
-          const formData = new FormData(this);
-          const paymentData = {
-              tickets: Object.entries(tickets)
-                  .filter(([_, data]) => data.quantity > 0)
-                  .map(([type, data]) => ({
-                      type: type,
-                      quantity: data.quantity,
-                      price: data.price,
-                      subtotal: data.quantity * data.price
-                  })),
-              contact: {
-                  full_name: formData.get('nom_complet'),
-                  method: formData.get('contact_method'),
-                  value: formData.get(formData.get('contact_method') === 'email' ? 'email_reception' : 'telephone_reception')
-              },
-              payment: {
-                  method: formData.get('payment_method'),
-                  // Ajouter ici les champs spécifiques au mode de paiement si nécessaire
-              },
-              total: Object.values(tickets).reduce((sum, ticket) => sum + (ticket.price * ticket.quantity), 0)
-          };
-
-          // Ici, vous pouvez ajouter votre logique de traitement du paiement
-          console.log('Payment data:', paymentData);
-
-          // Exemple de simulation de traitement
-          const submitButton = this.querySelector('button[type="submit"]');
-          submitButton.disabled = true;
-          submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Traitement en cours...';
-
-          // Simulation d'une requête API
-          setTimeout(() => {
-              // Réinitialisation du formulaire après succès
-              submitButton.disabled = false;
-              submitButton.innerHTML = '<i class="fas fa-lock me-2"></i>Confirmer le paiement';
-
-              // Vous pouvez rediriger vers une page de confirmation ou afficher un message
-              alert('Paiement traité avec succès !');
-          }, 2000);
-      }); */
 
       // Gestion responsive
       window.addEventListener('resize', function() {

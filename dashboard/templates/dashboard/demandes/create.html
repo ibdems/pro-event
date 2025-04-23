@@ -1,0 +1,471 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+    Faire une demande
+{% endblock title %}
+{% block page_title %}
+    Faire une demande
+{% endblock page_title %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card dashboard-card">
+                    <div class="card-body p-4">
+                        <h3 class="mb-4">Nouvelle demande de service</h3>
+                        <p class="text-muted mb-4">
+                            Veuillez compléter les différents champs de chaque
+                            étape pour effectuer votre demande.
+                        </p>
+                        {% if messages %}
+                            {% for message in messages %}<div class="alert alert-info text-black fw-bold mb-4">{{ message }}</div>{% endfor %}
+                        {% endif %}
+
+                        <!-- Afficher les erreurs générales -->
+                        {% if service_hotesse_forms.non_field_errors or ticket_forms.non_field_errors or event_forms.non_field_errors %}
+                            <div class="alert alert-danger text-black fw-bold mb-4">
+                                {% for error in service_hotesse_forms.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                                {% for error in ticket_forms.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                                {% for error in event_forms.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% if event_forms.errors or ticket_forms.errors or service_hotesse_forms.errors %}
+                            <div class="alert alert-danger mb-4">
+                                Des erreurs ont été détectées dans l'étape 2. Veuillez vérifier les champs en rouge.
+                            </div>
+                        {% endif %}
+
+                        <form method="POST" enctype="multipart/form-data" id="serviceForm">
+                            {% csrf_token %}
+                            <!-- Progress Steps -->
+                            <div class="step-progress mb-5">
+                                <div class="progress position-relative mb-4">
+                                    <div class="progress-bar" role="progressbar" id="stepProgress"></div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <div class="step active">
+                                        <div class="step-number">1</div>
+                                        <div class="step-title">Services</div>
+                                    </div>
+                                    <div class="step">
+                                        <div class="step-number">2</div>
+                                        <div class="step-title">Détails</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 1: Services -->
+                            <div class="step-container active" id="step1">
+                                <h3 class="mb-4">Sélectionnez vos services</h3>
+                                <div class="row g-4">
+                                    {% for service in services %}
+                                        <div class="col-12 col-md-4">
+                                            <div class="service-card h-100"
+                                                 data-service="{{ service.accronyme|lower }}">
+                                                <div class="selected-indicator">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                                <h4 class="mb-3">{{ service.name }}</h4>
+                                                <p class="mb-0">{{ service.description }}</p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <input type="hidden" name="selected_services" id="selectedServices">
+
+                            <!-- Step 2: Service Details -->
+                            <div class="step-container" id="step2">
+                                <!-- Event Organization Form -->
+                                <div id="eventForm" style="display: none;">
+                                    <h3 class="mb-4">Détails de l'événement</h3>
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Titre de l'événement</label>
+                                            <input type="text"
+                                                   name="title"
+                                                   class="form-control"
+                                                   value="{{ event_forms.title.value|default_if_none:'' }}">
+                                            {% if errors.event.title %}<div class="text-danger">{{ errors.event.title }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Catégorie</label>
+                                            <select name="category" class="form-control">
+                                                {% for category in categories %}
+                                                    <option value="{{ category.id }}"
+                                                            {% if event_forms.category.value == category.id %}selected{% endif %}>
+                                                        {{ category.name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Description</label>
+                                            <textarea name="description" class="form-control" rows="4">{{ event_forms.description.value|default_if_none:'' }}</textarea>
+                                            {% if errors.event.description %}<div class="text-danger">{{ errors.event.description }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Date de début</label>
+                                            <input type="datetime-local"
+                                                   name="start_date"
+                                                   class="form-control"
+                                                   value="{{ event_forms.start_date.value|default_if_none:'' }}">
+                                            {% if errors.event.start_date %}<div class="text-danger">{{ errors.event.start_date }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Date de fin</label>
+                                            <input type="datetime-local"
+                                                   name="end_date"
+                                                   class="form-control"
+                                                   value="{{ event_forms.end_date.value|default_if_none:'' }}">
+                                            {% if errors.event.end_date %}<div class="text-danger">{{ errors.event.end_date }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Lieu</label>
+                                            <input type="text"
+                                                   name="location"
+                                                   class="form-control"
+                                                   value="{{ event_forms.location.value|default_if_none:'' }}">
+                                            {% if errors.event.location %}<div class="text-danger">{{ errors.event.location }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Type d'événement</label>
+                                            <select name="type_event" class="form-control">
+                                                <option value="public"
+                                                        {% if event_forms.type_event.value == "public" %}selected{% endif %}>
+                                                    Public
+                                                </option>
+                                                <option value="private"
+                                                        {% if event_forms.type_event.value == "private" %}selected{% endif %}>
+                                                    Privé
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Image de l'événement</label>
+                                            <input type="file" name="image" class="form-control" accept="image/*">
+                                            {% if errors.event.image %}<div class="text-danger">{{ errors.event.image }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ticket Section -->
+                                <div id="ticketForm" style="display: none;">
+                                    <h4 class="col-12 mt-4">Détails des tickets</h4>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label class="form-label">Type d'accès</label>
+                                            <select name="type_access" class="form-control">
+                                                <option value="gratuit"
+                                                        {% if ticket_forms.type_access.value == "gratuit" %}selected{% endif %}>
+                                                    Gratuit
+                                                </option>
+                                                <option value="payant"
+                                                        {% if ticket_forms.type_access.value == "payant" %}selected{% endif %}>
+                                                    Payant
+                                                </option>
+                                            </select>
+                                            {% if errors.ticket.type_access %}<div class="text-danger">{{ errors.ticket.type_access }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Capacité Normal</label>
+                                            <input type="number"
+                                                   name="normal_capacity"
+                                                   class="form-control"
+                                                   min="0"
+                                                   value="{{ ticket_forms.normal_capacity.value|default_if_none:'' }}">
+                                            {% if errors.ticket.normal_capacity %}<div class="text-danger">{{ errors.ticket.normal_capacity }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Prix Normal</label>
+                                            <input type="number"
+                                                   name="prix_normal"
+                                                   class="form-control"
+                                                   min="0"
+                                                   value="{{ ticket_forms.prix_normal.value|default_if_none:'' }}">
+                                            {% if errors.ticket.prix_normal %}<div class="text-danger">{{ errors.ticket.prix_normal }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Capacité VIP</label>
+                                            <input type="number"
+                                                   name="vip_capacity"
+                                                   class="form-control"
+                                                   min="0"
+                                                   value="{{ ticket_forms.vip_capacity.value|default_if_none:'' }}">
+                                            {% if errors.ticket.vip_capacity %}<div class="text-danger">{{ errors.ticket.vip_capacity }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Prix VIP</label>
+                                            <input type="number"
+                                                   name="prix_vip"
+                                                   class="form-control"
+                                                   min="0"
+                                                   value="{{ ticket_forms.prix_vip.value|default_if_none:'' }}">
+                                            {% if errors.ticket.prix_vip %}<div class="text-danger">{{ errors.ticket.prix_vip }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Capacité VVIP</label>
+                                            <input type="number"
+                                                   name="vvip_capacity"
+                                                   class="form-control"
+                                                   min="0"
+                                                   value="{{ ticket_forms.vvip_capacity.value|default_if_none:'' }}">
+                                            {% if errors.ticket.vvip_capacity %}<div class="text-danger">{{ errors.ticket.vvip_capacity }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Prix VVIP</label>
+                                            <input type="number"
+                                                   name="prix_vvip"
+                                                   class="form-control"
+                                                   min="0"
+                                                   value="{{ ticket_forms.prix_vvip.value|default_if_none:'' }}">
+                                            {% if errors.ticket.prix_vvip %}<div class="text-danger">{{ errors.ticket.prix_vvip }}</div>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hostess Service Form -->
+                                <div id="hostessForm" style="display: none;">
+                                    <h3 class="mb-4">Service d'hôtesse</h3>
+                                    <div class="row g-4">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Nombre d'hôtesses</label>
+                                            <input type="number"
+                                                   name="number_hotesse"
+                                                   class="form-control"
+                                                   min="1"
+                                                   value="{{ service_hotesse_forms.number_hotesse.value|default_if_none:'' }}">
+                                            {% if errors.hostess.number_hotesse %}<div class="text-danger">{{ errors.hostess.number_hotesse }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Date de début</label>
+                                            <input type="datetime-local"
+                                                   name="start_date_service"
+                                                   class="form-control"
+                                                   value="{{ service_hotesse_forms.start_date_service.value|default_if_none:'' }}">
+                                            {% if errors.hostess.start_date_service %}
+                                                <div class="text-danger">{{ errors.hostess.start_date_service }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Date de fin</label>
+                                            <input type="datetime-local"
+                                                   name="end_date_service"
+                                                   class="form-control"
+                                                   value="{{ service_hotesse_forms.end_date_service.value|default_if_none:'' }}">
+                                            {% if errors.hostess.end_date_service %}
+                                                <div class="text-danger">{{ errors.hostess.end_date_service }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Besoins particuliers</label>
+                                            <textarea name="besoin" class="form-control" rows="4">{{ service_hotesse_forms.besoin.value|default_if_none:'' }}</textarea>
+                                            {% if errors.hostess.besoin %}<div class="text-danger">{{ errors.hostess.besoin }}</div>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Navigation Buttons -->
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <button type="button"
+                                        class="btn btn-outline-primary"
+                                        id="prevBtn"
+                                        style="display: none">Précédent</button>
+                                <button type="button" class="btn btn-primary" id="nextBtn">Suivant</button>
+                                <button type="submit"
+                                        class="btn btn-success"
+                                        id="submitBtn"
+                                        style="display: none">Soumettre</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts pour les étapes du formulaire -->
+    <script>
+    let currentStep = 1;
+    const totalSteps = 2;
+    const selectedServices = new Set();
+
+    function updateStep(step) {
+        document.querySelectorAll('.step-container').forEach(container => {
+            container.classList.remove('active');
+        });
+        document.querySelector(`#step${step}`).classList.add('active');
+
+        document.querySelectorAll('.step').forEach((stepEl, index) => {
+            if (index + 1 < step) {
+                stepEl.classList.add('completed');
+                stepEl.classList.remove('active');
+            } else if (index + 1 === step) {
+                stepEl.classList.add('active');
+                stepEl.classList.remove('completed');
+            } else {
+                stepEl.classList.remove('active', 'completed');
+            }
+        });
+
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+
+        prevBtn.style.display = step > 1 ? 'block' : 'none';
+        if (step === totalSteps) {
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'block';
+        } else {
+            nextBtn.style.display = 'block';
+            submitBtn.style.display = 'none';
+        }
+
+        // Update progress bar
+        const progress = ((step - 1) / (totalSteps - 1)) * 100;
+        document.getElementById('stepProgress').style.width = `${progress}%`;
+    }
+
+    // Service card selection with visual feedback
+    document.querySelectorAll('.service-card').forEach(card => {
+        card.addEventListener('click', () => {
+            card.classList.toggle('selected');
+            const service = card.dataset.service;
+            if (selectedServices.has(service)) {
+                selectedServices.delete(service);
+            } else {
+                selectedServices.add(service);
+            }
+            document.getElementById('selectedServices').value = Array.from(selectedServices).join(',');
+        });
+    });
+
+    // Navigation
+    document.getElementById('prevBtn').addEventListener('click', () => {
+        if (currentStep > 1) {
+            currentStep--;
+            updateStep(currentStep);
+        }
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        if (currentStep < totalSteps) {
+            if (currentStep === 1 && selectedServices.size === 0) {
+                alert('Veuillez sélectionner au moins un service');
+                return;
+            }
+            currentStep++;
+            updateStep(currentStep);
+
+            if (currentStep === 2) {
+                document.getElementById('eventForm').style.display =
+                    selectedServices.has('event') || selectedServices.has('ticket') ? 'block' : 'none';
+                document.getElementById('ticketForm').style.display =
+                    selectedServices.has('ticket') ? 'block' : 'none';
+                document.getElementById('hostessForm').style.display =
+                    selectedServices.has('hostess') ? 'block' : 'none';
+            }
+        }
+    });
+    </script>
+
+    <!-- Style pour les cartes de service et le formulaire par étapes -->
+    <style>
+    .service-card {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .service-card:hover {
+        border-color: #6c757d;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .service-card.selected {
+        border-color: #3f6ad8;
+        background-color: rgba(63, 106, 216, 0.05);
+    }
+
+    .service-card .selected-indicator {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: #3f6ad8;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .service-card.selected .selected-indicator {
+        opacity: 1;
+    }
+
+    .step-progress {
+        margin-bottom: 2rem;
+    }
+
+    .progress {
+        height: 5px;
+        background-color: #e9ecef;
+    }
+
+    .progress-bar {
+        background-color: #3f6ad8;
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+
+    .step {
+        text-align: center;
+        position: relative;
+    }
+
+    .step.active .step-number,
+    .step.completed .step-number {
+        background-color: #3f6ad8;
+        color: #fff;
+    }
+
+    .step.completed .step-number:after {
+        content: '✓';
+    }
+
+    .step-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-weight: bold;
+    }
+
+    .step-title {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .step.active .step-title,
+    .step.completed .step-title {
+        color: #3f6ad8;
+        font-weight: 600;
+    }
+
+    .step-container {
+        display: none;
+    }
+
+    .step-container.active {
+        display: block;
+    }
+    </style>
+{% endblock content %}

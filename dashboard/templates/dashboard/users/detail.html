@@ -311,15 +311,14 @@
                                                         </td>
                                                         <td>
                                                             {% if ticket.payement.amount %}
-                                                                {{
-                                                                ticket.payement.amount|floatformat:0 }} FCFA
+                                                                {{ ticket.payement.amount|floatformat:0 }} FCFA
                                                             {% else %}
                                                                 {% if ticket.type_ticket == 'normal' %}
                                                                     {{ ticket.event.infoticket_event.prix_normal|default:0|floatformat:0 }} FCFA
                                                                 {% elif ticket.type_ticket == 'vip' %}
                                                                     {{ ticket.event.infoticket_event.prix_vip|default:0|floatformat:0 }} FCFA
                                                                 {% else %}
-                                                                    {{ ticket.event.infoticket_event.prix_vvip|default:0|floatformat:0 }} FCFA
+                                                                    {{ ticket.event.infoticket_event.prix_vvip|default:0 floatformat:0 }} FCFA
                                                                 {% endif %}
                                                             {% endif %}
                                                         </td>

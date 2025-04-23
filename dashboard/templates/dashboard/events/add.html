@@ -5,8 +5,8 @@
     un Événement
 {% endblock title %}
 {% block page_title %}
-    Ajouter un Événement {%
-    endblock page_title %}
+    Ajouter un Événement
+    {% endblock page_title %}
     {% block content %}
         <div class="event-form-container">
             <!-- Fil d'Ariane -->
@@ -18,6 +18,7 @@
                     <li class="breadcrumb-item">
                         <a href="{% url 'dashboard:event_list' %}">Événements</a>
                     </li>
+
                     <li class="breadcrumb-item active" aria-current="page">Ajouter un événement</li>
                 </ol>
             </nav>
@@ -39,7 +40,9 @@
                                 <div class="col-md-6">
                                     <label for="{{ event_form.title.id_for_label }}" class="form-label">Titre *</label>
                                     {{ event_form.title }}
-                                    {% if event_form.title.errors %}<div class="invalid-feedback d-block">{{ event_form.title.errors }}</div>{% endif %}
+                                    {% if event_form.title.errors %}
+                                    <div class="invalid-feedback d-block">{{ event_form.title.errors }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label for="{{ event_form.category.id_for_label }}" class="form-label">Catégorie *</label>
@@ -88,7 +91,9 @@
                                 <div class="col-md-6">
                                     <label for="{{ event_form.image.id_for_label }}" class="form-label">Image de l'événement</label>
                                     {{ event_form.image }}
-                                    {% if event_form.image.errors %}<div class="invalid-feedback d-block">{{ event_form.image.errors }}</div>{% endif %}
+                                    {% if event_form.image.errors %}<div class="invalid-feedback d-block">
+                                        {{ event_form.image.errors }}</div>
+                                    {% endif %}
                                     <div class="form-text">Format recommandé: 1200x600px, JPG ou PNG, max 2MB</div>
                                 </div>
                                 <div class="col-md-6">
@@ -99,7 +104,8 @@
                                                 {{ event_form.statut }}
                                                 <label class="form-check-label" for="{{ event_form.statut.id_for_label }}">Activer immédiatement</label>
                                             </div>
-                                            {% if event_form.statut.errors %}<div class="invalid-feedback d-block">{{ event_form.statut.errors }}</div>{% endif %}
+                                            {% if event_form.statut.errors %}<div class="invalid-feedback d-block">
+                                                {{ event_form.statut.errors }}</div>{% endif %}
                                         </div>
                                         <div class="col-md-6">
                                             <label for="{{ event_form.partner.id_for_label }}" class="form-label">Partenaires</label>

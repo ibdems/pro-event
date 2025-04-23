@@ -2,8 +2,7 @@
 {% load static %}
 {% load dashboard_extras %}
 {% block title %}
-    Détail
-    du Ticket
+    Détail du Ticket
 {% endblock title %}
 {% block page_title %}
     Détail du Ticket #{{ ticket.code_ticket }}
@@ -396,8 +395,7 @@
                             {% if ticket.payement.statut_payement %}
                                 Payé
                             {% else %}
-                                En
-                                attente
+                                En attente
                             {% endif %}
                         </span>
                     </li>
