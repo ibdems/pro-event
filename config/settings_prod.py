@@ -30,9 +30,9 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(",")
 DATABASES = {"default": dj_database_url.config(conn_health_checks=True)}
 
 # Pour DigitalOcean Spaces
-AWS_ACCESS_KEY_ID = "VOTRE_ACCESS_KEY"
-AWS_SECRET_ACCESS_KEY = "VOTRE_SECRET_KEY"
-AWS_STORAGE_BUCKET_NAME = "proevent"
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_ENDPOINT_URL = "https://fra1.digitaloceanspaces.com"
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
