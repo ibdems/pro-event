@@ -22,8 +22,7 @@ WORKDIR /app
 # Installer les dépendances Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir gunicorn
+    pip install --no-cache-dir -r requirements.txt &&
 
 # Copier le code source
 COPY . .
