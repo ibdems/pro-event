@@ -1,0 +1,136 @@
+services:
+  web:
+    image: devibrahima/proevent:latest
+    env_file: .env
+    restart: always
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - staticfiles:/app/staticfiles/
+    networks:
+      - backend
+      - traefik-public
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.web-http.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.web-http.entrypoints=http
+      - traefik.http.routers.web-http.middlewares=https-redirect
+      - traefik.http.routers.web-https.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.web-https.entrypoints=https
+      - traefik.http.routers.web-https.tls=true
+      - traefik.http.routers.web-https.tls.certresolver=le
+      - traefik.http.services.web.loadbalancer.server.port=8080
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+
+  celery:
+    image: devibrahima/proevent:latest
+    command: celery -A config worker -l info
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - staticfiles:/app/staticfiles/
+    env_file: .env
+    networks:
+      - backend
+    restart: always
+
+  celery-beat:
+    image: devibrahima/proevent:latest
+    command: celery -A config beat -l info
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - staticfiles:/app/staticfiles/
+    env_file: .env
+    networks:
+      - backend
+    restart: always
+
+  flower:
+    image: devibrahima/proevent:latest
+    command: celery -A config flower --port=5555 --broker=redis://redis:6380/0
+    depends_on:
+      - redis
+      - celery
+    networks:
+      - backend
+      - traefik-public
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.flower.rule=Host(`flower.${DOMAIN}`)
+      - traefik.http.routers.flower.entrypoints=https
+      - traefik.http.routers.flower.tls=true
+      - traefik.http.routers.flower.tls.certresolver=le
+      - traefik.http.services.flower.loadbalancer.server.port=5555
+
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file: .env
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
+    networks:
+      - backend
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.0-alpine
+    command: ["redis-server", "--port", "6380"]
+    ports:
+      - "6380:6380"
+    networks:
+      - backend
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6380", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  traefik:
+    image: traefik:v2.10
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_certificates:/letsencrypt
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--entrypoints.http.http.redirections.entryPoint.to=https"
+      - "--entrypoints.http.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--certificatesresolvers.le.acme.email=${TRAEFIK_ACME_EMAIL}"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+    networks:
+      - traefik-public
+    restart: always
+    labels:
+      - "traefik.enable=true"
+
+networks:
+  traefik-public:
+    external: true
+  backend:
+    internal: true
+
+volumes:
+  staticfiles:
+  postgres_data:
+  traefik_certificates:

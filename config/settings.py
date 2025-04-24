@@ -179,10 +179,9 @@ DOMAIN_URL = "127.0.0.1:8000"  # Utilisé dans les templates d'activation et de 
 # EMAIL_USE_SSL = False
 
 
-# Configuration de Celery avec RabbitMQ comme broker
-
-CELERY_BROKER_URL = "amqp://proevent:proevent@localhost:5673//"
-CELERY_RESULT_BACKEND = "redis://localhost:6380"
+# Configuration de Celery avec Redis comme broker
+CELERY_BROKER_URL = "redis://redis:6380/0"
+CELERY_RESULT_BACKEND = "redis://redis:6380/1"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_EXTENDED = True

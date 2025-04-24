@@ -1,0 +1,42 @@
+networks:
+  pro_event_network:
+    driver: bridge
+
+services:
+  db_proevent:
+    image: postgres:16.8-alpine3.20
+    container_name: db_proevent
+    restart: always
+    ports:
+      - "5460:5432"
+    environment:
+      - POSTGRES_USER=proevent
+      - POSTGRES_PASSWORD=proevent
+    volumes:
+      - pg_data_proevent:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - pro_event_network
+
+  rabbitmq_proevent:
+    image: "rabbitmq:3.12-management"
+    container_name: rabbitmq_proevent
+    ports:
+      - 5673:5672
+      - "15673:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=proevent
+      - RABBITMQ_DEFAULT_PASS=proevent
+    networks:
+      - pro_event_network
+
+  redis_proevent:
+    image: redis:7.0
+    container_name: redis_proevent
+    ports:
+      - "6380:6379"
+    networks:
+      - pro_event_network
+
+volumes:
+  pg_data_proevent:

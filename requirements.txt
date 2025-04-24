@@ -41,6 +41,7 @@ filelock==3.16.1
 flower==2.0.1
 fonttools==4.55.5
 git-filter-repo==2.45.0
+gunicorn==23.0.0
 h11==0.14.0
 humanize==4.11.0
 identify==2.6.3
@@ -66,6 +67,7 @@ pre_commit==4.0.1
 prometheus_client==0.21.1
 prompt_toolkit==3.0.50
 psycopg2==2.9.9
+psycopg2-binary==2.9.9
 pycparser==2.22
 pydyf==0.11.0
 pyphen==0.17.2
