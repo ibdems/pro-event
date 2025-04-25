@@ -29,28 +29,37 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(",")
 # Configuration de la base de données
 DATABASES = {"default": dj_database_url.config(conn_health_checks=True)}
 
-# Pour DigitalOcean Spaces
-AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_ENDPOINT_URL = "https://fra1.digitaloceanspaces.com"
+# Configuration pour Backblaze B2
+AWS_ACCESS_KEY_ID = env("B2_ACCESS_KEY_ID")  # Clé d'accès Backblaze
+AWS_SECRET_ACCESS_KEY = env("B2_SECRET_ACCESS_KEY")  # Clé secrète Backblaze
+AWS_STORAGE_BUCKET_NAME = env("B2_BUCKET_NAME")  # Nom du bucket
+
+# Endpoint S3 de Backblaze B2 (à adapter selon votre région)
+AWS_S3_ENDPOINT_URL = f"https://s3.{env('B2_REGION')}.backblazeb2.com"
+AWS_S3_REGION_NAME = env("B2_REGION")  # Par exemple: 'us-west-002'
+
+# Paramètres de cache et comportement
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
-AWS_LOCATION = "media"
 AWS_DEFAULT_ACL = "public-read"
-AWS_QUERYSTRING_AUTH = False
+AWS_QUERYSTRING_AUTH = False  # Désactiver les URLs signées pour les médias publics
+AWS_S3_FILE_OVERWRITE = False  # Ne pas écraser les fichiers avec le même nom
 
+# Location des médias dans le bucket
 MEDIAFILES_LOCATION = "proevent/media"
 
-MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.fra1.digitaloceanspaces.com/{MEDIAFILES_LOCATION}/"
+# Construction de l'URL pour les médias
+# Format Backblaze URL: https://f002.backblazeb2.com/file/nom-bucket/chemin
+# ou avec un domaine personnalisé si configuré
+B2_CUSTOM_DOMAIN = env("B2_CUSTOM_DOMAIN", default=None)
+if B2_CUSTOM_DOMAIN:
+    MEDIA_URL = f"https://{B2_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/"
+else:
+    # URL par défaut de Backblaze
+    MEDIA_URL = f"https://f{env('B2_REGION').split('-')[2]}.backblazeb2.com/file/{AWS_STORAGE_BUCKET_NAME}/{MEDIAFILES_LOCATION}/"  # noqa
 
-AWS_S3_OBJECT_PARAMETERS = {
-    "CacheControl": "max-age=86400",
-}
-
-AWS_S3_FILE_OVERWRITE = False
-
+# Configuration du stockage Django
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 STORAGES = {
@@ -62,7 +71,7 @@ STORAGES = {
     },
 }
 
-
+# Sécurité
 CSRF_TRUSTED_ORIGINS = env("TRUSTED_ORIGINS").split(",")
 
 SESSION_COOKIE_SECURE = True
@@ -79,12 +88,5 @@ SECURE_PROXY_SSL_HEADER = (
 
 ADMINS = [("Ibrahima", "ibrahima882001@gmail.com")]
 
-
-# Pour Backblaze B2
-# AWS_ACCESS_KEY_ID = 'VOTRE_KEY_ID'
-# AWS_SECRET_ACCESS_KEY = 'VOTRE_APPLICATION_KEY'
-# AWS_STORAGE_BUCKET_NAME = 'proevent-bucket'
-# AWS_S3_ENDPOINT_URL = 'https://s3.us-west-002.backblazeb2.com'
-# AWS_S3_REGION_NAME = 'us-west-002'
-
+# Pour les fichiers statiques
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
