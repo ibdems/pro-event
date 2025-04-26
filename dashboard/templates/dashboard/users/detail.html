@@ -311,14 +311,14 @@
                                                         </td>
                                                         <td>
                                                             {% if ticket.payement.amount %}
-                                                                {{ ticket.payement.amount|floatformat:0 }} FCFA
+                                                                {{ ticket.payement.amount|floatformat:0 }} FG
                                                             {% else %}
                                                                 {% if ticket.type_ticket == 'normal' %}
-                                                                    {{ ticket.event.infoticket_event.prix_normal|default:0|floatformat:0 }} FCFA
+                                                                    {{ ticket.event.infoticket_event.prix_normal|default:0|floatformat:0 }} FG
                                                                 {% elif ticket.type_ticket == 'vip' %}
-                                                                    {{ ticket.event.infoticket_event.prix_vip|default:0|floatformat:0 }} FCFA
+                                                                    {{ ticket.event.infoticket_event.prix_vip|default:0|floatformat:0 }} FG
                                                                 {% else %}
-                                                                    {{ ticket.event.infoticket_event.prix_vvip|default:0 floatformat:0 }} FCFA
+                                                                    {{ ticket.event.infoticket_event.prix_vvip|default:0|floatformat:0 }} FG
                                                                 {% endif %}
                                                             {% endif %}
                                                         </td>
@@ -366,7 +366,6 @@
                                         <table class="table table-hover">
                                             <thead>
                                                 <tr>
-                                                    <th>Référence</th>
                                                     <th>Service</th>
                                                     <th>Date</th>
                                                     <th>Statut</th>
@@ -376,8 +375,9 @@
                                             <tbody>
                                                 {% for demande in demandes %}
                                                     <tr>
-                                                        <td>{{ demande.reference }}</td>
-                                                        <td>{{ demande.service_type }}</td>
+                                                        <td>{% for service in demande.service.all %}
+                                                            {{ service.name }}
+                                                        {% endfor %}</td>
                                                         <td>{{ demande.created_at|date:"d/m/Y" }}</td>
                                                         <td>
                                                             {% if demande.status == 'pending' %}

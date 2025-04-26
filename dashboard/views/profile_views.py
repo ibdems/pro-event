@@ -65,7 +65,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             for ticket in user_tickets
             if ticket.payement and ticket.payement.amount and ticket.payement.statut_payement
         )
-        context["user_revenue"] = f"{total_revenue:,}".replace(",", " ") + " FCFA"
+        context["user_revenue"] = f"{total_revenue:,}".replace(",", " ") + " FG"
 
         # Activité récente (exemple simpliste)
         context["user_activities"] = [

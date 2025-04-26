@@ -9,38 +9,38 @@
 {% block content %}
     <div class="event-management">
         <!-- Actions bar -->
-        <div class="actions-bar mb-4">
+        <div class="actions-bar mb-3">
             <div class="row align-items-center">
-                <div class="col-md-6 mb-3 mb-md-0">
+                <div class="col-md-6 mb-2 mb-md-0">
                     <h2 class="section-title mb-0">Liste des événements</h2>
                 </div>
                 {% if request.user.is_staff %}
                 <div class="col-md-6 text-md-end">
                     <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
-                        <i class="fas fa-plus-circle me-2"></i>Nouvel événement
+                        <i class="fas fa-plus-circle me-1"></i>Nouvel événement
                     </a>
                 </div>
                 {% else %}
                 <div class="col-md-6 text-md-end">
                     <a href="{% url 'dashboard:demande_create' %}" class="btn btn-primary">
-                        <i class="fas fa-plus-circle me-2"></i>Faire une demande
+                        <i class="fas fa-plus-circle me-1"></i>Faire une demande
                     </a>
                 </div>
                 {% endif %}
             </div>
         </div>
         <!-- Filtres -->
-        <div class="card dashboard-card mb-4">
+        <div class="card dashboard-card mb-3">
             <div class="card-header">
                 <h5 class="card-title">Filtres</h5>
             </div>
             <div class="card-body">
                 <form method="get"
                       action="{% url 'dashboard:event_list' %}"
-                      class="row g-3">
+                      class="row g-2">
                     <div class="col-md-3">
                         <label for="category" class="form-label">Catégorie</label>
-                        <select name="category" id="category" class="form-control">
+                        <select name="category" id="category" class="form-control form-control-sm">
                             <option value="">Toutes les catégories</option>
                             {% for category in categories %}
                                 <option value="{{ category.id }}"
@@ -52,7 +52,7 @@
                     </div>
                     <div class="col-md-3">
                         <label for="type_event" class="form-label">Type d'événement</label>
-                        <select name="type_event" id="type_event" class="form-control">
+                        <select name="type_event" id="type_event" class="form-control form-control-sm">
                             <option value="">Tous les types</option>
                             <option value="public"
                                     {% if request.GET.type_event == 'public' %}selected{% endif %}>Public</option>
@@ -62,7 +62,7 @@
                     </div>
                     <div class="col-md-3">
                         <label for="status" class="form-label">Statut</label>
-                        <select name="status" id="status" class="form-control">
+                        <select name="status" id="status" class="form-control form-control-sm">
                             <option value="">Tous les statuts</option>
                             <option value="1" {% if request.GET.status == '1' %}selected{% endif %}>Actif</option>
                             <option value="0" {% if request.GET.status == '0' %}selected{% endif %}>En attente</option>
@@ -71,7 +71,7 @@
                     <div class="col-md-3">
                         <label for="date_from" class="form-label">Date (début)</label>
                         <input type="date"
-                               class="form-control"
+                               class="form-control form-control-sm"
                                id="date_from"
                                name="date_from"
                                value="{{ request.GET.date_from }}">
@@ -79,7 +79,7 @@
                     <div class="col-md-3">
                         <label for="date_to" class="form-label">Date (fin)</label>
                         <input type="date"
-                               class="form-control"
+                               class="form-control form-control-sm"
                                id="date_to"
                                name="date_to"
                                value="{{ request.GET.date_to }}">
@@ -87,19 +87,19 @@
                     <div class="col-md-9">
                         <label for="title" class="form-label">Recherche par titre</label>
                         <input type="text"
-                               class="form-control"
+                               class="form-control form-control-sm"
                                id="title"
                                name="title"
                                value="{{ request.GET.title }}"
                                placeholder="Rechercher un événement...">
                     </div>
-                    <div class="col-12 mt-4 text-end">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter me-2"></i>Filtrer
+                    <div class="col-12 mt-3 text-end">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-filter me-1"></i>Filtrer
                         </button>
                         <a href="{% url 'dashboard:event_list' %}"
-                           class="btn btn-outline-secondary">
-                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                           class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-redo me-1"></i>Réinitialiser
                         </a>
                     </div>
                 </form>
@@ -108,17 +108,17 @@
         <!-- Tableau des événements -->
         <div class="card dashboard-card">
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle datatable">
+                <div class="table-responsive table-container">
+                    <table class="table table-sm table-hover align-middle datatable w-100">
                         <thead>
                             <tr>
-                                <th>Événement</th>
-                                <th>Catégorie</th>
-                                <th>Date</th>
-                                <th>Lieu</th>
-                                <th>Type</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
+                                <th class="min-width-column" style="width: 180px;">Événement</th>
+                                <th class="min-width-column" style="width: 100px;">Catégorie</th>
+                                <th class="min-width-column" style="width: 100px;">Date</th>
+                                <th class="min-width-column d-none d-md-table-cell" style="width: 100px;">Lieu</th>
+                                <th class="min-width-column" style="width: 60px;">Type</th>
+                                <th class="min-width-column" style="width: 60px;">Statut</th>
+                                <th class="min-width-column text-center" style="width: 120px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -135,23 +135,31 @@
                                                     <i class="fas fa-calendar"></i>
                                                 </div>
                                             {% endif %}
-                                            <div>
-                                                <h6 class="mb-0">{{ event.title }}</h6>
-                                                <small class="text-muted">Par:
+                                            <div class="long-text-container" style="max-width: 120px;">
+                                                <h6 class="mb-0 long-text">{{ event.title }}</h6>
+                                                <small class="text-muted d-none d-md-inline-block">
                                                     {% if event.user %}
                                                         {{ event.user.get_full_name|default:event.user.email }}
                                                     {% else %}
-                                                        Demande automatique
+                                                        Auto
                                                     {% endif %}
                                                 </small>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ event.category.name }}</td>
+                                    <td>
+                                        <span class="long-text" style="max-width: 90px; display: inline-block;">
+                                            {{ event.category.name }}
+                                        </span>
+                                    </td>
                                     <td>
                                         {{ event.start_date|date:"d/m/Y" }} <small class="d-block text-muted">{{ event.start_date|date:"H:i" }}</small>
                                     </td>
-                                    <td>{{ event.location }}</td>
+                                    <td class="d-none d-md-table-cell">
+                                        <span class="long-text" style="max-width: 90px; display: inline-block;">
+                                            {{ event.location }}
+                                        </span>
+                                    </td>
                                     <td>
                                         {% if event.type_event == 'private' %}
                                             <span class="badge bg-info">Privé</span>
@@ -163,11 +171,11 @@
                                         {% if event.statut %}
                                             <span class="badge bg-success">Actif</span>
                                         {% else %}
-                                            <span class="badge bg-warning">En attente</span>
+                                            <span class="badge bg-warning">Attente</span>
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        <div class="btn-group">
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
                                             <a href="{% url 'dashboard:event_edit' uid=event.uid %}"
                                                class="btn btn-sm btn-outline-primary"
                                                data-bs-toggle="tooltip"
@@ -182,9 +190,9 @@
                                             </a>
                                             {% if event.type_event == 'private' %}
                                                 <a href="{% url 'dashboard:event_detail' uid=event.uid %}#invitations"
-                                                   class="btn btn-sm btn-outline-purple"
+                                                   class="btn btn-sm btn-outline-purple d-none d-md-inline-block"
                                                    data-bs-toggle="tooltip"
-                                                   title="Gérer les invitations">
+                                                   title="Invitations">
                                                     <i class="fas fa-envelope"></i>
                                                 </a>
                                             {% endif %}
@@ -222,9 +230,9 @@
                                         <div class="empty-state">
                                             <i class="fas fa-calendar-times fa-3x mb-3 text-muted"></i>
                                             <h5>Aucun événement trouvé</h5>
-                                            <p class="text-muted">Il n'y a pas d'événements correspondant à vos critères.</p>
-                                            <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary">
-                                                <i class="fas fa-plus-circle me-2"></i>Créer un événement
+                                            <p class="text-muted">Aucun événement ne correspond à vos critères.</p>
+                                            <a href="{% url 'dashboard:event_add' %}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-plus-circle me-1"></i>Créer un événement
                                             </a>
                                         </div>
                                     </td>
@@ -244,30 +252,56 @@
         initializeDataTable('.datatable', {
             order: [[2, 'desc']], // Trier par date (3ème colonne) par défaut
             columnDefs: [
-                { orderable: false, targets: [0, 6] } // Désactiver le tri pour les colonnes d'image et d'actions
-            ]
+                { orderable: false, targets: [0, 6] }, // Désactiver le tri pour les colonnes d'image et d'actions
+                { responsivePriority: 1, targets: [0, 2, 6] }, // Priorité aux colonnes importantes
+                { responsivePriority: 2, targets: [4, 5] },
+                { responsivePriority: 3, targets: [1] },
+                { responsivePriority: 4, targets: [3] }
+            ],
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            scrollX: true,
+            autoWidth: false,
+            scrollCollapse: true,
+            fixedHeader: true,
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json'
+            }
         });
 
         // Activer les tooltips Bootstrap
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                container: 'body',
+                trigger: 'hover',
+                delay: { "show": 500, "hide": 100 }
+            });
         });
+
+        // Ajouter une classe au conteneur de tableau pour limiter la largeur
+        $('.dataTables_wrapper').addClass('w-100');
     });
     </script>
 {% endblock extra_js %}
 {% block extra_css %}
     <style>
     .event-thumb {
-        width: 40px;
-        height: 40px;
-        border-radius: 6px;
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
         object-fit: cover;
     }
     .event-thumb-placeholder {
-        width: 40px;
-        height: 40px;
-        border-radius: 6px;
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
         background-color: #f8f9fa;
         display: flex;
         align-items: center;
@@ -275,7 +309,7 @@
         color: #6c757d;
     }
     .empty-state {
-        padding: 2rem 0;
+        padding: 1.5rem 0;
     }
     .btn-outline-purple {
         color: #6f42c1;
@@ -285,6 +319,53 @@
         color: #fff;
         background-color: #6f42c1;
         border-color: #6f42c1;
+    }
+
+    /* Limiter les largeurs de colonnes */
+    .table th.min-width-column {
+        width: 1%;
+        white-space: nowrap;
+    }
+
+    /* Table container avec overflow pour éviter les débordements */
+    .table-container {
+        overflow-x: auto;
+        max-width: 100%;
+        margin-bottom: 0;
+    }
+
+    /* Correction des marges et paddings */
+    .dashboard-card .card-body {
+        padding: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .event-thumb,
+        .event-thumb-placeholder {
+            width: 28px;
+            height: 28px;
+        }
+
+        .btn-group .btn {
+            padding: 0.2rem 0.4rem;
+        }
+
+        .table th, .table td {
+            padding: 0.4rem 0.5rem;
+        }
+    }
+
+    /* Style pour les textes qui peuvent déborder */
+    .long-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    /* Fixes pour les tooltips */
+    .tooltip {
+        font-size: 0.8rem;
     }
     </style>
 {% endblock extra_css %}

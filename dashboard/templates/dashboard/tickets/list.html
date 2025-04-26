@@ -9,34 +9,34 @@
 {% block content %}
     <div class="ticket-management">
         <!-- Actions bar -->
-        <div class="actions-bar mb-4">
+        <div class="actions-bar mb-3">
             <div class="row align-items-center">
-                <div class="col-md-6 mb-3 mb-md-0">
+                <div class="col-md-6 mb-2 mb-md-0">
                     <h2 class="section-title mb-0">Liste des tickets</h2>
                 </div>
             </div>
         </div>
         <!-- Filtres -->
-        <div class="card dashboard-card mb-4">
+        <div class="card dashboard-card mb-3">
             <div class="card-header">
                 <h5 class="card-title">Filtres</h5>
             </div>
             <div class="card-body">
                 <form method="get"
                       action="{% url 'dashboard:ticket_list' %}"
-                      class="row g-3">
-                    <div class="col-md-8 mb-3">
+                      class="row g-2">
+                    <div class="col-md-8 mb-2">
                         <label for="event_search" class="form-label">Recherche par événement</label>
                         <input type="text"
-                               class="form-control"
+                               class="form-control form-control-sm"
                                id="event_search"
                                name="event_search"
                                placeholder="Nom de l'événement"
                                value="{{ request.GET.event_search }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-4 mb-2">
                         <label for="event_type" class="form-label">Type d'événement</label>
-                        <select name="event_type" id="event_type" class="form-control">
+                        <select name="event_type" id="event_type" class="form-control form-control-sm">
                             <option value="">Tous les types</option>
                             <option value="public"
                                     {% if request.GET.event_type == 'public' %}selected{% endif %}>Public</option>
@@ -44,9 +44,9 @@
                                     {% if request.GET.event_type == 'private' %}selected{% endif %}>Privé</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-4 mb-2">
                         <label for="type" class="form-label">Type de ticket</label>
-                        <select name="type" id="type" class="form-control">
+                        <select name="type" id="type" class="form-control form-control-sm">
                             <option value="">Tous les types</option>
                             <option value="normal"
                                     {% if request.GET.type == 'normal' %}selected{% endif %}>Standard</option>
@@ -54,92 +54,92 @@
                             <option value="vvip" {% if request.GET.type == 'vvip' %}selected{% endif %}>VVIP</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-4 mb-2">
                         <label for="status" class="form-label">Statut</label>
-                        <select name="status" id="status" class="form-control">
+                        <select name="status" id="status" class="form-control form-control-sm">
                             <option value="">Tous les statuts</option>
                             <option value="paid" {% if request.GET.status == 'paid' %}selected{% endif %}>Payé</option>
                             <option value="pending"
                                     {% if request.GET.status == 'pending' %}selected{% endif %}>En attente</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-4 mb-2">
                         <label for="date" class="form-label">Date d'achat</label>
                         <input type="date"
-                               class="form-control"
+                               class="form-control form-control-sm"
                                id="date"
                                name="date"
                                value="{{ request.GET.date }}">
                     </div>
-                    <div class="col-12 mt-3 text-end">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter me-2"></i>Filtrer
+                    <div class="col-12 mt-2 text-end">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-filter me-1"></i>Filtrer
                         </button>
                         <a href="{% url 'dashboard:ticket_list' %}"
-                           class="btn btn-outline-secondary">
-                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                           class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-redo me-1"></i>Réinitialiser
                         </a>
                     </div>
                 </form>
             </div>
         </div>
         <!-- Résumé des ventes -->
-        <div class="row mb-4">
-            <div class="col-xl-3 col-md-6 mb-4">
+        <div class="row mb-3">
+            <div class="col-xl-3 col-md-6 mb-3">
                 <div class="card dashboard-card h-100">
-                    <div class="card-body">
+                    <div class="card-body py-2">
                         <div class="d-flex align-items-center">
                             <div class="stats-icon bg-primary">
                                 <i class="fas fa-ticket-alt"></i>
                             </div>
                             <div class="stats-info ms-3">
-                                <h6 class="stats-title">Total de tickets</h6>
-                                <h3 class="stats-value">{{ total_tickets }}</h3>
+                                <h6 class="stats-title mb-0">Total de tickets</h6>
+                                <h3 class="stats-value mb-0">{{ total_tickets }}</h3>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6 mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
                 <div class="card dashboard-card h-100">
-                    <div class="card-body">
+                    <div class="card-body py-2">
                         <div class="d-flex align-items-center">
                             <div class="stats-icon bg-success">
                                 <i class="fas fa-money-bill-wave"></i>
                             </div>
                             <div class="stats-info ms-3">
-                                <h6 class="stats-title">Revenus (8%)</h6>
-                                <h3 class="stats-value">{{ total_revenue|floatformat:0 }} FG</h3>
+                                <h6 class="stats-title mb-0">Revenus (8%)</h6>
+                                <h3 class="stats-value mb-0">{{ total_revenue|floatformat:0 }} FG</h3>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6 mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
                 <div class="card dashboard-card h-100">
-                    <div class="card-body">
+                    <div class="card-body py-2">
                         <div class="d-flex align-items-center">
                             <div class="stats-icon bg-info">
                                 <i class="fas fa-user-check"></i>
                             </div>
                             <div class="stats-info ms-3">
-                                <h6 class="stats-title">Taux de conversion</h6>
-                                <h3 class="stats-value">{{ conversion_rate|floatformat:1 }}%</h3>
+                                <h6 class="stats-title mb-0">Taux de conversion</h6>
+                                <h3 class="stats-value mb-0">{{ conversion_rate|floatformat:1 }}%</h3>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6 mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
                 <div class="card dashboard-card h-100">
-                    <div class="card-body">
+                    <div class="card-body py-2">
                         <div class="d-flex align-items-center">
                             <div class="stats-icon bg-warning">
                                 <i class="fas fa-chart-line"></i>
                             </div>
                             <div class="stats-info ms-3">
-                                <h6 class="stats-title">Commission moyenne</h6>
-                                <h3 class="stats-value">{{ average_ticket|floatformat:0 }} FG</h3>
+                                <h6 class="stats-title mb-0">Commission moyenne</h6>
+                                <h3 class="stats-value mb-0">{{ average_ticket|floatformat:0 }} FG</h3>
                             </div>
                         </div>
                     </div>
@@ -149,19 +149,19 @@
         <!-- Tableau des tickets -->
         <div class="card dashboard-card">
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle datatable">
+                <div class="table-responsive table-container">
+                    <table class="table table-sm table-hover align-middle datatable w-100">
                         <thead>
                             <tr>
-                                <th>Référence</th>
-                                <th>Événement</th>
-                                <th>Type d'évén.</th>
-                                <th>Acheteur</th>
-                                <th>Type</th>
-                                <th>Prix</th>
-                                <th>Statut</th>
-                                <th>Date d'achat</th>
-                                <th>Actions</th>
+                                <th class="min-width-column" style="width: 80px;">Référence</th>
+                                <th class="min-width-column" style="width: 150px;">Événement</th>
+                                <th class="min-width-column d-none d-md-table-cell" style="width: 80px;">Type</th>
+                                <th class="min-width-column" style="width: 150px;">Acheteur</th>
+                                <th class="min-width-column" style="width: 70px;">Cat.</th>
+                                <th class="min-width-column d-none d-md-table-cell" style="width: 80px;">Prix</th>
+                                <th class="min-width-column" style="width: 60px;">Statut</th>
+                                <th class="min-width-column d-none d-md-table-cell" style="width: 100px;">Date</th>
+                                <th class="min-width-column text-center" style="width: 100px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -175,7 +175,7 @@
                                            target="_blank"
                                            class="event-link">{{ ticket.event.title }}</a>
                                     </td>
-                                    <td>
+                                    <td class="d-none d-md-table-cell">
                                         {% if ticket.event.type_event == 'public' %}
                                             <span class="badge bg-info">Public</span>
                                         {% else %}
@@ -185,19 +185,19 @@
                                     <td>
                                         <div class="buyer-info">
                                             <span class="buyer-name">{{ ticket.payement.nom_complet }}</span>
-                                            <small class="d-block text-muted">{{ ticket.payement.email_reception }}</small>
+                                            <small class="d-block text-muted long-text">{{ ticket.payement.email_reception }}</small>
                                         </div>
                                     </td>
                                     <td>
                                         {% if ticket.type_ticket == 'normal' %}
-                                            <span class="badge bg-secondary">Standard</span>
+                                            <span class="badge bg-secondary">Std</span>
                                         {% elif ticket.type_ticket == 'vip' %}
                                             <span class="badge bg-success">VIP</span>
                                         {% elif ticket.type_ticket == 'vvip' %}
                                             <span class="badge bg-warning">VVIP</span>
                                         {% endif %}
                                     </td>
-                                    <td>
+                                    <td class="d-none d-md-table-cell">
                                         {% if ticket.event.infoticket_event %}
                                             {% if ticket.type_ticket == 'normal' %}
                                                 {{ ticket.event.infoticket_event.prix_normal|floatformat:0 }} FG
@@ -214,12 +214,15 @@
                                         {% if ticket.payement.statut_payement %}
                                             <span class="badge bg-success">Payé</span>
                                         {% else %}
-                                            <span class="badge bg-warning">En attente</span>
+                                            <span class="badge bg-warning">Attente</span>
                                         {% endif %}
                                     </td>
-                                    <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
-                                    <td>
-                                        <div class="btn-group">
+                                    <td class="d-none d-md-table-cell">
+                                        {{ ticket.created_at|date:"d/m/Y" }}
+                                        <small class="d-block text-muted">{{ ticket.created_at|date:"H:i" }}</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
                                             <a href="{% url 'dashboard:ticket_detail' code=ticket.code_ticket %}"
                                                class="btn btn-sm btn-outline-primary"
                                                data-bs-toggle="tooltip"
@@ -228,10 +231,10 @@
                                             </a>
                                             {% if ticket.event.end_date > now %}
                                                 <button type="button"
-                                                        class="btn btn-sm btn-outline-info send-ticket-btn"
+                                                        class="btn btn-sm btn-outline-info send-ticket-btn d-none d-md-inline-block"
                                                         data-ticket-id="{{ ticket.id }}"
                                                         data-bs-toggle="tooltip"
-                                                        title="Envoyer par email">
+                                                        title="Email">
                                                     <i class="fas fa-envelope"></i>
                                                 </button>
                                             {% endif %}
@@ -249,7 +252,7 @@
                                                         class="btn btn-sm btn-outline-success mark-paid-btn"
                                                         data-ticket-code="{{ ticket.code_ticket }}"
                                                         data-bs-toggle="tooltip"
-                                                        title="Marquer comme payé">
+                                                        title="Payer">
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                             {% endif %}
@@ -262,7 +265,7 @@
                                         <div class="empty-state">
                                             <i class="fas fa-ticket-alt fa-3x mb-3 text-muted"></i>
                                             <h5>Aucun ticket trouvé</h5>
-                                            <p class="text-muted">Il n'y a pas de tickets correspondant à vos critères.</p>
+                                            <p class="text-muted">Aucun ticket ne correspond à vos critères.</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -279,24 +282,24 @@
          tabindex="-1"
          aria-labelledby="markPaidModalLabel"
          aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="markPaidModalLabel">Confirmer le paiement</h5>
+                    <h5 class="modal-title fs-6" id="markPaidModalLabel">Confirmer le paiement</h5>
                     <button type="button"
                             class="btn-close"
                             data-bs-dismiss="modal"
                             aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Êtes-vous sûr de vouloir marquer ce ticket comme payé ?</p>
-                    <p>Cette action enverra une confirmation de paiement à l'acheteur.</p>
+                    <p class="small">Êtes-vous sûr de vouloir marquer ce ticket comme payé ?</p>
+                    <p class="small">Une confirmation de paiement sera envoyée à l'acheteur.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Annuler</button>
                     <form id="markPaidForm" method="post" action="">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-success">Confirmer</button>
+                        <button type="submit" class="btn btn-sm btn-success">Confirmer</button>
                     </form>
                 </div>
             </div>
@@ -308,25 +311,25 @@
          tabindex="-1"
          aria-labelledby="sendTicketModalLabel"
          aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="sendTicketModalLabel">Envoyer le ticket par email</h5>
+                    <h5 class="modal-title fs-6" id="sendTicketModalLabel">Envoyer par email</h5>
                     <button type="button"
                             class="btn-close"
                             data-bs-dismiss="modal"
                             aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Voulez-vous envoyer ce ticket par email à l'acheteur ?</p>
-                    <p>Un email contenant le ticket au format PDF sera envoyé à l'adresse email associée.</p>
-                    <p class="ticket-email-recipient"></p>
+                    <p class="small">Voulez-vous envoyer ce ticket par email à l'acheteur ?</p>
+                    <p class="small">Un PDF du ticket sera envoyé à l'email associé.</p>
+                    <p class="ticket-email-recipient small"></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Annuler</button>
                     <form id="sendTicketForm" method="post" action="">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-info">Envoyer</button>
+                        <button type="submit" class="btn btn-sm btn-info">Envoyer</button>
                     </form>
                 </div>
             </div>
@@ -338,13 +341,29 @@
     $(document).ready(function() {
         // DataTables
         initializeDataTable('.datatable', {
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json'
-            },
             order: [[7, 'desc']], // Trier par date d'achat (8ème colonne) par défaut
             columnDefs: [
-                { orderable: false, targets: [8] } // Désactiver le tri pour la colonne d'actions
-            ]
+                { orderable: false, targets: [8] }, // Désactiver le tri pour la colonne d'actions
+                { responsivePriority: 1, targets: [0, 3, 6, 8] }, // Priorité aux colonnes importantes
+                { responsivePriority: 2, targets: [1, 4] },
+                { responsivePriority: 3, targets: [7] },
+                { responsivePriority: 4, targets: [2, 5] }
+            ],
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            scrollX: true,
+            autoWidth: false,
+            scrollCollapse: true,
+            fixedHeader: true,
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json'
+            }
         });
 
         // Marquer comme payé
@@ -359,15 +378,138 @@
             const ticketId = $(this).data('ticket-id');
             const email = $(this).closest('tr').find('.buyer-info small').text();
             $('#sendTicketForm').attr('action', `/dashboard/tickets/${ticketId}/send-email/`);
-            $('.ticket-email-recipient').html(`<strong>Email destinataire :</strong> ${email}`);
+            $('.ticket-email-recipient').html(`<strong>Email :</strong> ${email}`);
             $('#sendTicketModal').modal('show');
         });
 
         // Activer les tooltips Bootstrap
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                container: 'body',
+                trigger: 'hover',
+                delay: { "show": 500, "hide": 100 }
+            });
         });
+
+        // Ajouter une classe au conteneur de tableau pour limiter la largeur
+        $('.dataTables_wrapper').addClass('w-100');
     });
     </script>
 {% endblock extra_js %}
+
+{% block extra_css %}
+<style>
+/* Styles pour les boutons et éléments d'interface */
+.btn {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Styles pour les informations d'acheteur */
+.buyer-info {
+    max-width: 150px;
+}
+
+.buyer-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.85rem;
+}
+
+.event-link {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    font-size: 0.85rem;
+}
+
+/* Stats cards */
+.stats-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.stats-title {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.stats-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Limiter les largeurs de colonnes */
+.table th.min-width-column {
+    width: 1%;
+    white-space: nowrap;
+}
+
+/* Table container avec overflow pour éviter les débordements */
+.table-container {
+    overflow-x: auto;
+    max-width: 100%;
+    margin-bottom: 0;
+}
+
+/* Réglages pour mobiles */
+@media (max-width: 992px) {
+    .stats-value {
+        font-size: 1.1rem;
+    }
+
+    .table th, .table td {
+        padding: 0.4rem 0.5rem;
+    }
+
+    .btn-group .btn {
+        padding: 0.2rem 0.4rem;
+    }
+
+    .buyer-name, .event-link {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .stats-title {
+        font-size: 0.75rem;
+    }
+
+    .stats-value {
+        font-size: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.25em 0.5em;
+    }
+}
+
+/* Tooltip plus compact */
+.tooltip {
+    font-size: 0.8rem;
+}
+</style>
+{% endblock extra_css %}

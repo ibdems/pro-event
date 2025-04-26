@@ -1,0 +1,198 @@
+.event-detail-image {
+    max-width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    color: #333;
+}
+
+.description-text {
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+.partner-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.partner-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.ticket-stats-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #fff;
+}
+
+.ticket-header {
+    margin-bottom: 0.5rem;
+}
+
+.ticket-price {
+    font-weight: 600;
+    color: #333;
+}
+
+.total-revenue {
+    font-weight: 500;
+}
+
+/* Styles pour la gestion des événements privés */
+.bg-purple {
+    background-color: #6f42c1;
+}
+
+.invitation-stats .col-4 h6 {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.invitation-stats .border {
+    transition: all 0.2s ease;
+}
+
+.invitation-stats .border:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Gestion des statuts */
+.badge.bg-secondary {
+    position: relative;
+}
+
+.badge.bg-secondary::after {
+    content: "";
+    position: absolute;
+    height: 8px;
+    width: 8px;
+    right: -3px;
+    top: -3px;
+    border-radius: 50%;
+    background: #dc3545;
+    animation: pulse 2s infinite;
+}
+
+/* CSS pour modal manuel */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    outline: 0;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+}
+
+.modal-backdrop.fade {
+    opacity: 0;
+}
+
+.modal-backdrop.show {
+    opacity: 0.5;
+}
+
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+/* CSS pour tabs manuel */
+.tab-content>.tab-pane {
+    display: none;
+}
+
+.tab-content>.active {
+    display: block;
+}
+
+/* Style pour éviter les erreurs CSS dans les barres de progression */
+.progress .progress-bar {
+    width: var(--progress-width, 0%);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 5px rgba(220, 53, 69, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+.event-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.event-thumb-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+.empty-state {
+    padding: 2rem 0;
+}
+
+.btn-outline-purple {
+    color: #6f42c1;
+    border-color: #6f42c1;
+}
+
+.btn-outline-purple:hover {
+    color: #fff;
+    background-color: #6f42c1;
+    border-color: #6f42c1;
+}

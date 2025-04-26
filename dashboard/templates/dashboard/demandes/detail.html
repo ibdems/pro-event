@@ -106,8 +106,7 @@ de la demande {% endblock title %} {% block page_title %} Détails de la demande
           <div class="row info-item">
             <div class="col-md-4 fw-bold">Contact</div>
             <div class="col-md-8">
-              {{ demande.anonymous_user.contact|default_if_none:"Non spécifié"
-              }}
+              {{ demande.anonymous_user.contact|default_if_none:"Non spécifié" }}
             </div>
           </div>
           {% elif demande.user %} {% if request.user.is_staff %}
@@ -240,17 +239,17 @@ de la demande {% endblock title %} {% block page_title %} Détails de la demande
                     <tr>
                       <td>Standard</td>
                       <td>{{ demande.ticket.normal_capacity }}</td>
-                      <td>{{ demande.ticket.prix_normal }} FCFA</td>
+                      <td>{{ demande.ticket.prix_normal }} FG</td>
                     </tr>
                     <tr>
                       <td>VIP</td>
                       <td>{{ demande.ticket.vip_capacity }}</td>
-                      <td>{{ demande.ticket.prix_vip }} FCFA</td>
+                      <td>{{ demande.ticket.prix_vip }} FG</td>
                     </tr>
                     <tr>
                       <td>VVIP</td>
                       <td>{{ demande.ticket.vvip_capacity }}</td>
-                      <td>{{ demande.ticket.prix_vvip }} FCFA</td>
+                      <td>{{ demande.ticket.prix_vvip }} FG</td>
                     </tr>
                     <tr class="table-primary">
                       <td><strong>Total</strong></td>
@@ -290,23 +289,20 @@ de la demande {% endblock title %} {% block page_title %} Détails de la demande
               <div class="row info-item">
                 <div class="col-md-4 fw-bold">Date de début</div>
                 <div class="col-md-8">
-                  {{ demande.service_hotesse.start_date_service|date:"d/m/Y à
-                  H:i" }}
+                  {{ demande.service_hotesse.start_date_service|date:"d/m/Y à H:i" }}
                 </div>
               </div>
               <div class="row info-item">
                 <div class="col-md-4 fw-bold">Date de fin</div>
                 <div class="col-md-8">
-                  {{ demande.service_hotesse.end_date_service|date:"d/m/Y à H:i"
-                  }}
+                  {{ demande.service_hotesse.end_date_service|date:"d/m/Y à H:i" }}
                 </div>
               </div>
             </div>
             <div class="col-md-6">
               <h6 class="fw-bold mb-3">Besoins particuliers</h6>
               <p>
-                {{ demande.service_hotesse.besoin|linebreaks|default:"Aucun
-                besoin particulier spécifié." }}
+                {{ demande.service_hotesse.besoin|linebreaks|default:"Aucun besoin particulier spécifié." }}
               </p>
             </div>
           </div>
@@ -355,10 +351,10 @@ de la demande {% endblock title %} {% block page_title %} Détails de la demande
           <div class="alert alert-success mb-0">
             <i class="fas fa-check-circle me-2"></i>
             <strong>Demande acceptée :</strong>
-            {% if request.user.is_staff %} Cette demande a été acceptée. {% else
-            %} Votre demande a été acceptée. Vous pouvez maintenant gérer votre
-            événement depuis votre tableau de bord. {% endif %} {% if
-            demande.event %}
+            {% if request.user.is_staff %} Cette demande a été acceptée.
+            {% else %} Votre demande a été acceptée. Vous pouvez maintenant gérer votre
+            événement depuis votre tableau de bord. {% endif %}
+            {% if demande.event %}
             <div class="mt-3">
               <a
                 href="{% url 'dashboard:event_detail' uid=demande.event.uid %}"
@@ -374,10 +370,9 @@ de la demande {% endblock title %} {% block page_title %} Détails de la demande
           <div class="alert alert-danger mb-0">
             <i class="fas fa-times-circle me-2"></i>
             <strong>Demande rejetée :</strong>
-            {% if request.user.is_staff %} Cette demande a été rejetée. {% else
-            %} Nous sommes désolés, mais votre demande n'a pas pu être acceptée.
-            Veuillez contacter notre équipe pour plus d'informations. {% endif
-            %}
+            {% if request.user.is_staff %} Cette demande a été rejetée.
+            {% else %} Nous sommes désolés, mais votre demande n'a pas pu être acceptée.
+            Veuillez contacter notre équipe pour plus d'informations. {% endif %}
           </div>
           {% endif %}
         </div>

@@ -3,7 +3,10 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>
       ProEvent - {% block title %} Tableau de Bord {% endblock title %}
     </title>
@@ -19,6 +22,8 @@
     <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+    <!-- Correctifs responsifs -->
+    <link rel="stylesheet" href="{% static 'css/responsive-fix.css' %}" />
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- DataTables -->
@@ -31,6 +36,12 @@
       rel="stylesheet"
       type="text/css"
       href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css"
+    />
+    <!-- Responsive DataTables -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/responsive/2.3.0/css/responsive.bootstrap5.min.css"
     />
     {% block extra_css %} {% endblock extra_css %}
     <!-- Script pour gérer les problèmes de mailto -->
@@ -232,8 +243,8 @@
           <div class="user-info">
             <h4 class="text-white">{{ request.user.get_full_name }}</h4>
             <span>
-              {% if request.user.is_superuser %} Administrateur {% elif
-              request.user.is_staff %} Staff {% else %} Organisateur {% endif %}
+              {% if request.user.is_superuser %} Administrateur
+              {% elif request.user.is_staff %} Staff {% else %} Organisateur {% endif %}
             </span>
           </div>
         </div>
@@ -332,7 +343,7 @@
                 <span>Utilisateurs</span>
               </a>
             </li>
-            <li
+            <!-- <li
               class="nav-item {% if request.resolver_match.url_name == 'stats' %}active{% endif %}"
             >
               <a href="{% url 'dashboard:stats' %}">
@@ -347,7 +358,7 @@
                 <i class="fas fa-file-pdf"></i>
                 <span>Rapports</span>
               </a>
-            </li>
+            </li> -->
             {% endif %}
             <li class="nav-header">Compte</li>
             <li
@@ -625,6 +636,115 @@
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
     <!-- Script personnalisé pour le dashboard -->
     <script src="{% static 'js/dashboard.js' %}"></script>
+    <!-- Scripts -->
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/dashboard.js' %}"></script>
+
+    <!-- DataTables Scripts -->
+    <script
+      type="text/javascript"
+      src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.datatables.net/responsive/2.3.0/js/responsive.bootstrap5.min.js"
+    ></script>
+
+    <!-- Script responsive pour les tableaux -->
+    <script src="{% static 'js/responsive-tables.js' %}"></script>
+
+    <!-- Initialisation des DataTables avec fonctionnalités responsives -->
+    <script>
+      function initializeDataTable(selector, options = {}) {
+        // Options par défaut pour tous les tableaux DataTables
+        const defaultOptions = {
+          responsive: true,
+          scrollX: true,
+          scrollCollapse: true,
+          autoWidth: false,
+          fixedHeader: true,
+          pageLength: 10,
+          lengthMenu: [5, 10, 25, 50, 100],
+          language: {
+            url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json",
+            paginate: {
+              first: "«",
+              previous: "‹",
+              next: "›",
+              last: "»",
+            },
+          },
+          dom: '<"row"<"col-sm-6"l><"col-sm-6"f>><"table-responsive"t><"row"<"col-sm-6"i><"col-sm-6"p>>',
+          initComplete: function () {
+            // Ajout de classes pour améliorer le responsive
+            $(this).closest(".dataTables_wrapper").addClass("w-100");
+            $(this).closest(".table-responsive").css("overflow-x", "auto");
+
+            // Réduire la taille du texte sur mobile
+            if (window.innerWidth < 768) {
+              $(this)
+                .closest(".dataTables_wrapper")
+                .find(
+                  ".dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate"
+                )
+                .css("font-size", "0.8rem");
+            }
+          },
+        };
+
+        // Fusionner les options par défaut avec les options spécifiques
+        const finalOptions = { ...defaultOptions, ...options };
+
+        // Initialiser DataTables
+        return $(selector).DataTable(finalOptions);
+      }
+
+      // Responsive helper pour les tables
+      function setupResponsiveTables() {
+        // Ajuster la largeur des tables au chargement
+        $(".table").each(function () {
+          $(this).css("width", "100%");
+        });
+
+        // Ajouter des tooltips aux éléments tronqués
+        $('[data-bs-toggle="tooltip"]').tooltip({
+          container: "body",
+          trigger: "hover",
+          delay: { show: 500, hide: 100 },
+        });
+      }
+
+      // Exécuter au chargement du document
+      $(document).ready(function () {
+        setupResponsiveTables();
+      });
+
+      // Réappliquer lors du changement de dimensions
+      $(window).on("resize", function () {
+        if (this.resizeTimer) clearTimeout(this.resizeTimer);
+        this.resizeTimer = setTimeout(function () {
+          setupResponsiveTables();
+        }, 200);
+      });
+    </script>
+
     {% block extra_js %} {% endblock extra_js %}
   </body>
 </html>
