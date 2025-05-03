@@ -3,15 +3,17 @@ services:
     image: devibrahima/proevent:latest
     env_file: .env
     restart: always
+    user: root
     command: >
-      bash -c "python manage.py migrate --noinput &&
+      bash -c "mkdir -p /app/staticfiles && chown -R app:app /app/staticfiles && chmod -R 755 /app/staticfiles &&
+              python manage.py migrate --noinput &&
               python manage.py collectstatic --noinput &&
-              gunicorn config.wsgi:application --bind 0.0.0.0:8080 --workers 2 --threads 2 --timeout 120"
+              su app -c 'gunicorn config.wsgi:application --bind 0.0.0.0:8080 --workers 2 --threads 2 --timeout 120'"
     depends_on:
       - db
       - redis
     volumes:
-      - staticfiles:/app/staticfiles/
+      - django_static:/app/staticfiles/
     networks:
       - backend
       - traefik-public
@@ -20,6 +22,12 @@ services:
         limits:
           memory: 350M
           cpus: '0.5'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
       - traefik.enable=true
       - traefik.http.routers.web-http.rule=Host(`${DOMAIN}`)
@@ -33,7 +41,6 @@ services:
       - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
 
-  # Combinaison de celery et celery-beat en un seul service pour économiser des ressources
   celery:
     image: devibrahima/proevent:latest
     command: celery -A config worker -B -l info
@@ -41,7 +48,7 @@ services:
       - redis
       - db
     volumes:
-      - staticfiles:/app/staticfiles/
+      - django_static:/app/staticfiles/
     env_file: .env
     networks:
       - backend
@@ -51,8 +58,6 @@ services:
           memory: 200M
           cpus: '0.3'
     restart: always
-
-  # Service celery-beat supprimé car combiné avec celery worker
 
   db:
     image: postgres:16-alpine
@@ -132,6 +137,6 @@ networks:
     internal: true
 
 volumes:
-  staticfiles:
+  django_static:
   postgres_data:
   traefik_certificates:

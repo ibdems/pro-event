@@ -71,3 +71,73 @@ SECURE_PROXY_SSL_HEADER = (
 ADMINS = [("Ibrahima", "ibrahima882001@gmail.com")]
 
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+
+# Configuration de la journalisation en production
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "celery": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "config": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "event": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "demande": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "users": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "dashboard": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+    },
+}
