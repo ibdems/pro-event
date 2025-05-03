@@ -3,6 +3,10 @@ services:
     image: devibrahima/proevent:latest
     env_file: .env
     restart: always
+    command: >
+      bash -c "python manage.py migrate --noinput &&
+              python manage.py collectstatic --noinput &&
+              gunicorn config.wsgi:application --bind 0.0.0.0:8080 --workers 2 --threads 2 --timeout 120"
     depends_on:
       - db
       - redis
@@ -11,6 +15,11 @@ services:
     networks:
       - backend
       - traefik-public
+    deploy:
+      resources:
+        limits:
+          memory: 350M
+          cpus: '0.5'
     labels:
       - traefik.enable=true
       - traefik.http.routers.web-http.rule=Host(`${DOMAIN}`)
@@ -24,9 +33,10 @@ services:
       - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
 
+  # Combinaison de celery et celery-beat en un seul service pour économiser des ressources
   celery:
     image: devibrahima/proevent:latest
-    command: celery -A config worker -l info
+    command: celery -A config worker -B -l info
     depends_on:
       - redis
       - db
@@ -35,38 +45,14 @@ services:
     env_file: .env
     networks:
       - backend
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+          cpus: '0.3'
     restart: always
 
-  celery-beat:
-    image: devibrahima/proevent:latest
-    command: celery -A config beat -l info
-    depends_on:
-      - redis
-      - db
-    volumes:
-      - staticfiles:/app/staticfiles/
-    env_file: .env
-    networks:
-      - backend
-    restart: always
-
-  flower:
-    image: devibrahima/proevent:latest
-    command: celery -A config flower --port=5555 --broker=redis://redis:6380/0
-    depends_on:
-      - redis
-      - celery
-    networks:
-      - backend
-      - traefik-public
-    restart: always
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.flower.rule=Host(`flower.${DOMAIN}`)
-      - traefik.http.routers.flower.entrypoints=https
-      - traefik.http.routers.flower.tls=true
-      - traefik.http.routers.flower.tls.certresolver=le
-      - traefik.http.services.flower.loadbalancer.server.port=5555
+  # Service celery-beat supprimé car combiné avec celery worker
 
   db:
     image: postgres:16-alpine
@@ -79,26 +65,34 @@ services:
       - POSTGRES_DB=${DB_NAME}
     networks:
       - backend
+    deploy:
+      resources:
+        limits:
+          memory: 250M
+          cpus: '0.4'
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
 
   redis:
     image: redis:7.0-alpine
-    command: ["redis-server", "--port", "6380"]
-    ports:
-      - "6380:6380"
+    command: ["redis-server", "--port", "6380", "--save", "60", "1", "--loglevel", "warning", "--maxmemory", "100mb", "--maxmemory-policy", "allkeys-lru"]
     networks:
       - backend
+    deploy:
+      resources:
+        limits:
+          memory: 120M
+          cpus: '0.2'
     restart: always
     healthcheck:
       test: ["CMD", "redis-cli", "-p", "6380", "ping"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
 
   traefik:
     image: traefik:v2.10
@@ -118,8 +112,15 @@ services:
       - "--certificatesresolvers.le.acme.tlschallenge=true"
       - "--certificatesresolvers.le.acme.email=${TRAEFIK_ACME_EMAIL}"
       - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--log.level=ERROR"
+      - "--accesslog=false"
     networks:
       - traefik-public
+    deploy:
+      resources:
+        limits:
+          memory: 80M
+          cpus: '0.2'
     restart: always
     labels:
       - "traefik.enable=true"
