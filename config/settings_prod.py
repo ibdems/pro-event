@@ -35,22 +35,28 @@ AWS_S3_FILE_OVERWRITE = False
 
 MEDIAFILES_LOCATION = "proevent-media"
 
+STATICFILES_LOCATION = "proevent-static"
+
 B2_CUSTOM_DOMAIN = env("B2_CUSTOM_DOMAIN", default=None)
+
 if B2_CUSTOM_DOMAIN:
     MEDIA_URL = f"https://{B2_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/"
+    STATIC_URL = f"https://{B2_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/"
 else:
     region_parts = env("B2_REGION").split("-")
     bucket_region_code = region_parts[-1] if len(region_parts) > 1 else "003"
-    MEDIA_URL = f"https://f{bucket_region_code}.backblazeb2.com/file/{AWS_STORAGE_BUCKET_NAME}/{MEDIAFILES_LOCATION}/"  # noqa
+    media_url_base = f"https://f{bucket_region_code}.backblazeb2.com/file/{AWS_STORAGE_BUCKET_NAME}"
+    MEDIA_URL = f"{media_url_base}/{MEDIAFILES_LOCATION}/"
+    STATIC_URL = f"{media_url_base}/{STATICFILES_LOCATION}/"
 
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+DEFAULT_FILE_STORAGE = "config.storages.MediaStorage"
 
 STORAGES = {
     "default": {
         "BACKEND": "config.storages.MediaStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": "config.storages.StaticStorage",
     },
 }
 
@@ -69,8 +75,6 @@ SECURE_PROXY_SSL_HEADER = (
 )
 
 ADMINS = [("Ibrahima", "ibrahima882001@gmail.com")]
-
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 # Configuration de la journalisation en production
 LOGGING = {

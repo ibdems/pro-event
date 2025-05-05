@@ -7,3 +7,10 @@ class MediaStorage(S3Boto3Storage):
 
     default_acl = "public-read"
     querystring_auth = False
+
+
+class StaticStorage(S3Boto3Storage):
+    location = "proevent-static"
+    file_overwrite = True
+    default_acl = "public-read"
+    querystring_auth = False
