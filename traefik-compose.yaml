@@ -1,0 +1,44 @@
+services:
+  traefik:
+    image: traefik:v2.10
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme.json:/certificates/acme.json
+      - /var/log/traefik:/var/log
+    command:
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --certificatesresolvers.le.acme.email=devibrahima88@gmail.com
+      - --certificatesresolvers.le.acme.tlschallenge=true
+      - --certificatesresolvers.le.acme.storage=/certificates/acme.json
+      - --accesslog
+      - --accesslog.filePath=/var/log/access.log
+      - --log
+      - --api.dashboard=true
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      - traefik.http.middlewares.https-compress.compress=true
+      - traefik.http.middlewares.app-http.headers.stsSeconds=31536000
+      - traefik.http.middlewares.app-http.headers.stsIncludeSubdomains=true
+      - traefik.http.middlewares.app-http.headers.stsPreload=true
+      - traefik.http.middlewares.app-http.headers.forceSTSHeader=true
+    networks:
+      - traefik-public
+    restart: always
+
+volumes:
+  traefik_certificates:
+
+networks:
+  traefik-public:
+    external: true

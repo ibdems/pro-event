@@ -1,45 +1,34 @@
 {% extends "event/base.html" %} {% load static %} {% block title %} Accueil
-{% endblock title %} {% block extra_css %}
+{%endblock title %} {% block extra_css %}
 <style>
   /* Animations spécifiques pour la page d'accueil */
   .hero-content {
-    animation: fadeInFromLeft 1s ease-out;
-  }
-
-  @keyframes fadeInFromLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-50px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    /* Pas d'animation */
   }
 
   .advantages-card {
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    opacity: 1 !important; /* Assurez-vous que les cartes sont toujours visibles */
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 1 !important;
   }
 
   .advantages-card:hover {
-    transform: translateY(-15px);
-    box-shadow: 0 15px 30px rgba(1, 0, 137, 0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(1, 0, 137, 0.08);
   }
 
   .advantages-icon {
-    font-size: 3rem;
+    font-size: 2rem;
     color: var(--primary-blue);
     background: rgba(1, 0, 137, 0.1);
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    margin: 0 auto 1.5rem;
+    margin: 0 auto 1rem;
     transition: all 0.3s ease;
   }
 
@@ -50,13 +39,13 @@
   }
 
   .event-card {
-    border-radius: 15px;
+    border-radius: 8px;
     overflow: hidden;
-    transition: all 0.4s ease;
+    transition: all 0.3s ease;
     height: 100%;
     position: relative;
     z-index: 1;
-    opacity: 1 !important; /* Assurez-vous que les cartes sont toujours visibles */
+    opacity: 1 !important;
   }
 
   .event-card::before {
@@ -68,7 +57,7 @@
     height: 100%;
     background: linear-gradient(45deg, var(--primary-blue), transparent);
     opacity: 0;
-    transition: all 0.4s ease;
+    transition: all 0.3s ease;
     z-index: -1;
   }
 
@@ -77,23 +66,24 @@
   }
 
   .event-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
   }
 
   .event-badge {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
+    top: 8px;
+    right: 8px;
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
     font-weight: 500;
+    font-size: var(--text-xs);
     z-index: 10;
   }
 
   .count-section {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    padding: 6rem 0;
+    padding: 4rem 0;
     position: relative;
     overflow: hidden;
   }
@@ -101,10 +91,10 @@
   .count-section::before {
     content: "";
     position: absolute;
-    top: -100px;
-    left: -100px;
-    width: 300px;
-    height: 300px;
+    top: -70px;
+    left: -70px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     background: rgba(1, 0, 137, 0.05);
   }
@@ -112,42 +102,42 @@
   .count-section::after {
     content: "";
     position: absolute;
-    bottom: -100px;
-    right: -100px;
-    width: 300px;
-    height: 300px;
+    bottom: -70px;
+    right: -70px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     background: rgba(1, 0, 137, 0.05);
   }
 
   .count-card {
-    padding: 2rem;
+    padding: var(--space-lg);
     background: rgba(255, 255, 255, 0.8);
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    transition: all 0.4s ease;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
   }
 
   .count-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   }
 
   .count-value {
-    font-size: 3.5rem;
+    font-size: var(--text-4xl);
     font-weight: 700;
     color: var(--primary-blue);
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-md);
   }
 
   .count-icon {
-    font-size: 2.5rem;
+    font-size: var(--text-2xl);
     color: var(--primary-blue);
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-md);
   }
 
   .count-label {
-    font-size: 1.2rem;
+    font-size: var(--text-md);
     font-weight: 500;
     color: #333;
   }
@@ -156,14 +146,14 @@
   .partners-section {
     width: 100%;
     overflow-x: hidden;
-    padding: 40px 0;
+    padding: var(--space-xl) 0;
     position: relative;
   }
 
   .partners-slider {
     overflow: hidden;
     position: relative;
-    padding: 20px 0;
+    padding: var(--space-md) 0;
     width: 100%;
   }
 
@@ -179,7 +169,7 @@
 
   .partners-scroll {
     display: flex;
-    animation: scrollPartners 40s linear infinite;
+    animation: scrollPartners 30s linear infinite;
     min-width: 100%;
   }
 
@@ -193,16 +183,16 @@
   }
 
   .partner-item:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
   }
 
   .partner-logo {
     transition: all 0.3s ease;
-    margin: 0 15px;
+    margin: 0 var(--space-sm);
   }
 
   .partner-item:hover .partner-logo {
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
   }
 
   @keyframes scrollPartners {
@@ -219,57 +209,77 @@
     opacity: 1 !important;
     transform: none !important;
   }
+
+  /* Styles communs pour les sections */
+  .section-title {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-md);
+  }
+
+  .section-badge {
+    font-size: var(--text-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: 50px;
+    display: inline-block;
+    margin-bottom: var(--space-sm);
+    color: white
+  }
+
+  .section-subtitle {
+    font-size: var(--text-md);
+    color: #6c757d;
+    margin-bottom: var(--space-lg);
+  }
 </style>
 {% endblock extra_css %} {% block content %}
 <!-- Section Héros -->
 <section class="hero-section position-relative">
-  <div class="container h-100 d-flex align-items-center justify-content-between flex-wrap">
-  <div class="hero-content mt-5 text-start">
-    <span class="badge bg-primary mb-3">Organisation événementielle</span>
-    <h1 class="display-2 fw-bold text-primary">
-      Votre événement, notre mission
-    </h1>
-    <p class=" mb-4 text-black">
-      Avec ProEvent, transformez vos idées en événements mémorables.<br>
-      Organisation complète, tickets sécurisés, hôtesses expérimentées et partenaires fiables.
-    </p>
-    <div class="d-flex flex-column flex-md-row gap-3">
-      <a href="{% url 'event:event' %}" class="btn btn-primary btn-lg">
-        <i class="fas fa-search p-0"></i>Explorer les événements
-      </a>
-      <a href="{% url 'demande' %}" class="btn btn-outline-primary btn-lg">
-        <i class="fas fa-paper-plane"></i>Demander un service
-      </a>
+  <div
+    class="container h-100 d-flex align-items-center justify-content-between flex-wrap"
+  >
+    <div class="hero-content mt-5 text-start">
+      <span class="badge bg-primary mb-3">Organisation événementielle</span>
+      <h1 class="display-2 fw-bold text-primary">
+        Votre événement, notre mission
+      </h1>
+      <p class="mb-4 text-black">
+        Avec ProEvent, transformez vos idées en événements mémorables.<br />
+        Organisation complète, tickets sécurisés, hôtesses expérimentées et
+        partenaires fiables.
+      </p>
+      <div class="d-flex flex-column flex-md-row gap-3">
+        <a href="{% url 'event:event' %}" class="btn btn-primary">
+          <i class="fas fa-search p-0 me-1"></i>Explorer les événements
+        </a>
+        <a href="{% url 'demande' %}" class="btn btn-outline-primary">
+          <i class="fas fa-paper-plane me-1"></i>Demander un service
+        </a>
+      </div>
+    </div>
+    <div class="hero-image d-block">
+      <img src="{% static 'img/bg.png' %}" alt="Femme ProEvent" />
     </div>
   </div>
-  <div class="hero-image d-block">
-    <img src="{% static 'img/hero-proevent.png' %}" alt="Femme ProEvent" />
-  </div>
-</div>
 </section>
 
 <!-- Section Pourquoi choisir ProEvent -->
 <section class="py-5">
   <div class="container">
     <div class="text-center mb-5">
-      <span class="badge bg-primary rounded-pill px-3 py-2 mb-2"
-        >Nos avantages</span
-      >
-      <h2 class="display-5 fw-bold text-primary scroll-animated">
-        Pourquoi choisir ProEvent ?
-      </h2>
-      <p class="lead text-muted mb-0">
+      <span class="section-badge bg-primary">Nos avantages</span>
+      <h2 class="section-title text-primary">Pourquoi choisir ProEvent ?</h2>
+      <p class="section-subtitle">
         Des solutions complètes pour votre événement parfait
       </p>
     </div>
 
     <div class="row g-4">
       <div class="col-lg-3 col-md-6 col-12">
-        <div class="advantages-card p-4 text-center scroll-animated">
+        <div class="advantages-card p-4 text-center">
           <div class="advantages-icon">
             <i class="fas fa-calendar-check"></i>
           </div>
-          <h3 class="h4 mb-3">Organisation complète</h3>
+          <h3 class="h5 mb-3">Organisation complète</h3>
           <p class="mb-0">
             De la logistique à la gestion des invités, ProEvent s'occupe de tout
             pour un événement sans stress.
@@ -277,11 +287,11 @@
         </div>
       </div>
       <div class="col-lg-3 col-md-6 col-12">
-        <div class="advantages-card p-4 text-center scroll-animated">
+        <div class="advantages-card p-4 text-center">
           <div class="advantages-icon">
             <i class="fas fa-ticket-alt"></i>
           </div>
-          <h3 class="h4 mb-3">Tickets sécurisés</h3>
+          <h3 class="h5 mb-3">Tickets sécurisés</h3>
           <p class="mb-0">
             Vendez ou achetez des tickets en toute sécurité avec nos solutions
             digitales intégrées.
@@ -289,11 +299,11 @@
         </div>
       </div>
       <div class="col-lg-3 col-md-6 col-12">
-        <div class="advantages-card p-4 text-center scroll-animated">
+        <div class="advantages-card p-4 text-center">
           <div class="advantages-icon">
             <i class="fas fa-handshake"></i>
           </div>
-          <h3 class="h4 mb-3">Partenaires fiables</h3>
+          <h3 class="h5 mb-3">Partenaires fiables</h3>
           <p class="mb-0">
             Nous collaborons avec les meilleurs lieux et services pour offrir
             des événements de qualité.
@@ -301,11 +311,11 @@
         </div>
       </div>
       <div class="col-lg-3 col-md-6 col-12">
-        <div class="advantages-card p-4 text-center scroll-animated">
+        <div class="advantages-card p-4 text-center">
           <div class="advantages-icon">
             <i class="fas fa-user-tie"></i>
           </div>
-          <h3 class="h4 mb-3">Hôtesses expérimentées</h3>
+          <h3 class="h5 mb-3">Hôtesses expérimentées</h3>
           <p class="mb-0">
             Des professionnelles qualifiées pour accueillir et guider vos
             invités avec élégance et efficacité.
@@ -367,13 +377,9 @@
 <section class="py-5 bg-light">
   <div class="container">
     <div class="text-center mb-5">
-      <span class="badge bg-primary rounded-pill px-3 py-2 mb-2"
-        >À découvrir</span
-      >
-      <h2 class="display-5 fw-bold text-primary scroll-animated">
-        Les événements en vedette
-      </h2>
-      <p class="lead text-muted mb-0">
+      <span class="section-badge bg-primary">À découvrir</span>
+      <h2 class="section-title text-primary">Les événements en vedette</h2>
+      <p class="section-subtitle">
         Découvrez notre sélection d'événements à ne pas manquer
       </p>
     </div>
@@ -381,7 +387,7 @@
     <div class="row">
       {% for event in events %}
       <div class="col-md-6 col-lg-4 mb-4">
-        <div class="event-card shadow-sm scroll-animated">
+        <div class="event-card shadow-sm">
           <div class="position-relative overflow-hidden">
             {% if event.image %}
             <img
@@ -389,16 +395,16 @@
               alt="{{ event.title }}"
               class="card-img-top"
               width="600"
-              height="400"
+              height="350"
               loading="lazy"
               style="object-fit: cover"
             />
             {% else %}
             <div
-              class="bg-primary text-white d-flex align-items-center justify-content-center rounded mb-3"
-              style="height: 190px"
+              class="bg-primary text-white d-flex align-items-center justify-content-center rounded"
+              style="height: 180px"
             >
-              <i class="fas fa-calendar-alt fa-5x"></i>
+              <i class="fas fa-calendar-alt fa-3x"></i>
             </div>
             {% endif %}
 
@@ -418,7 +424,8 @@
             <!-- Date de l'événement -->
             <div class="event-date mb-2">
               <i class="fas fa-calendar-days text-primary me-2"></i>
-              {{ event.start_date|date:"d F Y" }} - {{ event.end_date|date:"d F Y" }}
+              {{ event.start_date|date:"d F Y" }} - {{ event.end_date|date:"d F"
+              }}
             </div>
 
             <!-- Lieu de l'événement -->
@@ -453,7 +460,7 @@
 
     <!-- Lien vers tous les événements -->
     <div class="text-center mt-4">
-      <a href="{% url 'event:event' %}" class="btn btn-outline-primary btn-lg">
+      <a href="{% url 'event:event' %}" class="btn btn-outline-primary">
         <i class="fas fa-calendar-alt me-2"></i>Voir tous les événements
       </a>
     </div>
@@ -464,12 +471,8 @@
 {% if platform_partners %}
 <section class="py-5 bg-light partners-section">
   <div class="text-center mb-5">
-    <span class="badge bg-primary rounded-pill px-3 py-2 mb-2"
-      >Nos partenaires</span
-    >
-    <h2 class="display-5 fw-bold text-primary scroll-animated">
-      Ils nous font confiance
-    </h2>
+    <span class="section-badge bg-primary">Nos partenaires</span>
+    <h2 class="section-title text-primary">Ils nous font confiance</h2>
   </div>
 
   <div class="partners-slider position-relative w-100">
@@ -479,20 +482,20 @@
         <div class="partner-item">
           <div
             class="partner-logo bg-white p-3 rounded shadow-sm d-flex align-items-center justify-content-center"
-            style="width: 180px; height: 120px"
+            style="width: 160px; height: 100px"
           >
             {% if partner.logo %}
             <img
               src="{{ partner.logo.url }}"
               alt="{{ partner.name }}"
               class="img-fluid"
-              style="max-height: 90px; max-width: 160px; object-fit: contain"
+              style="max-height: 80px; max-width: 140px; object-fit: contain"
             />
             {% else %}
             <div class="text-center">
               <i
                 class="fas fa-building text-primary mb-2"
-                style="font-size: 2.5rem"
+                style="font-size: 2rem"
               ></i>
               <p class="mb-0 small">{{ partner.name }}</p>
             </div>
@@ -509,12 +512,14 @@
 <!-- Appel à l'action -->
 <section class="cta-section text-center text-white py-5">
   <div class="container">
-    <h2 class="display-4 mb-4">Prêt à faire de votre événement un succès ?</h2>
-    <p class="lead mb-4">
+    <h2 class="section-title mb-4 text-white">
+      Prêt à faire de votre événement un succès ?
+    </h2>
+    <p class="section-subtitle text-white-50 mb-4">
       Rejoignez les centaines de clients satisfaits qui font confiance à
       ProEvent pour leurs événements.
     </p>
-    <a href="{% url 'demande' %}" class="btn btn-outline-light btn-lg">
+    <a href="{% url 'demande' %}" class="btn btn-outline-light">
       <i class="fas fa-rocket me-2"></i>Commencer maintenant
     </a>
   </div>
@@ -569,15 +574,6 @@
           counter.classList.add("animated");
           animateCounter(counter);
         }
-      });
-    }
-
-    // Effet de parallaxe pour l'image héros
-    const heroBg = document.querySelector(".hero-bg");
-    if (heroBg) {
-      window.addEventListener("scroll", function () {
-        const scrollPosition = window.pageYOffset;
-        heroBg.style.transform = `translateY(${scrollPosition * 0.4}px)`;
       });
     }
 

@@ -3,49 +3,68 @@
   --primary-blue: #010089;
   --text-black: #000000;
   --bg-white: #FFFFFF;
-  --transition-speed: 0.6s;
+  --transition-speed: 0.4s;
   --border-width: 1px;
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  /* Nouvelles variables pour la cohérence des tailles */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
+
+  /* Espacement */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
 }
 
 /* Reset et styles généraux */
 body {
   font-family: 'Arimo', sans-serif;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--text-black);
   background-color: var(--bg-white);
+  line-height: 1.6;
 }
 
 /* Typography */
 h1 {
-  font-size: 36px;
-  font-weight: bold;
+  font-size: var(--text-4xl);
+  font-weight: 700;
 }
 
 h2 {
-  font-size: 30px;
-  font-weight: bold;
+  font-size: var(--text-3xl);
+  font-weight: 700;
 }
 
 h3 {
-  font-size: 25px;
-  font-weight: bold;
+  font-size: var(--text-2xl);
+  font-weight: 700;
 }
 
 h4 {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: var(--text-xl);
+  font-weight: 600;
 }
 
 h5 {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: var(--text-lg);
+  font-weight: 600;
 }
 
 h6 {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: var(--text-base);
+  font-weight: 600;
 }
 
 h1,
@@ -55,19 +74,20 @@ h4,
 h5,
 h6 {
   color: var(--primary-blue);
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-md);
+  line-height: 1.2;
 }
 
 
 /* Buttons */
 .btn {
   border-radius: 0;
-  padding: 0.6rem 1.5rem;
+  padding: var(--space-sm) var(--space-lg);
   font-weight: 500;
   transition: all var(--transition-speed);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-size: 1rem;
+  font-size: var(--text-sm);
   white-space: nowrap;
 }
 
@@ -98,8 +118,8 @@ h6 {
 .form-control {
   border-radius: 0;
   border: var(--border-width) solid var(--text-black);
-  padding: 0.7rem;
-  font-size: 14px;
+  padding: var(--space-sm);
+  font-size: var(--text-sm);
 }
 
 .form-control:focus {
@@ -110,7 +130,8 @@ h6 {
 .form-label {
   font-weight: 500;
   color: var(--text-black);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-xs);
+  font-size: var(--text-sm);
 }
 
 /* Utilities */
@@ -130,37 +151,46 @@ h6 {
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-md);
 }
 
 .card-header {
   background-color: var(--bg-white);
   border-bottom: var(--border-width) solid var(--text-black);
+  padding: var(--space-md) var(--space-md);
 }
 
 /* Tables */
 .table {
   border: var(--border-width) solid var(--text-black);
+  font-size: var(--text-sm);
 }
 
 .table th {
   background-color: var(--primary-blue);
   color: var(--bg-white);
   font-weight: 500;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.table td {
+  padding: var(--space-sm) var(--space-md);
 }
 
 /* Alerts */
 .alert {
   border-radius: 0;
   border: none;
-  padding: 1rem;
+  padding: var(--space-md);
+  font-size: var(--text-sm);
 }
 
 /* Badges */
 .badge {
   border-radius: 0;
-  padding: 0.5em 1em;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--text-xs);
 }
 
 
@@ -168,7 +198,7 @@ h6 {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
 
   to {
@@ -180,7 +210,7 @@ h6 {
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.95);
   }
 
   to {
@@ -190,8 +220,22 @@ h6 {
 }
 
 .text-primary:hover {
-  transform: scale(0.9);
+  transform: scale(0.95);
   transition: transform 0.2s ease-in-out;
+}
+
+/* Ajout des styles pour les animations */
+.animated {
+  animation-fill-mode: both;
+  animation-duration: 0.8s;
+}
+
+.fadeInUp {
+  animation-name: fadeInUp;
+}
+
+.scaleIn {
+  animation-name: scaleIn;
 }
 
 
