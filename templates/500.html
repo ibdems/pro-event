@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" href="{% static 'img/logo.jpg' %}" type="image/x-icon">
+    <title>ProEvent - Erreur serveur</title>
+
+    <!-- CSS principaux -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_event.css' %}">
+
+    <!-- Polices et icônes -->
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl) var(--space-md);
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+
+        .error-content {
+            max-width: 700px;
+            padding: var(--space-xl);
+            border-radius: 12px;
+            background-color: var(--bg-white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .error-image {
+            max-width: 250px;
+            margin-bottom: var(--space-xl);
+        }
+
+        .error-title {
+            color: var(--primary-blue);
+            font-weight: 700;
+            margin-bottom: var(--space-md);
+        }
+
+        .error-message {
+            font-size: var(--text-lg);
+            margin-bottom: var(--space-xl);
+            color: #555;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            padding: var(--space-sm) var(--space-lg);
+            font-weight: 600;
+            transition: all var(--transition-speed);
+        }
+
+        .btn-primary:hover {
+            background-color: #00006e;
+            border-color: #00006e;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(1, 0, 137, 0.3);
+        }
+
+        .error-footer {
+            margin-top: var(--space-xl);
+            font-size: var(--text-sm);
+            color: #777;
+        }
+
+        .error-500-text {
+            font-size: 120px;
+            font-weight: 800;
+            color: var(--primary-blue);
+            line-height: 1;
+            margin-bottom: var(--space-md);
+            opacity: 0.7;
+        }
+
+        @media (max-width: 576px) {
+            .error-500-text {
+                font-size: 80px;
+            }
+
+            .error-title {
+                font-size: var(--text-2xl);
+            }
+
+            .error-message {
+                font-size: var(--text-base);
+            }
+
+            .error-content {
+                padding: var(--space-lg);
+            }
+        }
+
+        .animated-icon {
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.7; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-content">
+            <div class="mb-4">
+                <img src="{% static 'img/logo.jpg' %}" alt="ProEvent Logo" style="height: 70px; width: auto;">
+            </div>
+            <div class="error-500-text">500</div>
+            <h1 class="error-title">Erreur serveur</h1>
+            <p class="error-message">
+                Désolé, une erreur inattendue s'est produite sur notre serveur. <br>
+                Notre équipe technique a été informée et travaille à résoudre le problème.
+            </p>
+            <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+                <a href="javascript:history.back()" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> Retour
+                </a>
+                <a href="/" class="btn btn-primary">
+                    <i class="bi bi-house-door"></i> Retour à l'accueil
+                </a>
+            </div>
+            <div class="mt-4">
+                <i class="bi bi-tools animated-icon" style="font-size: 2rem; color: var(--primary-blue);"></i>
+            </div>
+            <div class="error-footer mt-4">
+                <p>&copy; {% now "Y" %} ProEvent. Tous droits réservés.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Bootstrap -->
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

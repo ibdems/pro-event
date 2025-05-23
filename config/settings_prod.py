@@ -76,7 +76,6 @@ SECURE_PROXY_SSL_HEADER = (
 
 ADMINS = [("Ibrahima", "ibrahima882001@gmail.com")]
 
-# Configuration de la journalisation en production
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

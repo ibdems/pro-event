@@ -2,11 +2,7 @@ import os
 from pathlib import Path
 
 import environ
-import sentry_sdk
-from sentry_sdk.integrations.celery import CeleryIntegration
-from sentry_sdk.integrations.django import DjangoIntegration
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
@@ -15,19 +11,11 @@ env = environ.Env(
 
 environ.Env.read_env(BASE_DIR / ".env")
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "7d0bsn&@=dyb@v0f)fmtk6esv2(49@sy_11sia&d1=y@9=_!ut"
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
-
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -41,6 +29,8 @@ INSTALLED_APPS = [
     "event",
     "demande",
     "dashboard",
+    "ckeditor",
+    "ckeditor_uploader",
 ]
 
 MIDDLEWARE = [
@@ -61,6 +51,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
+            BASE_DIR / "templates",
             BASE_DIR / "users" / "templates",
             os.path.join(BASE_DIR, "event", "templates"),
         ],
@@ -78,10 +69,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -95,10 +82,6 @@ DATABASES = {
         },
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -115,10 +98,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = "fr-Fr"
 
 TIME_ZONE = "UTC"
@@ -127,10 +106,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
@@ -138,8 +113,25 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+# Configuration CKEditor 6
+# Nous gardons certains paramètres pour la compatibilité avec les modèles existants
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_RESTRICT_BY_USER = True
+CKEDITOR_IMAGE_BACKEND = "pillow"
+
+# Désactiver complètement toutes les alertes et warnings
+CKEDITOR_ALERT_ON_VULNERABILITY = False
+CKEDITOR_BASEPATH = "/static/ckeditor6/"
+CKEDITOR_CONFIGS = {
+    "default": {
+        "toolbar": "none"
+    },  # On n'utilise plus cette config, on utilise CKEditor 6 directement
+}
+
+# On ne charge pas le JS de CKEditor 4 automatiquement
+CKEDITOR_JQUERY_URL = ""
+CKEDITOR_CONFIGS = {}
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -170,15 +162,6 @@ EMAIL_USE_TLS = True
 BASE_URL = "http://127.0.0.1:8000"
 DOMAIN_URL = "127.0.0.1:8000"  # Utilisé dans les templates d'activation et de réinitialisation
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'localhost'
-# EMAIL_PORT = 1025
-# EMAIL_HOST_USER = ''
-# EMAIL_HOST_PASSWORD = ''
-# EMAIL_USE_TLS = False
-# EMAIL_USE_SSL = False
-
-
 # Configuration de Celery avec Redis comme broker
 CELERY_BROKER_URL = "redis://redis:6380/0"
 CELERY_RESULT_BACKEND = "redis://redis:6380/1"
@@ -186,9 +169,6 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_EXTENDED = True
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-
-
-import os
 
 LOGGING = {
     "version": 1,
@@ -207,38 +187,15 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "debug.log"),
+            "filename": BASE_DIR / "debug.log",
             "formatter": "verbose",
-        },
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
         },
     },
     "loggers": {
         "django": {
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        "celery": {
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        "config": {
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
+            "handlers": ["file"],
+            "level": "INFO",
             "propagate": True,
         },
     },
 }
-
-#  Configuration de sentry
-# sentry_sdk.init(
-#     dsn="https://46787407c9b7d4d646ec2c833aeeb26b@o4508716806963200.ingest.de.sentry.io/4508716810305616",
-#     integrations=[DjangoIntegration(), CeleryIntegration()],
-#     traces_sample_rate=1.0,
-#     send_default_pii=True,
-# )

@@ -188,7 +188,7 @@ de la demande {% endblock title %} {% block page_title %} Détails de la demande
             </div>
             <div class="col-md-6">
               <h6 class="fw-bold mb-3">Description</h6>
-              <p>{{ demande.event.description|linebreaks }}</p>
+              <div class="rich-text-content">{{ demande.event.description|safe }}</div>
 
               {% if demande.event.image %}
               <h6 class="fw-bold mb-3 mt-4">Image</h6>

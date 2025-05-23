@@ -434,7 +434,7 @@
                                                 <div class="timeline-content">
                                                     <h6 class="timeline-title">{{ activity.title }}</h6>
                                                     <p class="timeline-date">{{ activity.timestamp|date:"d/m/Y H:i" }}</p>
-                                                    <p class="timeline-text">{{ activity.description }}</p>
+                                                    <div class="timeline-text">{{ activity.description|safe }}</div>
                                                 </div>
                                             </div>
                                         {% endfor %}

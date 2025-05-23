@@ -102,9 +102,102 @@
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label">Description</label>
-                                            <textarea name="description" class="form-control" rows="4">{{ event_forms.description.value|default_if_none:'' }}</textarea>
+                                            <textarea name="description" id="id_description" class="form-control ckeditor" rows="4">{{ event_forms.description.value|default_if_none:'' }}</textarea>
                                             {% if errors.event.description %}<div class="text-danger">{{ errors.event.description }}</div>{% endif %}
+                                            <div class="form-text mt-2">Utilisez l'éditeur pour formater votre texte, ajouter des images et des liens.</div>
                                         </div>
+
+                                        <!-- CKEditor 6 Integration -->
+                                        {% load static %}
+                                        <script src="{% static 'ckeditor6/ckeditor.js' %}"></script>
+                                        <style>
+                                            /* Styles pour CKEditor 6 */
+                                            .ck-editor__editable_inline {
+                                                min-height: 300px;
+                                                max-height: 500px;
+                                            }
+                                            /* Fix pour les barres d'outils */
+                                            .ck.ck-editor {
+                                                width: 100% !important;
+                                            }
+                                            .ck.ck-content {
+                                                font-size: 1rem;
+                                            }
+                                        </style>
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', function() {
+                                                // Classe simplifiée pour l'upload d'images en local
+                                                class DjangoUploadAdapter {
+                                                    constructor(loader) {
+                                                        this.loader = loader;
+                                                    }
+
+                                                    // Méthode d'upload - utilise des URL locales pour le débogage
+                                                    upload() {
+                                                        return new Promise((resolve, reject) => {
+                                                            this.loader.file.then(file => {
+                                                                // Créer une URL temporaire pour l'image
+                                                                const localUrl = URL.createObjectURL(file);
+
+                                                                // Renvoyer l'URL temporaire à CKEditor
+                                                                resolve({
+                                                                    default: localUrl
+                                                                });
+                                                            })
+                                                            .catch(error => {
+                                                                console.error('Erreur lors du chargement de l\'image:', error);
+                                                                reject(error);
+                                                            });
+                                                        });
+                                                    }
+
+                                                    // Méthode d'annulation
+                                                    abort() {
+                                                        console.log('Upload annulé');
+                                                    }
+                                                }
+
+                                                function DjangoUploadAdapterPlugin(editor) {
+                                                    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                                                        return new DjangoUploadAdapter(loader);
+                                                    };
+                                                }
+
+                                                // Initialisation de CKEditor 6 avec support d'upload
+                                                if (typeof ClassicEditor !== 'undefined') {
+                                                    ClassicEditor
+                                                        .create(document.querySelector('#id_description'), {
+                                                            toolbar: {
+                                                                items: [
+                                                                    'heading', '|',
+                                                                    'bold', 'italic', '|',
+                                                                    'bulletedList', 'numberedList', '|',
+                                                                    'outdent', 'indent', '|',
+                                                                    'link', 'imageUpload', 'blockQuote', 'insertTable', '|',
+                                                                    'undo', 'redo'
+                                                                ]
+                                                            },
+                                                            language: 'fr',
+                                                            image: {
+                                                                toolbar: [
+                                                                    'imageTextAlternative'
+                                                                ]
+                                                            },
+                                                            extraPlugins: [ DjangoUploadAdapterPlugin ],
+                                                        })
+                                                        .then(editor => {
+                                                            window.editor = editor;
+                                                        })
+                                                        .catch(error => {
+                                                            console.error('CKEditor 6 initialization failed:', error);
+                                                            document.querySelector('#id_description').style.display = 'block';
+                                                        });
+                                                } else {
+                                                    console.error("CKEditor 6 n'est pas chargé correctement");
+                                                    document.querySelector('#id_description').style.display = 'block';
+                                                }
+                                            });
+                                        </script>
                                         <div class="col-md-6">
                                             <label class="form-label">Date de début</label>
                                             <input type="datetime-local"
