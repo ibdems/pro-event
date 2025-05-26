@@ -227,7 +227,6 @@ class PayementForm(forms.ModelForm):
             "telephone_payement",
             "telephone_reception",
             "payment_method",
-            "statut_payement",
         )
 
     def clean(self):

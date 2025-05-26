@@ -1,0 +1,19 @@
+{% extends "event/base.html" %}
+{% block title %}Résultat du paiement{% endblock %}
+{% block content %}
+<div class="container py-5">
+    {% if status == "success" %}
+        <div class="alert alert-success text-center">
+            <h2>Paiement réussi !</h2>
+            <p>Merci pour votre achat. Vos tickets seront envoyés sous peu.</p>
+            <a href="/" class="btn btn-primary mt-3">Retour à l'accueil</a>
+        </div>
+    {% else %}
+        <div class="alert alert-danger text-center">
+            <h2>Échec du paiement</h2>
+            <p>Votre paiement n'a pas pu être validé. {{ error }}</p>
+            <a href="/" class="btn btn-secondary mt-3">Réessayer</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

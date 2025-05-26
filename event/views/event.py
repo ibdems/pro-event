@@ -14,6 +14,7 @@ from event.tasks import (
     send_ticket_by_email,
     send_ticket_by_whatsapp,
 )
+from event.utils import create_paycard_payment
 
 
 class EventView(FilterView, ListView):
@@ -63,10 +64,12 @@ class DetailEventView(DetailView):
         )
 
     def post(self, request, *args, **kwargs):
+        print("[DEBUG] POST DetailEventView appelée")
         form = PayementForm(request.POST)
         self.object = self.get_object()
 
         if form.is_valid():
+            print("[DEBUG] Formulaire valide")
             try:
                 with transaction.atomic():
                     data = form.cleaned_data
@@ -90,7 +93,7 @@ class DetailEventView(DetailView):
                             )
                             return redirect("event:event_detail", uid=event.uid)
 
-                    # Création du paiement
+                    # Création du paiement (mais pas de tickets)
                     payement = form.save(commit=False)
                     payement.event = event
                     info_ticket = event.infoticket_event
@@ -100,39 +103,31 @@ class DetailEventView(DetailView):
                         + (quantities["vvip"] * info_ticket.prix_vvip)
                     )
                     payement.quantity = sum(quantities.values())
-                    payement.save()
 
-                    # Création des tickets
-                    tasks = []
-                    for type_ticket, quantite in quantities.items():
-                        if quantite > 0:
-                            for _ in range(quantite):
-                                ticket = Ticket.objects.create(
-                                    payement=payement, event=event, type_ticket=type_ticket
-                                )
-                                tasks.append(
-                                    generate_and_save_ticket_pdf.s(event.id, ticket.id, payement.id)
-                                )
+                    # Toujours initier le paiement externe (Orange, Paycard, Visa)
+                    montant = payement.amount
+                    description = f"Paiement pour l'événement {event.title}"
+                    print("[DEBUG] Données envoyées à Paycard:", montant, description)
+                    result, reference = create_paycard_payment(request, montant, description)
+                    print("[DEBUG] Réponse Paycard:", result)
+                    if result.get("code") == 0:
+                        payement.operation_reference = reference
+                        payement.statut_payement = "en_attente"
+                        payement.save()
+                        return redirect(result["payment_url"])
+                    else:
+                        error_msg = result.get("error_message", "Erreur lors de la création du paiement.")
+                        print("[DEBUG] Erreur Paycard:", error_msg)
+                        messages.error(request, error_msg)
+                        return self.render_to_response(self.get_context_data(form=form))
 
-                    def send_email_after_commit():
-                        if contact_method == "email":
-                            callback = send_ticket_by_email.si(payement.id)
-                        else:
-                            callback = send_ticket_by_whatsapp.si(payement.id)
-                        chord(group(tasks))(callback)
-
-                    transaction.on_commit(send_email_after_commit)
-
-                    messages.success(
-                        request,
-                        "Votre paiement a été effectué avec succès. "
-                        "Vous recevrez vos billets par email/WhatsApp dans quelques instants.",
-                    )
-                    return redirect("event:event_detail", uid=event.uid)
-
-            except Exception:
+            except Exception as e:
+                print("[DEBUG] Exception lors de l'initialisation du paiement:", str(e))
                 messages.error(request, "Une erreur est survenue")
                 return self.render_to_response(self.get_context_data(form=form))
+
+        else:
+            print("[DEBUG] Formulaire invalide", form.errors)
 
         messages.error(request, "Une erreur s'est produite lors du paiement.")
         return self.render_to_response(self.get_context_data(form=form))

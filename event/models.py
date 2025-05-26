@@ -240,6 +240,7 @@ class Payement(models.Model):
         ("visa", "VISA"),
     ]
     reference_payement = models.CharField(max_length=100, unique=True)
+    operation_reference = models.CharField(max_length=100, unique=True, null=True, blank=True)
     nom_complet = models.CharField(max_length=150)
     email_reception = models.EmailField(null=True, blank=True)
     telephone_payement = models.CharField(max_length=20)
@@ -247,7 +248,7 @@ class Payement(models.Model):
     payment_method = models.CharField(
         max_length=25, choices=mode_choices, default="orange_money", null=True, blank=True
     )
-    statut_payement = models.BooleanField(default=False)
+    statut_payement = models.CharField(max_length=30, default="en_attente")
     quantity = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(default=timezone.now)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="payement_event")

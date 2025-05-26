@@ -190,12 +190,18 @@ LOGGING = {
             "filename": BASE_DIR / "debug.log",
             "formatter": "verbose",
         },
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
     },
     "loggers": {
         "django": {
-            "handlers": ["file"],
+            "handlers": ["file", "console"],
             "level": "INFO",
             "propagate": True,
         },
     },
 }
+PAYCARD_ECOMMERCE_CODE = 'ODc5NjI4MzA'

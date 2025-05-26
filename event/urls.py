@@ -10,6 +10,7 @@ from event.views.public import (
     PolitiqueConfidentialiteView,
 )
 from event.views.scan import CheckTicketView, ScanCodeView
+from event.views.payments import paycard_callback
 
 app_name = "event"
 urlpatterns = [
@@ -42,4 +43,5 @@ urlpatterns = [
         PolitiqueConfidentialiteView.as_view(),
         name="politique_confidentialite",
     ),
+    path('paycard/return/<str:reference>/', paycard_callback, name='paycard_callback'),
 ]
