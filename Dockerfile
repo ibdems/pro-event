@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY . .
 
 RUN chown -R app:app /app
+RUN mkdir -p /var/cache/fontconfig && chown -R app:app /var/cache/fontconfig
 USER app
 
 EXPOSE 8080

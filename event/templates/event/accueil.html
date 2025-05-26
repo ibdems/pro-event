@@ -249,15 +249,15 @@
       </p>
       <div class="d-flex flex-column flex-md-row gap-3">
         <a href="{% url 'event:event' %}" class="btn btn-primary">
-          <i class="fas fa-search p-0 me-1"></i>Explorer les événements
+          <i class="fas fa-search p-2 me-1"></i>Explorer les événements
         </a>
         <a href="{% url 'demande' %}" class="btn btn-outline-primary">
-          <i class="fas fa-paper-plane me-1"></i>Demander un service
+          <i class="fas fa-paper-plane p-2 me-1"></i>Demander un service
         </a>
       </div>
     </div>
     <div class="hero-image d-block">
-      <img src="{% static 'img/bg.png' %}" alt="Femme ProEvent" />
+      <img src="{% static 'img/bg.png' %}" alt="Femme ProEvent" width="450" height="auto" fetchpriority="high" />
     </div>
   </div>
 </section>
@@ -490,6 +490,9 @@
               alt="{{ partner.name }}"
               class="img-fluid"
               style="max-height: 80px; max-width: 140px; object-fit: contain"
+              loading="lazy"
+              width="140"
+              height="80"
             />
             {% else %}
             <div class="text-center">
@@ -527,8 +530,10 @@
 
 {% block extra_js %}
 <script>
-  // Animation des compteurs
+  // Animation des compteurs - chargement différé pour améliorer les performances
   document.addEventListener("DOMContentLoaded", function () {
+    // Différer l'exécution des animations et scripts non critiques
+    setTimeout(function() {
     // Fonction pour animer les compteurs
     function animateCounter(element) {
       const target = parseInt(element.getAttribute("data-count"));
@@ -605,9 +610,12 @@
       }
     }
 
-    // Vérifier au chargement et au scroll
-    window.addEventListener("scroll", checkCounters);
+    // Vérifier les compteurs au chargement de la page
     checkCounters();
+
+    // Et vérifier à nouveau lors du défilement
+    window.addEventListener("scroll", checkCounters, { passive: true });
+    }, 300); // Délai de 300ms pour laisser le contenu critique se charger d'abord
   });
 </script>
 {% endblock extra_js %} {% endblock content %}

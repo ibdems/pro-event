@@ -113,11 +113,133 @@
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label for="{{ event_form.description.id_for_label }}" class="form-label">Description *</label>
-                                {{ event_form.description }}
+                                <label for="id_description" class="form-label">Description détaillée *</label>
+                                <textarea name="description" id="id_description" class="form-control ckeditor" rows="10">{{ event_form.description.value|default_if_none:'' }}</textarea>
                                 {% if event_form.description.errors %}
                                     <div class="invalid-feedback d-block">{{ event_form.description.errors }}</div>
                                 {% endif %}
+                                <div class="form-text mt-2">Utilisez l'éditeur pour formater votre texte, ajouter des images et des liens.</div>
+
+                                <!-- CKEditor 6 Integration -->
+                                {% load static %}
+                                <script src="{% static 'ckeditor6/ckeditor.js' %}"></script>
+                                <style>
+                                    /* Styles pour CKEditor 6 */
+                                    .ck-editor__editable_inline {
+                                        min-height: 300px;
+                                        max-height: 500px;
+                                    }
+                                    /* Fix pour les barres d'outils */
+                                    .ck.ck-editor {
+                                        width: 100% !important;
+                                    }
+                                    .ck.ck-content {
+                                        font-size: 1rem;
+                                    }
+                                </style>
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        // Classe simplifiée pour l'upload d'images en local
+                                        class DjangoUploadAdapter {
+                                            constructor(loader) {
+                                                this.loader = loader;
+                                                console.log('DjangoUploadAdapter initialisé');
+                                            }
+
+                                            // Méthode d'upload - utilise des URL locales pour le débogage
+                                            upload() {
+                                                return new Promise((resolve, reject) => {
+                                                    console.log('Début de l\'upload');
+                                                    this.loader.file.then(file => {
+                                                        console.log('Fichier à uploader:', file.name, file.type, file.size);
+
+                                                        // Créer une URL temporaire pour l'image (uniquement dans le navigateur)
+                                                        const localUrl = URL.createObjectURL(file);
+                                                        console.log('URL locale créée:', localUrl);
+
+                                                        // Renvoyer l'URL temporaire à CKEditor
+                                                        resolve({
+                                                            default: localUrl
+                                                        });
+                                                    })
+                                                    .catch(error => {
+                                                        console.error('Erreur lors du chargement de l\'image:', error);
+                                                        reject(error);
+                                                    });
+                                                });
+                                            }
+
+                                            // Méthode d'annulation
+                                            abort() {
+                                                console.log('Upload annulé');
+                                            }
+                                        }
+
+                                        function DjangoUploadAdapterPlugin(editor) {
+                                            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                                                return new DjangoUploadAdapter(loader);
+                                            };
+                                        }
+
+                                        // Initialisation de CKEditor 6 avec support d'upload
+                                        if (typeof ClassicEditor !== 'undefined') {
+                                            // Version simplifiée qui n'utilise que les plugins disponibles
+                                            ClassicEditor
+                                                .create(document.querySelector('#id_description'), {
+                                                    toolbar: {
+                                                        items: [
+                                                            'heading', '|',
+                                                            'bold', 'italic', '|',
+                                                            'bulletedList', 'numberedList', '|',
+                                                            'outdent', 'indent', '|',
+                                                            'link', 'imageUpload', 'mediaEmbed', 'blockQuote', 'insertTable', '|',
+                                                            'undo', 'redo'
+                                                        ]
+                                                    },
+                                                    language: 'fr',
+                                                    image: {
+                                                        toolbar: [
+                                                            'imageTextAlternative',
+                                                            'imageStyle:inline',
+                                                            'imageStyle:block',
+                                                            'imageStyle:side'
+                                                        ],
+                                                        upload: {
+                                                            types: ['jpeg', 'png', 'gif', 'jpg', 'webp']
+                                                        },
+                                                        styles: {
+                                                            options: [
+                                                                'inline',
+                                                                'block',
+                                                                'side'
+                                                            ]
+                                                        }
+                                                    },
+                                                    heading: {
+                                                        options: [
+                                                            { model: 'paragraph', title: 'Paragraphe', class: 'ck-heading_paragraph' },
+                                                            { model: 'heading1', view: 'h1', title: 'Titre 1', class: 'ck-heading_heading1' },
+                                                            { model: 'heading2', view: 'h2', title: 'Titre 2', class: 'ck-heading_heading2' },
+                                                            { model: 'heading3', view: 'h3', title: 'Titre 3', class: 'ck-heading_heading3' }
+                                                        ]
+                                                    },
+                                                    extraPlugins: [ DjangoUploadAdapterPlugin ],
+                                                })
+                                                .then(editor => {
+                                                    console.log('CKEditor 6 initialized successfully with image upload support');
+                                                    window.editor = editor;
+                                                })
+                                                .catch(error => {
+                                                    console.error('CKEditor 6 initialization failed:', error);
+                                                    // Fallback vers un textarea basique
+                                                    document.querySelector('#id_description').style.display = 'block';
+                                                });
+                                        } else {
+                                            console.error("CKEditor 6 n'est pas chargé correctement");
+                                            document.querySelector('#id_description').style.display = 'block';
+                                        }
+                                    });
+                                </script>
                             </div>
                         </div>
                     </div>

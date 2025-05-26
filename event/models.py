@@ -2,6 +2,7 @@ import uuid
 from io import BytesIO
 
 import qrcode
+from ckeditor_uploader.fields import RichTextUploadingField
 from django.core.files import File
 from django.db import models
 from django.db.models import Count
@@ -58,7 +59,7 @@ class Event(models.Model):
     )
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     title = models.CharField(max_length=150)
-    description = models.TextField()
+    description = RichTextUploadingField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     location = models.CharField(max_length=150)

@@ -1,0 +1,244 @@
+/* Variables CSS personnalisées */
+:root {
+  --primary-blue: #010089;
+  --text-black: #000000;
+  --bg-white: #FFFFFF;
+  --transition-speed: 0.4s;
+  --border-width: 1px;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  /* Nouvelles variables pour la cohérence des tailles */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
+
+  /* Espacement */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+}
+
+/* Reset et styles généraux */
+body {
+  font-family: 'Arimo', sans-serif;
+  font-size: var(--text-sm);
+  color: var(--text-black);
+  background-color: var(--bg-white);
+  line-height: 1.6;
+}
+
+/* Typography */
+h1 {
+  font-size: var(--text-4xl);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+}
+
+h3 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+}
+
+h4 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+
+h5 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+h6 {
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--primary-blue);
+  margin-bottom: var(--space-md);
+  line-height: 1.2;
+}
+
+
+/* Buttons */
+.btn {
+  border-radius: 0;
+  padding: var(--space-sm) var(--space-lg);
+  font-weight: 500;
+  transition: all var(--transition-speed);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.btn-primary:hover {
+  background-color: var(--bg-white);
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-blue);
+  color: var(--bg-white);
+  transform: translateY(-2px);
+}
+
+/* Forms */
+.form-control {
+  border-radius: 0;
+  border: var(--border-width) solid var(--text-black);
+  padding: var(--space-sm);
+  font-size: var(--text-sm);
+}
+
+.form-control:focus {
+  border-color: var(--primary-blue);
+  box-shadow: none;
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--text-black);
+  margin-bottom: var(--space-xs);
+  font-size: var(--text-sm);
+}
+
+/* Utilities */
+.text-primary {
+  color: var(--primary-blue) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-blue) !important;
+}
+
+/* Cards */
+.card {
+  border-radius: 0;
+  border: var(--border-width) solid var(--text-black);
+  transition: all var(--transition-speed);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  background-color: var(--bg-white);
+  border-bottom: var(--border-width) solid var(--text-black);
+  padding: var(--space-md) var(--space-md);
+}
+
+/* Tables */
+.table {
+  border: var(--border-width) solid var(--text-black);
+  font-size: var(--text-sm);
+}
+
+.table th {
+  background-color: var(--primary-blue);
+  color: var(--bg-white);
+  font-weight: 500;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.table td {
+  padding: var(--space-sm) var(--space-md);
+}
+
+/* Alerts */
+.alert {
+  border-radius: 0;
+  border: none;
+  padding: var(--space-md);
+  font-size: var(--text-sm);
+}
+
+/* Badges */
+.badge {
+  border-radius: 0;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--text-xs);
+}
+
+
+/* Hero Section */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.text-primary:hover {
+  transform: scale(0.95);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Ajout des styles pour les animations */
+.animated {
+  animation-fill-mode: both;
+  animation-duration: 0.8s;
+}
+
+.fadeInUp {
+  animation-name: fadeInUp;
+}
+
+.scaleIn {
+  animation-name: scaleIn;
+}
+
+
+
+
+

@@ -1,13 +1,120 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
-{% block title %}
-    Ajouter
-    un Événement
-{% endblock title %}
-{% block page_title %}
-    Ajouter un Événement
-    {% endblock page_title %}
-    {% block content %}
+{% block title %}Ajouter un Événement{% endblock title %}
+{% block page_title %}Ajouter un Événement{% endblock page_title %}
+
+<!-- Débug uniquement - à retirer après finalisation -->
+<div class="debug-controls d-flex flex-column gap-2 mb-3" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
+    <button type="button" class="btn btn-sm btn-outline-primary" onclick="showDebugStep(0)">Tester Étape 1</button>
+    <button type="button" class="btn btn-sm btn-outline-primary" onclick="showDebugStep(1)">Tester Étape 2</button>
+    <button type="button" class="btn btn-lg btn-danger" onclick="showBilletterie()">AFFICHER LA BILLETTERIE</button>
+</div>
+<script>
+    function showDebugStep(index) {
+        const steps = document.querySelectorAll('.form-step');
+        steps.forEach((step, i) => {
+            if (i === index) {
+                step.style.display = 'block';
+                step.classList.add('fadeIn');
+            } else {
+                step.style.display = 'none';
+                step.classList.remove('fadeIn');
+            }
+        });
+
+        // Aussi mettre à jour les indicateurs
+        const indicators = document.querySelectorAll('.step-indicator');
+        indicators.forEach((indicator, i) => {
+            if (i === index) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        });
+    }
+
+    function showBilletterie() {
+        console.log('Affichage FORCE de l\'\u00e9tape Billetterie');
+        const billetterie = document.getElementById('form-step-3');
+        if (billetterie) {
+            // Masquer toutes les étapes
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.style.display = 'none';
+            });
+
+            // Afficher uniquement la billetterie
+            billetterie.style.display = 'block';
+
+            // Messages de débogage
+            console.log('ÉTAT DE LA BILLETTERIE:', billetterie.id, billetterie.style.display);
+            console.log('CONTENU HTML:', billetterie.innerHTML.substring(0, 200) + '...');
+        } else {
+            console.error('Élément billetterie introuvable!');
+        }
+    }
+</script>
+
+{% block extra_css %}
+<style>
+    /* Styles pour le formulaire à étapes */
+    .step-indicators {
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+    }
+
+    .step-indicator {
+        color: #6c757d;
+        padding: 5px 10px;
+        border-radius: 20px;
+        transition: all 0.3s;
+    }
+
+    .step-indicator.active {
+        background-color: rgba(1, 0, 137, 0.1);
+        color: var(--primary-blue);
+        font-weight: 500;
+    }
+
+    /* Ajustements pour CKEditor */
+    .cke_chrome {
+        border-radius: 0.25rem !important;
+        border-color: #ced4da !important;
+    }
+
+    .cke_top {
+        border-bottom-color: #ced4da !important;
+        background: #f8f9fa !important;
+    }
+
+    /* Animation pour les transitions d'étape */
+    .form-step {
+        transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .form-step.fadeOut {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    .form-step.fadeIn {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    @media (max-width: 768px) {
+        .step-indicators {
+            display: none;
+        }
+
+        .card-header {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
         <div class="event-form-container">
             <!-- Fil d'Ariane -->
             <nav aria-label="breadcrumb" class="mb-4">
@@ -23,19 +130,58 @@
                 </ol>
             </nav>
             <!-- Formulaire d'ajout d'événement -->
-            <div class="card dashboard-card">
-                <div class="card-header">
-                    <h5 class="card-title">Informations de l'événement</h5>
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-plus-circle me-2 text-primary"></i>Nouvel événement
+                    </h5>
+                    <div class="alert alert-info mb-4">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Formulaire de création d'événement</h5>
+                        <p class="mb-0 small">Remplissez tous les champs nécessaires ci-dessous</p>
+                    </div>
                 </div>
                 <div class="card-body">
                     <form method="post"
                           enctype="multipart/form-data"
-                          class="needs-validation"
+                          class="needs-validation form-wizard"
+                          id="eventForm"
                           novalidate>
                         {% csrf_token %}
-                        <!-- Section informations de l'événement -->
-                        <div class="form-section mb-4">
-                            <h6 class="form-section-title">Informations de l'événement</h6>
+
+                        <!-- Messages Django -->
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Affichage des erreurs générales du formulaire -->
+                        {% if event_form.non_field_errors or ticket_form.non_field_errors %}
+                        <div class="alert alert-danger mb-4">
+                            <h6 class="alert-heading mb-1"><i class="fas fa-exclamation-triangle me-2"></i>Erreurs de validation</h6>
+                            {% if event_form.non_field_errors %}
+                                <ul class="mb-1">
+                                    {% for error in event_form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if ticket_form.non_field_errors %}
+                                <ul class="mb-0">
+                                    {% for error in ticket_form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Informations de base -->
+                        <div class="section-container mb-5" id="informations-section">
+                            <h6 class="form-section-title mb-4">Informations de base de l'événement</h6>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="{{ event_form.title.id_for_label }}" class="form-label">Titre *</label>
@@ -58,7 +204,7 @@
                                            class="form-control"
                                            id="start_date"
                                            value="{{ form.start_date.value|default_if_none:'' }}" />
-                                    {% if event_form.start_date.errors %}
+                                    {% if event_form.start_date.errors %}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           co
                                         <div class="invalid-feedback d-block">{{ event_form.start_date.errors }}</div>
                                     {% endif %}
                                 </div>
@@ -116,73 +262,225 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        <hr class="my-4">
+
+                        <!-- Section Description -->
+                        <div class="section-container mb-5" id="description-section">
+                            <h6 class="form-section-title mb-4">Description de l'événement</h6>
+                            <div class="row">
                                 <div class="col-12">
-                                    <label for="{{ event_form.description.id_for_label }}" class="form-label">Description *</label>
-                                    {{ event_form.description }}
+                                    <label for="id_description" class="form-label">Description détaillée *</label>
+                                    <textarea name="description" id="id_description" class="form-control ckeditor" rows="10">{{ event_form.description.value|default_if_none:'' }}</textarea>
                                     {% if event_form.description.errors %}
                                         <div class="invalid-feedback d-block">{{ event_form.description.errors }}</div>
                                     {% endif %}
+                                    <div class="form-text mt-2">Utilisez l'éditeur pour formater votre texte, ajouter des images et des liens.</div>
                                 </div>
                             </div>
+                            <!-- CKEditor 6 Integration with Image Upload -->
+                            {% load static %}
+                            <script src="{% static 'ckeditor6/ckeditor.js' %}"></script>
+                            <style>
+                                /* Styles pour CKEditor 6 */
+                                .ck-editor__editable_inline {
+                                    min-height: 300px;
+                                    max-height: 500px;
+                                }
+                                /* Fix pour les barres d'outils */
+                                .ck.ck-editor {
+                                    width: 100% !important;
+                                }
+                                .ck.ck-content {
+                                    font-size: 1rem;
+                                }
+                                /* Styles pour l'upload d'images */
+                                .ck-image-upload-complete-icon {
+                                    display: block;
+                                }
+                                .ck-upload-progress-bar {
+                                    height: 4px;
+                                }
+                            </style>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    // Classe simplifiée pour l'upload d'images en local
+                                    class DjangoUploadAdapter {
+                                        constructor(loader) {
+                                            this.loader = loader;
+                                            console.log('DjangoUploadAdapter initialisé');
+                                        }
+
+                                        // Méthode d'upload - utilise des URL locales pour le débogage
+                                        upload() {
+                                            return new Promise((resolve, reject) => {
+                                                console.log('Début de l\'upload');
+                                                this.loader.file.then(file => {
+                                                    console.log('Fichier à uploader:', file.name, file.type, file.size);
+
+                                                    // Créer une URL temporaire pour l'image (uniquement dans le navigateur)
+                                                    const localUrl = URL.createObjectURL(file);
+                                                    console.log('URL locale créée:', localUrl);
+
+                                                    // Renvoyer l'URL temporaire à CKEditor
+                                                    resolve({
+                                                        default: localUrl
+                                                    });
+                                                })
+                                                .catch(error => {
+                                                    console.error('Erreur lors du chargement de l\'image:', error);
+                                                    reject(error);
+                                                });
+                                            });
+                                        }
+
+                                        // Méthode d'annulation
+                                        abort() {
+                                            console.log('Upload annulé');
+                                        }
+                                    }
+
+                                    function DjangoUploadAdapterPlugin(editor) {
+                                        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                                            return new DjangoUploadAdapter(loader);
+                                        };
+                                    }
+
+                                    // Initialisation de CKEditor 6 avec support d'upload
+                                    if (typeof ClassicEditor !== 'undefined') {
+                                        // Version simplifiée qui n'utilise que les plugins disponibles
+                                        ClassicEditor
+                                            .create(document.querySelector('#id_description'), {
+                                                toolbar: {
+                                                    items: [
+                                                        'heading', '|',
+                                                        'bold', 'italic', '|',
+                                                        'bulletedList', 'numberedList', '|',
+                                                        'outdent', 'indent', '|',
+                                                        'link', 'imageUpload', 'mediaEmbed', 'blockQuote', 'insertTable', '|',
+                                                        'undo', 'redo'
+                                                    ]
+                                                },
+                                                language: 'fr',
+                                                image: {
+                                                    toolbar: [
+                                                        'imageTextAlternative',
+                                                        'imageStyle:inline',
+                                                        'imageStyle:block',
+                                                        'imageStyle:side'
+                                                    ],
+                                                    upload: {
+                                                        types: ['jpeg', 'png', 'gif', 'jpg', 'webp']
+                                                    },
+                                                    styles: {
+                                                        options: [
+                                                            'inline',
+                                                            'block',
+                                                            'side'
+                                                        ]
+                                                    }
+                                                },
+                                                heading: {
+                                                    options: [
+                                                        { model: 'paragraph', title: 'Paragraphe', class: 'ck-heading_paragraph' },
+                                                        { model: 'heading1', view: 'h1', title: 'Titre 1', class: 'ck-heading_heading1' },
+                                                        { model: 'heading2', view: 'h2', title: 'Titre 2', class: 'ck-heading_heading2' },
+                                                        { model: 'heading3', view: 'h3', title: 'Titre 3', class: 'ck-heading_heading3' }
+                                                    ]
+                                                },
+                                                extraPlugins: [ DjangoUploadAdapterPlugin ],
+                                            })
+                                            .then(editor => {
+                                                console.log('CKEditor 6 initialized successfully with image upload support');
+                                                window.editor = editor;
+
+                                                // Ajouter validation lors de la soumission du formulaire
+                                                document.getElementById('eventForm').addEventListener('submit', function(e) {
+                                                    const editorData = editor.getData();
+                                                    if (!editorData || editorData.trim() === '') {
+                                                        alert('Veuillez saisir une description pour votre événement.');
+                                                        e.preventDefault();
+                                                        return false;
+                                                    }
+                                                });
+                                            })
+                                            .catch(error => {
+                                                console.error('CKEditor 6 initialization failed:', error);
+                                                // Fallback vers un textarea basique
+                                                document.querySelector('#id_description').style.display = 'block';
+                                            });
+                                    } else {
+                                        console.error("CKEditor 6 n'est pas chargé correctement");
+                                        document.querySelector('#id_description').style.display = 'block';
+                                    }
+                                });
+                            </script>
                         </div>
-                        <!-- Section billetterie -->
-                        <div class="form-section mb-4">
-                            <h6 class="form-section-title">Configuration de la billetterie</h6>
+
+                        <hr class="my-4">
+
+                        <!-- Section Billetterie -->
+                        <div class="section-container mb-5" id="billetterie-section">
+                            <h6 class="form-section-title mb-4">Configuration de la billetterie</h6>
                             <div class="row g-3">
                                 <div class="col-md-12 mb-3">
-                                    <label for="{{ ticket_form.type_access.id_for_label }}" class="form-label">Type d'accès *</label>
-                                    {{ ticket_form.type_access }}
+                                    <label for="id_type_access" class="form-label">Type d'accès *</label>
+                                    <select name="type_access" id="id_type_access" class="form-select" required>
+                                        <option value="" selected disabled>-- Sélectionnez un type d'accès --</option>
+                                        <option value="gratuit">Gratuit</option>
+                                        <option value="payant">Payant</option>
+                                    </select>
                                     {% if ticket_form.type_access.errors %}
                                         <div class="invalid-feedback d-block">{{ ticket_form.type_access.errors }}</div>
                                     {% endif %}
                                     <div class="form-text">Spécifiez si l'accès à votre événement est gratuit ou payant</div>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="{{ ticket_form.normal_capacity.id_for_label }}"
-                                           class="form-label">Capacité (Standard) *</label>
-                                    {{ ticket_form.normal_capacity }}
+                                    <label for="id_normal_capacity" class="form-label">Capacité (Standard) *</label>
+                                    <input type="number" name="normal_capacity" id="id_normal_capacity" class="form-control" min="1" value="100" required>
                                     {% if ticket_form.normal_capacity.errors %}
                                         <div class="invalid-feedback d-block">{{ ticket_form.normal_capacity.errors }}</div>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="{{ ticket_form.vip_capacity.id_for_label }}" class="form-label">Capacité (VIP)</label>
-                                    {{ ticket_form.vip_capacity }}
+                                    <label for="id_vip_capacity" class="form-label">Capacité (VIP)</label>
+                                    <input type="number" name="vip_capacity" id="id_vip_capacity" class="form-control" min="0" value="0">
                                     {% if ticket_form.vip_capacity.errors %}
                                         <div class="invalid-feedback d-block">{{ ticket_form.vip_capacity.errors }}</div>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="{{ ticket_form.vvip_capacity.id_for_label }}" class="form-label">Capacité (VVIP)</label>
-                                    {{ ticket_form.vvip_capacity }}
+                                    <label for="id_vvip_capacity" class="form-label">Capacité (VVIP)</label>
+                                    <input type="number" name="vvip_capacity" id="id_vvip_capacity" class="form-control" min="0" value="0">
                                     {% if ticket_form.vvip_capacity.errors %}
                                         <div class="invalid-feedback d-block">{{ ticket_form.vvip_capacity.errors }}</div>
                                     {% endif %}
                                 </div>
-                                <div class="col-md-4">
-                                    <label for="{{ ticket_form.prix_normal.id_for_label }}" class="form-label">Prix (Standard)</label>
+                                <div class="col-md-4 price-field">
+                                    <label for="id_prix_normal" class="form-label">Prix (Standard)</label>
                                     <div class="input-group">
-                                        {{ ticket_form.prix_normal }}
+                                        <input type="number" name="prix_normal" id="id_prix_normal" class="form-control" min="0" value="0">
                                         <span class="input-group-text">FG</span>
                                     </div>
                                     {% if ticket_form.prix_normal.errors %}
                                         <div class="invalid-feedback d-block">{{ ticket_form.prix_normal.errors }}</div>
                                     {% endif %}
                                 </div>
-                                <div class="col-md-4">
-                                    <label for="{{ ticket_form.prix_vip.id_for_label }}" class="form-label">Prix (VIP)</label>
+                                <div class="col-md-4 price-field">
+                                    <label for="id_prix_vip" class="form-label">Prix (VIP)</label>
                                     <div class="input-group">
-                                        {{ ticket_form.prix_vip }}
+                                        <input type="number" name="prix_vip" id="id_prix_vip" class="form-control" min="0" value="0">
                                         <span class="input-group-text">FG</span>
                                     </div>
                                     {% if ticket_form.prix_vip.errors %}
                                         <div class="invalid-feedback d-block">{{ ticket_form.prix_vip.errors }}</div>
                                     {% endif %}
                                 </div>
-                                <div class="col-md-4">
-                                    <label for="{{ ticket_form.prix_vvip.id_for_label }}" class="form-label">Prix (VVIP)</label>
+                                <div class="col-md-4 price-field">
+                                    <label for="id_prix_vvip" class="form-label">Prix (VVIP)</label>
                                     <div class="input-group">
-                                        {{ ticket_form.prix_vvip }}
+                                        <input type="number" name="prix_vvip" id="id_prix_vvip" class="form-control" min="0" value="0">
                                         <span class="input-group-text">FG</span>
                                     </div>
                                     {% if ticket_form.prix_vvip.errors %}
@@ -190,73 +488,143 @@
                                     {% endif %}
                                 </div>
                             </div>
-                        </div>
-                        <!-- Boutons d'action -->
-                        <div class="form-actions mt-4 d-flex justify-content-between">
-                            <a href="{% url 'dashboard:event_list' %}"
-                               class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Annuler
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Créer l'événement
-                            </button>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    // Gérer l'affichage des champs de prix en fonction du type d'accès
+                                    const typeAccessSelect = document.getElementById('id_type_access');
+                                    const priceFields = document.querySelectorAll('.price-field');
+
+                                    function togglePriceFields() {
+                                        const isPayant = typeAccessSelect.value === 'payant';
+                                        console.log('Type d\'accès:', typeAccessSelect.value, 'Payant?', isPayant);
+
+                                        priceFields.forEach(field => {
+                                            field.style.display = isPayant ? 'block' : 'none';
+
+                                            // Réinitialiser les prix à 0 si gratuit
+                                            if (!isPayant) {
+                                                const inputField = field.querySelector('input[type="number"]');
+                                                if (inputField) {
+                                                    inputField.value = 0;
+                                                }
+                                            }
+                                        });
+
+                                        // Ajouter une classe pour indiquer visuellement le type d'accès
+                                        const ticketSection = document.getElementById('form-step-3');
+                                        if (ticketSection) {
+                                            ticketSection.classList.remove('access-free', 'access-paid');
+                                            ticketSection.classList.add(isPayant ? 'access-paid' : 'access-free');
+                                        }
+                                    }
+
+                                    // Initialisation
+                                    togglePriceFields();
+
+                                    // Écouter les changements
+                                    typeAccessSelect.addEventListener('change', togglePriceFields);
+                                });
+                            </script>
+                            <!-- Boutons d'action pour le formulaire -->
+                            <div class="form-actions mt-5 d-flex justify-content-between">
+                                <a href="{% url 'dashboard:event_list' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </a>
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-save me-2"></i>Créer l'événement
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-    {% endblock content %}
-    {% block extra_js %}
-        <script>
-  // Améliorer l'apparence des champs de formulaire
-  document.addEventListener("DOMContentLoaded", function () {
-    // Ajouter les classes Bootstrap aux champs du formulaire
-    const formControls = document.querySelectorAll("input, textarea, select");
-    formControls.forEach((element) => {
-      if (element.tagName === "SELECT") {
-        element.classList.add("form-select");
-      } else if (element.type === "checkbox") {
-        element.classList.add("form-check-input");
-      } else {
-        element.classList.add("form-control");
-      }
-    });
 
-    // Ajouter style aux partenaires
-    const partnerContainer = document.querySelector(
-      ".partner-checkbox-container"
-    );
-    if (partnerContainer) {
-      partnerContainer.classList.add("d-flex", "flex-column", "gap-2");
-      partnerContainer.querySelectorAll("label").forEach((label) => {
-        label.classList.add("form-check-label", "ms-2");
-      });
-    }
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Formulaire unique chargé');
 
-    // Select2 pour les sélecteurs multiples
-    if ($.fn.select2) {
-      $("#id_partner").select2({
-        placeholder: "Sélectionnez les partenaires",
-        allowClear: true,
-        theme: "bootstrap-5",
-      });
-    }
+        // Activer la validation des formulaires Bootstrap
+        const forms = document.querySelectorAll('.needs-validation');
 
-    // Validation de formulaire côté client
-    const forms = document.querySelectorAll(".needs-validation");
-    Array.from(forms).forEach((form) => {
-      form.addEventListener(
-        "submit",
-        (event) => {
-          if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                form.classList.add('was-validated');
+            }, false);
+        });
+
+        // Faire défiler jusqu'au premier champ en erreur lors de la soumission
+        document.getElementById('eventForm').addEventListener('submit', function() {
+            setTimeout(() => {
+                const firstError = document.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }, 100);
+        });
+
+        // Mettre le focus sur le premier champ au chargement de la page
+        setTimeout(() => {
+            const firstInput = document.querySelector('#informations-section input');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        }, 300);
+
+        // Ajouter les classes Bootstrap aux champs du formulaire
+        const formControls = document.querySelectorAll("input, textarea, select");
+        formControls.forEach((element) => {
+          if (element.tagName === "SELECT") {
+            element.classList.add("form-select");
+          } else if (element.type === "checkbox") {
+            element.classList.add("form-check-input");
+          } else {
+            element.classList.add("form-control");
           }
-          form.classList.add("was-validated");
-        },
-        false
-      );
+        });
+
+        // Ajouter style aux partenaires
+        const partnerContainer = document.querySelector(".partner-checkbox-container");
+        if (partnerContainer) {
+          partnerContainer.classList.add("d-flex", "flex-column", "gap-2");
+          partnerContainer.querySelectorAll("label").forEach((label) => {
+            label.classList.add("form-check-label", "ms-2");
+          });
+        }
+
+        // Select2 pour les sélecteurs multiples
+        if (typeof $ !== 'undefined' && $.fn.select2) {
+          $("#id_partner").select2({
+            placeholder: "Sélectionnez les partenaires",
+            allowClear: true,
+            theme: "bootstrap-5",
+          });
+        }
+
+        // Validation de formulaire côté client
+        const forms = document.querySelectorAll(".needs-validation");
+        Array.from(forms).forEach((form) => {
+          form.addEventListener(
+            "submit",
+            (event) => {
+              if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add("was-validated");
+            },
+            false
+          );
+        });
     });
-  });
-        </script>
-    {% endblock extra_js %}
+</script>
+{% endblock extra_js %}
+
+{% endblock content %}
