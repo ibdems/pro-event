@@ -243,7 +243,6 @@ class Payement(models.Model):
     operation_reference = models.CharField(max_length=100, unique=True, null=True, blank=True)
     nom_complet = models.CharField(max_length=150)
     email_reception = models.EmailField(null=True, blank=True)
-    telephone_payement = models.CharField(max_length=20)
     telephone_reception = models.CharField(max_length=20, null=True, blank=True)
     payment_method = models.CharField(
         max_length=25, choices=mode_choices, default="orange_money", null=True, blank=True

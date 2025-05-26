@@ -268,7 +268,7 @@ l'événement {% endblock title %} {% block content %}
             {% csrf_token %}
             <input type="hidden" name="event" value="{{ event.id }}" />
             <div class="mb-3">
-              <label class="form-label">Nom complet</label>
+              <label class="form-label">Nom complet *</label>
               <input
                 type="text"
                 class="form-control"
@@ -283,7 +283,7 @@ l'événement {% endblock title %} {% block content %}
             <!-- Mode de réception -->
             <div class="mb-3">
               <label class="form-label d-block"
-                >Mode de réception du ticket</label
+                >Mode de réception du ticket *</label
               >
               <div class="btn-group w-100" role="group">
                 <input
@@ -361,8 +361,8 @@ l'événement {% endblock title %} {% block content %}
             </div>
             <!-- Modes de paiement -->
             <div class="mb-3">
-              <label class="form-label">Mode de paiement</label>
-              <div class="row g-2">
+              <label class="form-label">Mode de paiement *</label>
+              <div class="row g-2" id="payment-methods-row">
                 <div class="col-6 col-sm-3">
                   <input
                     type="radio"
@@ -464,7 +464,7 @@ l'événement {% endblock title %} {% block content %}
               value="0"
             />
             <!-- Champs de paiement dynamiques -->
-            <div id="payment-fields" class="mb-3"></div>
+            <div id="payment-fields" class="mb-3" style="display:none;"></div>
             <!-- Récapitulatif -->
             <div class="bg-light p-3 rounded mb-3">
               <h6 class="mb-2">Récapitulatif de la commande</h6>
@@ -483,9 +483,9 @@ l'événement {% endblock title %} {% block content %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
       const tickets = {
-          normal: { price: {{ event.infoticket_event.prix_normal }}, quantity: 0 },
-          vip: { price: {{ event.infoticket_event.prix_vip }}, quantity: 0 },
-          vvip: { price: {{ event.infoticket_event.prix_vvip }}, quantity: 0 }
+          normal: { price: parseFloat("{{ event.infoticket_event.prix_normal|default:0 }}"), quantity: 0 },
+          vip: { price: parseFloat("{{ event.infoticket_event.prix_vip|default:0 }}"), quantity: 0 },
+          vvip: { price: parseFloat("{{ event.infoticket_event.prix_vvip|default:0 }}"), quantity: 0 }
       };
 
       const normalInput = document.getElementById('quantity-normal-input');
@@ -624,37 +624,27 @@ l'événement {% endblock title %} {% block content %}
           });
       });
 
-      // Gestion des modes de paiement
-      document.querySelectorAll('[name="payment_method"]').forEach(radio => {
+      // Mise en surbrillance du mode de paiement sélectionné
+      const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+      paymentRadios.forEach(radio => {
           radio.addEventListener('change', function() {
-              const paymentFields = document.getElementById('payment-fields');
-              let html = '';
-
-              if (this.value === 'visa') {
-                  html = `
-                      <div class="row g-3">
-                          <div class="col-12">
-                              <input type="text" class="form-control" placeholder="Numéro de carte"  pattern="[0-9]{16}">
-                          </div>
-                          <div class="col-6">
-                              <input type="text" class="form-control" placeholder="MM/YY"  pattern="(0[1-9]|1[0-2])\/([0-9]{2})">
-                          </div>
-                          <div class="col-6">
-                              <input type="text" class="form-control" placeholder="CVV"  pattern="[0-9]{3,4}">
-                          </div>
-                      </div>
-                  `;
-              } else {
-                  html = `
-                      <div class="mb-3">
-                          <input type="tel" name='telephone_payement' class="form-control" placeholder="Numéro ${this.value === 'orange_money' ? 'Orange Money' : this.value === 'mobile_money' ? 'MTN' : 'Paycard'}"  pattern="[0-9]{9}">
-                      </div>
-                  `;
+              document.querySelectorAll('.payment-method-card').forEach(label => {
+                  label.classList.remove('border-primary', 'border-3', 'shadow');
+              });
+              const selectedLabel = document.querySelector('label[for="' + this.id + '"]');
+              if (selectedLabel) {
+                  selectedLabel.classList.add('border-primary', 'border-3', 'shadow');
               }
-
-              paymentFields.innerHTML = html;
           });
       });
+      // Initialiser le style si un mode est déjà sélectionné
+      const checkedRadio = document.querySelector('input[name="payment_method"]:checked');
+      if (checkedRadio) {
+          const selectedLabel = document.querySelector('label[for="' + checkedRadio.id + '"]');
+          if (selectedLabel) {
+              selectedLabel.classList.add('border-primary', 'border-3', 'shadow');
+          }
+      }
 
       // Gestion responsive
       window.addEventListener('resize', function() {

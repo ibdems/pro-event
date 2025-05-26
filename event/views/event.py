@@ -104,11 +104,12 @@ class DetailEventView(DetailView):
                     )
                     payement.quantity = sum(quantities.values())
 
-                    # Toujours initier le paiement externe (Orange, Paycard, Visa)
+                    # Toujours initier le paiement externe (Orange, Paycard, Visa, MTN MoMo)
                     montant = payement.amount
                     description = f"Paiement pour l'événement {event.title}"
-                    print("[DEBUG] Données envoyées à Paycard:", montant, description)
-                    result, reference = create_paycard_payment(request, montant, description)
+                    payment_method = data.get("payment_method")
+                    print("[DEBUG] Données envoyées à Paycard:", montant, description, payment_method)
+                    result, reference = create_paycard_payment(request, montant, description, payment_method)
                     print("[DEBUG] Réponse Paycard:", result)
                     if result.get("code") == 0:
                         payement.operation_reference = reference

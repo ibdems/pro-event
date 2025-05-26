@@ -224,7 +224,6 @@ class PayementForm(forms.ModelForm):
         fields = (
             "nom_complet",
             "email_reception",
-            "telephone_payement",
             "telephone_reception",
             "payment_method",
         )
