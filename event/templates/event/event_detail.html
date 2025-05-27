@@ -55,52 +55,44 @@ l'événement {% endblock title %} {% block content %}
         </div>
         {% endif %}
         <h3 class="text-primary scroll-animated">{{ event.title }}</h3>
-        <div class="row text-center g-3">
-          <div class="col-lg-3 col-6 col-md-4 mb-3">
-            <i class="fas fa-calendar-alt text-primary fa-2x"></i>
-            <p class="mb-0 text-muted">
-              {{ event.start_date|date:"d M Y" }} - {{ event.end_date|date:"d M Y" }}
-            </p>
+        <div class="event-details-list row g-2 mb-3">
+          <!-- Ligne 1 -->
+          <div class="col-6 col-lg-4 d-flex align-items-center">
+            <i class="fas fa-calendar-alt text-primary me-2 fa-lg"></i>
+            <span>{{ event.start_date|date:"d M Y" }} - {{ event.end_date|date:"d M Y" }}</span>
           </div>
-          <div class="col-lg-3 col-6 col-md-4 mb-3">
-            <i class="fas fa-clock text-primary fa-2x"></i>
-            <p class="mb-0 text-muted">
-              {{ event.start_date|time:"H:i" }} - {{ event.end_date|time:"H:i" }}
-            </p>
+          <div class="col-6 col-lg-4 d-flex align-items-center">
+            <i class="fas fa-clock text-primary me-2 fa-lg"></i>
+            <span>{{ event.start_date|time:"H:i" }} - {{ event.end_date|time:"H:i" }}</span>
           </div>
-          <div class="col-lg-3 col-6 col-md-4 mb-3">
-            <i class="fas fa-map-marker-alt text-primary fa-2x"></i>
-            <p class="mb-0 text-muted">{{ event.location }}</p>
+          <div class="col-6 col-lg-4 d-flex align-items-center">
+            <i class="fas fa-map-marker-alt text-primary me-2 fa-lg"></i>
+            <span>{{ event.location }}</span>
           </div>
-          <div class="col-lg-3 col-6 col-md-4 mb-3">
-            <i class="fas fa-users text-primary fa-2x"></i>
-            <p class="mb-0 text-muted">
-              {{ event.infoticket_event.total_capacity }} personnes
-            </p>
+          <!-- Ligne 2 -->
+          <div class="col-6 col-lg-4 d-flex align-items-center">
+            <i class="fas fa-folder-open text-primary me-2 fa-lg"></i>
+            <span>Catégorie : {{ event.category.name }}</span>
           </div>
-          <div class="col-lg-3 col-6 col-md-4 mb-3">
-            <i class="fas fa-folder-open text-primary fa-2x"></i>
-            <p class="mb-0 text-muted">Catégorie : {{ event.category.name }}</p>
+          <div class="col-6 col-lg-4 d-flex align-items-center">
+            <i class="fas fa-unlock text-primary me-2 fa-lg"></i>
+            <span>Accès : {{ event.infoticket_event.type_access|title }}</span>
           </div>
-          <div class="col-lg-3 col-6 col-md-4 mb-3">
-            <i class="fas fa-unlock text-primary fa-2x"></i>
-            <p class="mb-0 text-muted">
-              Type d'accès : {{ event.infoticket_event.type_access|title }}
-            </p>
-          </div>
-          <div class="col-lg-3 col-6 col-md-4 mb-3">
-            <i class="fas fa-lock text-primary fa-2x"></i>
-            <p class="mb-0 text-muted">
-              Type d'événement : {% if event.type_event == 'private' %}
-              <span class="badge bg-info">Privé</span>
+          <div class="col-6 col-lg-4 d-flex align-items-center">
+            <i class="fas fa-lock text-primary me-2 fa-lg"></i>
+            <span>
+              Type : 
+              {% if event.type_event == 'private' %}
+                <span class="badge bg-info">Privé</span>
               {% else %}
-              <span class="badge bg-success">Public</span>
+                <span class="badge bg-success">Public</span>
               {% endif %}
-            </p>
+            </span>
           </div>
         </div>
         <div class="mt-4">
-          <p class="text-muted">{{ event.description }}</p>
+          <h4 class="text-primary scroll-animated">Description</h4>
+          <p class="text-muted">{{ event.description|safe }}</p>
         </div>
         <!-- Section Partenaires -->
         <div class="mt-4">
@@ -680,4 +672,12 @@ l'événement {% endblock title %} {% block content %}
       });
   });
 </script>
+<style>
+.event-details-list .fa-lg {
+  font-size: 1.2em;
+}
+.event-details-list .col {
+  padding: 0.5rem 0;
+}
+</style>
 {% endblock content %}

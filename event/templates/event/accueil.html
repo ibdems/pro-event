@@ -422,14 +422,13 @@
           </div>
           <div class="card-body">
             <!-- Date de l'événement -->
-            <div class="event-date mb-2">
+            <div class="event-date mb-2 ms-1">
               <i class="fas fa-calendar-days text-primary me-2"></i>
-              {{ event.start_date|date:"d F Y" }} - {{ event.end_date|date:"d F"
-              }}
+              {{ event.start_date|date:"d F Y" }} - {{ event.end_date|date:"d F" }}
             </div>
 
             <!-- Lieu de l'événement -->
-            <div class="event-location mb-2">
+            <div class="event-location mb-2 ms-1">
               <i class="fas fa-map-marker-alt text-primary me-2"></i>
               {{ event.location }}
             </div>
