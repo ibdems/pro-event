@@ -1,17 +1,18 @@
 import uuid
+
 import requests
 from django.conf import settings
 from django.urls import reverse
 
+
 def generer_reference():
     return str(uuid.uuid4())
+
 
 def create_paycard_payment(request, montant, description, payment_method):
     url = "https://mapaycard.com/epay/create/"
     reference = generer_reference()
-    callback_url = request.build_absolute_uri(
-        reverse('event:paycard_callback', args=[reference])
-    )
+    callback_url = request.build_absolute_uri(reverse("event:paycard_callback", args=[reference]))
     data = {
         "c": settings.PAYCARD_ECOMMERCE_CODE,
         "paycard-amount": montant,
@@ -34,7 +35,8 @@ def create_paycard_payment(request, montant, description, payment_method):
     result = response.json()
     return result, reference
 
+
 def check_paycard_status(reference):
     url = f"https://mapaycard.com/epay/{settings.PAYCARD_ECOMMERCE_CODE}/{reference}/status"
     response = requests.get(url)
-    return response.json() 
+    return response.json()

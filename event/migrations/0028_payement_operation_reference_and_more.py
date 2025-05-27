@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('event', '0027_alter_event_description'),
+        ("event", "0027_alter_event_description"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='payement',
-            name='operation_reference',
+            model_name="payement",
+            name="operation_reference",
             field=models.CharField(blank=True, max_length=100, null=True, unique=True),
         ),
         migrations.AlterField(
-            model_name='payement',
-            name='statut_payement',
-            field=models.CharField(default='en_attente', max_length=30),
+            model_name="payement",
+            name="statut_payement",
+            field=models.CharField(default="en_attente", max_length=30),
         ),
     ]

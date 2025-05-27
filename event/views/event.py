@@ -1,4 +1,3 @@
-from celery import chord, group
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Prefetch
@@ -8,12 +7,7 @@ from django_filters.views import FilterView
 
 from event.filter import EventFilter
 from event.forms import PayementForm
-from event.models import Event, InfoTicket, Ticket
-from event.tasks import (
-    generate_and_save_ticket_pdf,
-    send_ticket_by_email,
-    send_ticket_by_whatsapp,
-)
+from event.models import Event, InfoTicket
 from event.utils import create_paycard_payment
 
 
@@ -74,7 +68,6 @@ class DetailEventView(DetailView):
                 with transaction.atomic():
                     data = form.cleaned_data
                     event = self.object
-                    contact_method = data.get("contact_method", "email")
 
                     # Récupération des quantités
                     quantities = {
@@ -108,8 +101,12 @@ class DetailEventView(DetailView):
                     montant = payement.amount
                     description = f"Paiement pour l'événement {event.title}"
                     payment_method = data.get("payment_method")
-                    print("[DEBUG] Données envoyées à Paycard:", montant, description, payment_method)
-                    result, reference = create_paycard_payment(request, montant, description, payment_method)
+                    print(
+                        "[DEBUG] Données envoyées à Paycard:", montant, description, payment_method
+                    )
+                    result, reference = create_paycard_payment(
+                        request, montant, description, payment_method
+                    )
                     print("[DEBUG] Réponse Paycard:", result)
                     if result.get("code") == 0:
                         payement.operation_reference = reference
@@ -117,7 +114,9 @@ class DetailEventView(DetailView):
                         payement.save()
                         return redirect(result["payment_url"])
                     else:
-                        error_msg = result.get("error_message", "Erreur lors de la création du paiement.")
+                        error_msg = result.get(
+                            "error_message", "Erreur lors de la création du paiement."
+                        )
                         print("[DEBUG] Erreur Paycard:", error_msg)
                         messages.error(request, error_msg)
                         return self.render_to_response(self.get_context_data(form=form))
