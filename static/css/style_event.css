@@ -1,4 +1,5 @@
 @import url('style.css');
+
 .navbar {
     background-color: var(--bg-white);
     box-shadow: var(--shadow-sm);
@@ -114,15 +115,35 @@
     margin-right: var(--space-lg);
     font-size: var(--text-sm);
 }
+
 /* Hero Section améliorée */
 .hero-section {
-    background: var(--bg-white);
+    background-size: cover;
+    background-position: center;
+    min-height: 90vh;
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    min-height: 90vh;
-    padding-top: 60px;
+    justify-content: flex-start;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 60%, rgba(255, 255, 255, 0) 100%);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    border-radius: 1rem;
+    max-width: 520px;
+    padding: 2rem;
+    margin-top: 3rem;
 }
 
 .hero-image img {
@@ -130,11 +151,6 @@
     max-width: 100%;
     height: auto;
     animation: fadeIn 1.5s ease-out;
-}
-
-.hero-content {
-    max-width: 480px;
-    margin-bottom: var(--space-lg);
 }
 
 .hero-content p {
@@ -158,32 +174,34 @@
 /* Responsive mobile */
 @media (max-width: 991.98px) {
     .hero-section {
-        flex-direction: column;
-        padding: 70px 0px;
+        min-height: 100vh;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        justify-content: center;
+        padding: 40px 0;
+    }
+
+    .hero-content {
+        margin: 2rem auto 0 auto;
         text-align: center;
-        min-height: auto;
+        max-width: 95%;
+        padding: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        min-height: 100vh;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        padding: 20px 0;
     }
 
-    .hero-image {
-        margin-top: var(--space-lg);
-    }
-
-    .hero-image img {
-        width: 100%;
-        max-width: 400px;
-    }
-
-    .hero-content h1 {
-        font-size: var(--text-3xl);
-    }
-
-    .hero-content p {
-        font-size: var(--text-md);
-    }
-
-    .hero-content .btn {
-        font-size: var(--text-sm);
-        padding: var(--space-xs) var(--space-md);
+    .hero-content {
+        padding: 0.7rem;
+        font-size: 1rem;
     }
 
     #backToTop {
@@ -195,6 +213,7 @@
         right: var(--space-md);
     }
 }
+
 /* Avantages section */
 .advantages-card {
     height: 100%;
@@ -472,6 +491,7 @@
 .pagination .page-item {
     margin: 0 5px;
 }
+
 .pagination {
     gap: 0.5rem;
 }
