@@ -107,7 +107,7 @@
         height: 200px;
         background: white;
         border-radius: 10px;
-        margin: 20px auto;
+        margin: 10px auto;
       }
         </style>
     </head>
@@ -135,8 +135,9 @@
                 <div class="info-grid">
                     <div class="info-item">
                         <span class="info-label">Date & Heure</span>
-                        <span class="info-value">{{ event.start_date|date:"d/m/Y" }} à {{
-                        event.start_date|time:"H:i" }}</span>
+                        <span class="info-value">
+                          {{ event.start_date|date:"d/m/Y" }} à {{ event.start_date|time:"H:i" }}
+                        </span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Lieu</span>
@@ -146,12 +147,23 @@
                         <span class="info-label">Nom</span>
                         <span class="info-value">{{ payement.nom_complet }}</span>
                     </div>
+                    {% if payement.email_reception %}
                     <div class="info-item">
                         <span class="info-label">Email</span>
-                        <span class="info-value">{{ payement.email_reception }}</span>
+                        <span class="info-value">
+                          {{ payement.email_reception }}
+                        </span>
                     </div>
+                    {% elif payement.telephone_reception %}
+                    <div class="info-item">
+                        <span class="info-label">Téléphone</span>
+                        <span class="info-value">
+                          {{ payement.telephone_reception }}
+                        </span>
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="qr-code" style="background-color: #1a1f36">
+                <div class="qr-code mb-2" style="background-color: #1a1f36">
                     {% if ticket.qr_code %}
                         <img src="{{ domain }}{{ ticket.qr_code.url }}"
                              alt="QR Code"

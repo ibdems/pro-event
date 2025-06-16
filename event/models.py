@@ -249,6 +249,9 @@ class Payement(models.Model):
     )
     statut_payement = models.CharField(max_length=30, default="en_attente")
     quantity = models.PositiveIntegerField(default=1)
+    quantity_normal = models.PositiveIntegerField(default=0)
+    quantity_vip = models.PositiveIntegerField(default=0)
+    quantity_vvip = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="payement_event")
     updated_at = models.DateTimeField(auto_now=True)
@@ -377,7 +380,6 @@ class Invitation(models.Model):
             reference_payement=f"INV-{self.uid.hex[:8]}",
             nom_complet=self.name,
             email_reception=self.email,
-            telephone_payement="",
             telephone_reception="",
             payment_method="invitation",
             statut_payement=True,

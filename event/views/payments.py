@@ -1,4 +1,3 @@
-from celery import chord, group
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 
@@ -14,45 +13,50 @@ from event.utils import check_paycard_status
 @csrf_exempt
 def paycard_callback(request, reference):
     result = check_paycard_status(reference)
+
     payement = get_object_or_404(Payement, operation_reference=reference)
+
     if result.get("code") == 0 and result.get("status") == "success":
         payement.statut_payement = "valide"
         payement.save()
-        # Générer les tickets ici (logique existante)
+
         event = payement.event
 
         quantities = {
-            "normal": (
-                getattr(payement, "quantity_normal", 0)
-                if hasattr(payement, "quantity_normal")
-                else 0
-            ),
-            "vip": getattr(payement, "quantity_vip", 0) if hasattr(payement, "quantity_vip") else 0,
-            "vvip": (
-                getattr(payement, "quantity_vvip", 0) if hasattr(payement, "quantity_vvip") else 0
-            ),
+            "normal": payement.quantity_normal,
+            "vip": payement.quantity_vip,
+            "vvip": payement.quantity_vvip,
         }
+
         tasks = []
         for type_ticket, quantite in quantities.items():
             if quantite > 0:
+                # print(f"[DEBUG] Création de {quantite} tickets {type_ticket}")
                 for _ in range(quantite):
-                    # La logique métier de création de ticket doit être ici
                     from event.models import Ticket
 
                     ticket = Ticket.objects.create(
                         payement=payement, event=event, type_ticket=type_ticket
                     )
+                    # print(f"[DEBUG] Ticket créé avec ID:", ticket.id)
                     tasks.append(generate_and_save_ticket_pdf.s(event.id, ticket.id, payement.id))
 
         def send_email_or_whatsapp():
-            if payement.payment_method == "email":
-                callback = send_ticket_by_email.si(payement.id)
+            if payement.email_reception:
+                for task in tasks:
+                    task.delay()
+                send_ticket_by_email.delay(payement.id)
+            elif payement.telephone_reception:
+                for task in tasks:
+                    task.delay()
+                send_ticket_by_whatsapp.delay(payement.id)
             else:
-                callback = send_ticket_by_whatsapp.si(payement.id)
-            chord(group(tasks))(callback)
+                for task in tasks:
+                    task.delay()
 
         if tasks:
             send_email_or_whatsapp()
+
         return render(
             request, "event/payment_return.html", {"status": "success", "payement": payement}
         )

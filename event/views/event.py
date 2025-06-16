@@ -58,12 +58,10 @@ class DetailEventView(DetailView):
         )
 
     def post(self, request, *args, **kwargs):
-        print("[DEBUG] POST DetailEventView appelée")
         form = PayementForm(request.POST)
         self.object = self.get_object()
 
         if form.is_valid():
-            print("[DEBUG] Formulaire valide")
             try:
                 with transaction.atomic():
                     data = form.cleaned_data
@@ -90,6 +88,12 @@ class DetailEventView(DetailView):
                     payement = form.save(commit=False)
                     payement.event = event
                     info_ticket = event.infoticket_event
+
+                    # Sauvegarder les quantités
+                    payement.quantity_normal = quantities["normal"]
+                    payement.quantity_vip = quantities["vip"]
+                    payement.quantity_vvip = quantities["vvip"]
+
                     payement.amount = (
                         (quantities["normal"] * info_ticket.prix_normal)
                         + (quantities["vip"] * info_ticket.prix_vip)
@@ -97,17 +101,17 @@ class DetailEventView(DetailView):
                     )
                     payement.quantity = sum(quantities.values())
 
+                    # Assigner manuellement les champs non mappés du formulaire au modèle
+                    payement.email_reception = data.get("email_reception")
+                    payement.telephone_reception = data.get("telephone_reception")
+
                     # Toujours initier le paiement externe (Orange, Paycard, Visa, MTN MoMo)
                     montant = payement.amount
                     description = f"Paiement pour l'événement {event.title}"
                     payment_method = data.get("payment_method")
-                    print(
-                        "[DEBUG] Données envoyées à Paycard:", montant, description, payment_method
-                    )
                     result, reference = create_paycard_payment(
                         request, montant, description, payment_method
                     )
-                    print("[DEBUG] Réponse Paycard:", result)
                     if result.get("code") == 0:
                         payement.operation_reference = reference
                         payement.statut_payement = "en_attente"
@@ -117,19 +121,13 @@ class DetailEventView(DetailView):
                         error_msg = result.get(
                             "error_message", "Erreur lors de la création du paiement."
                         )
-                        print("[DEBUG] Erreur Paycard:", error_msg)
                         messages.error(request, error_msg)
                         return self.render_to_response(self.get_context_data(form=form))
 
-            except Exception as e:
-                print("[DEBUG] Exception lors de l'initialisation du paiement:", str(e))
+            except Exception:
                 messages.error(request, "Une erreur est survenue")
                 return self.render_to_response(self.get_context_data(form=form))
 
-        else:
-            print("[DEBUG] Formulaire invalide", form.errors)
-
-        messages.error(request, "Une erreur s'est produite lors du paiement.")
         return self.render_to_response(self.get_context_data(form=form))
 
     def get_context_data(self, **kwargs):

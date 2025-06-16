@@ -234,32 +234,42 @@ class PayementForm(forms.ModelForm):
         email_reception2 = cleaned_data.get("email_reception2")
         telephone_reception = cleaned_data.get("telephone_reception")
         telephone_reception2 = cleaned_data.get("telephone_reception2")
-        contact_method = cleaned_data.get("contact_method")
 
-        # Vérifier la méthode de contact
-        if contact_method == "email":
+        if email_reception or email_reception2:
+            contact_method_chosen = "email"
+        elif telephone_reception or telephone_reception2:
+            contact_method_chosen = "phone"
+        else:
+            contact_method_chosen = None
+
+        if contact_method_chosen == "email":
             if not email_reception:
-                raise forms.ValidationError(
-                    "L'adresse email est requise pour recevoir les tickets par email"
+                self.add_error(
+                    "email_reception",
+                    "L'adresse email est requise pour recevoir les tickets par email",
                 )
-
-            # Vérification des emails
             if email_reception and email_reception != email_reception2:
-                raise forms.ValidationError("Les deux adresses email doivent être identiques.")
-
-        elif contact_method == "phone":
+                self.add_error(
+                    "email_reception2", "Les deux adresses email doivent être identiques."
+                )
+        elif contact_method_chosen == "phone":
             if not telephone_reception:
-                raise forms.ValidationError(
-                    "Le numéro WhatsApp est requis pour recevoir les tickets par WhatsApp"
+                self.add_error(
+                    "telephone_reception",
+                    "Le numéro WhatsApp est requis pour recevoir les tickets par WhatsApp",
                 )
-
-            # Vérification des numéros WhatsApp
             if telephone_reception and telephone_reception != telephone_reception2:
-                raise forms.ValidationError("Les deux numéros WhatsApp doivent être identiques.")
-
-            if telephone_reception and not telephone_reception.isdigit():
-                raise forms.ValidationError(
-                    "Le numéro WhatsApp doit contenir uniquement des chiffres"
+                self.add_error(
+                    "telephone_reception2", "Les deux numéros WhatsApp doivent être identiques."
                 )
+            if telephone_reception and not telephone_reception.isdigit():
+                self.add_error(
+                    "telephone_reception",
+                    "Le numéro WhatsApp doit contenir uniquement des chiffres",
+                )
+        elif not email_reception and not telephone_reception:
+            self.add_error(
+                "contact_method", "Veuillez choisir un mode de réception (email ou WhatsApp)."
+            )
 
         return cleaned_data

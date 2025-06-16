@@ -5,21 +5,22 @@ l'événement {% endblock title %} {% block content %}
     <h2 class="text-primary text-center mt-4 mb-4 scroll-animated">
       Détails de l'événement
     </h2>
-    {% if form.non_field_errors %}
-    <div
-      class="alert alert-danger alert-dismissible fade show"
-      role="alert"
-      style="padding-bottom: -10rem"
-    >
-      {{ form.non_field_errors }}
-      <button
-        type="button"
-        class="btn-close"
-        data-bs-dismiss="alert"
-        aria-label="Close"
-      ></button>
+    {% if form.errors %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <ul class="mb-0">
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    {% endif %} {% for message in messages %}
+    {% endif %}
+    {% for message in messages %}
     <div
       class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show"
       role="alert"
@@ -246,14 +247,18 @@ l'événement {% endblock title %} {% block content %}
       <!-- Colonne formulaire de paiement - initialement cachée -->
       <div id="payment-section" class="col-12 col-lg-4 order-3 d-none">
         <div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="text-primary mb-0">Finaliser la commande</h4>
-            <button
-              id="closePaymentBtn"
-              class="btn btn-outline-secondary btn-sm"
-            >
-              <i class="fas fa-times"></i>
-            </button>
+          <div class="row d-flex justify-content-between align-items-center mb-3">
+            <div class="col-9">
+              <h4 class="text-primary mb-0">Finaliser la commande</h4>
+            </div>
+            <div class="col-3 text-end">
+              <button
+                id="closePaymentBtn"
+                class="btn btn-outline-secondary btn-sm"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
           </div>
           <form method="POST">
             <!-- Informations personnelles -->
@@ -268,9 +273,6 @@ l'événement {% endblock title %} {% block content %}
                 required
                 value="{{ form.nom_complet.value|default_if_none:'' }}"
               />
-              {% for error in form.nom_complet.errors %}
-              <p class="text-danger">{{ error }}</p>
-              {% endfor %}
             </div>
             <!-- Mode de réception -->
             <div class="mb-3">
@@ -296,7 +298,7 @@ l'événement {% endblock title %} {% block content %}
                   id="phone-choice"
                   value="phone"
                 />
-                <label class="btn btn-outline-primary" for="phone-choice">
+                <label class="btn btn-outline-primary disabled" for="phone-choice">
                   <i class="fab fa-whatsapp me-2"></i>WhatsApp
                 </label>
               </div>
@@ -314,9 +316,6 @@ l'événement {% endblock title %} {% block content %}
                   placeholder="Votre adresse email"
                   value="{{ form.email_reception.value|default_if_none:'' }}"
                 />
-                {% for error in form.email_reception.errors %}
-                <p class="text-danger">{{ error }}</p>
-                {% endfor %}
                 <input
                   type="email"
                   class="form-control"
@@ -336,9 +335,6 @@ l'événement {% endblock title %} {% block content %}
                   value="{{ form.telephone_reception.value|default_if_none:'' }}"
                   pattern="[0-9]{9}"
                 />
-                {% for error in form.telephone_reception.errors %}
-                <p class="text-danger">{{ error }}</p>
-                {% endfor %}
                 <input
                   type="tel"
                   class="form-control"
