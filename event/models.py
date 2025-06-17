@@ -114,19 +114,19 @@ class Event(models.Model):
                 "normal": {
                     "capacite": info_ticket.normal_capacity,
                     "vendus": vendus_normal,
-                    "disponibles": info_ticket.normal_capacity - vendus_normal,
+                    "disponibles": max(0, info_ticket.normal_capacity - vendus_normal),
                     "revenu": revenu_normal,
                 },
                 "vip": {
                     "capacite": info_ticket.vip_capacity,
                     "vendus": vendus_vip,
-                    "disponibles": info_ticket.vip_capacity - vendus_vip,
+                    "disponibles": max(0, info_ticket.vip_capacity - vendus_vip),
                     "revenu": revenu_vip,
                 },
                 "vvip": {
                     "capacite": info_ticket.vvip_capacity,
                     "vendus": vendus_vvip,
-                    "disponibles": info_ticket.vvip_capacity - vendus_vvip,
+                    "disponibles": max(0, info_ticket.vvip_capacity - vendus_vvip),
                     "revenu": revenu_vvip,
                 },
             }

@@ -78,10 +78,16 @@ class DetailEventView(DetailView):
                     for type_ticket, quantite in quantities.items():
                         if quantite > 0 and not event.verifier_disponibilite(type_ticket, quantite):
                             dispo = event.get_disponibilite()[type_ticket]["disponibles"]
-                            messages.error(
-                                request,
-                                f"Il ne reste que {dispo} tickets {type_ticket} disponibles",
-                            )
+                            if dispo == 0:
+                                messages.error(
+                                    request,
+                                    f"Il n'y a plus de tickets {type_ticket} disponibles.",
+                                )
+                            else:
+                                messages.error(
+                                    request,
+                                    f"Il ne reste que {dispo} tickets {type_ticket} disponibles.",
+                                )
                             return redirect("event:event_detail", uid=event.uid)
 
                     # Création du paiement (mais pas de tickets)

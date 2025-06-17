@@ -84,9 +84,9 @@ l'événement {% endblock title %} {% block content %}
             <span>
               Type :
               {% if event.type_event == 'private' %}
-                <span class="badge bg-info">Privé</span>
+              <span class="badge bg-info">Privé</span>
               {% else %}
-                <span class="badge bg-success">Public</span>
+              <span class="badge bg-success">Public</span>
               {% endif %}
             </span>
           </div>
@@ -249,15 +249,15 @@ l'événement {% endblock title %} {% block content %}
         <div>
           <div class="row d-flex justify-content-between align-items-center mb-3">
             <div class="col-9">
-              <h4 class="text-primary mb-0">Finaliser la commande</h4>
+            <h4 class="text-primary mb-0">Finaliser la commande</h4>
             </div>
             <div class="col-3 text-end">
-              <button
-                id="closePaymentBtn"
-                class="btn btn-outline-secondary btn-sm"
-              >
-                <i class="fas fa-times"></i>
-              </button>
+            <button
+              id="closePaymentBtn"
+              class="btn btn-outline-secondary btn-sm"
+            >
+              <i class="fas fa-times"></i>
+            </button>
             </div>
           </div>
           <form method="POST">
