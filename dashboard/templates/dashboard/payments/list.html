@@ -1,0 +1,281 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Paiements{% endblock title %}
+
+{% block page_title %}Gestion des Paiements{% endblock page_title %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <!-- Total des paiements -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-card-body">
+                    <div class="stats-card-icon bg-primary">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stats-card-info">
+                        <h3>{{ total_payments }}</h3>
+                        <p>Total des paiements</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Montant total -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-card-body">
+                    <div class="stats-card-icon bg-success">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stats-card-info">
+                        <h3>{{ total_amount|floatformat:0 }} FG</h3>
+                        <p>Montant total</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Paiements validés -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-card-body">
+                    <div class="stats-card-icon bg-info">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stats-card-info">
+                        <h3>{{ validated_payments }}</h3>
+                        <p>Paiements validés</p>
+                        <small class="text-muted">{{ validated_amount|floatformat:0 }} FG</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Paiements en attente -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-card-body">
+                    <div class="stats-card-icon bg-warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stats-card-info">
+                        <h3>{{ pending_payments }}</h3>
+                        <p>En attente</p>
+                        <small class="text-muted">{{ pending_amount|floatformat:0 }} FG</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Méthodes de paiement -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Répartition par méthode de paiement</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for method in payment_methods_stats %}
+                            <div class="col-md-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        {% if method.payment_method == 'orange_money' %}
+                                            <i class="fas fa-mobile-alt text-warning fa-2x"></i>
+                                        {% elif method.payment_method == 'mobile_money' %}
+                                            <i class="fas fa-mobile-alt text-success fa-2x"></i>
+                                        {% elif method.payment_method == 'paycard' %}
+                                            <i class="fas fa-credit-card text-primary fa-2x"></i>
+                                        {% elif method.payment_method == 'visa' %}
+                                            <i class="fas fa-credit-card text-info fa-2x"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-0">{{ method.payment_method|title }}</h6>
+                                        <small class="text-muted">
+                                            {{ method.count }} paiements<br>
+                                            {{ method.total|floatformat:0 }} FG
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Recherche</label>
+                    <input type="text" class="form-control" id="search" name="search"
+                           value="{{ request.GET.search }}" placeholder="Référence, nom, email...">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Statut</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">Tous les statuts</option>
+                        {% for value, label in status_choices.items %}
+                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="payment_method" class="form-label">Méthode de paiement</label>
+                    <select class="form-select" id="payment_method" name="payment_method">
+                        <option value="">Toutes les méthodes</option>
+                        {% for value, label in payment_method_choices.items %}
+                            <option value="{{ value }}" {% if request.GET.payment_method == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des paiements -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Client</th>
+                            <th>Événement</th>
+                            <th>Montant</th>
+                            <th>Méthode</th>
+                            <th>Statut</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                            <tr>
+                                <td>{{ payment.reference_payement }}</td>
+                                <td>
+                                    <div>
+                                        <strong>{{ payment.nom_complet }}</strong>
+                                        {% if payment.email_reception %}
+                                            <br><small class="text-muted">{{ payment.email_reception }}</small>
+                                        {% endif %}
+                                        {% if payment.telephone_reception %}
+                                            <br><small class="text-muted">{{ payment.telephone_reception }}</small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>{{ payment.event.title }}</td>
+                                <td>{{ payment.amount|floatformat:0 }} FG</td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ payment.get_payment_method_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if payment.statut_payement == 'valide' %}
+                                        <span class="badge bg-success">Validé</span>
+                                    {% elif payment.statut_payement == 'en_attente' %}
+                                        <span class="badge bg-warning">En attente</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Échoué</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ payment.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'dashboard:payment_detail' id=payment.id %}"
+                                           class="btn btn-sm btn-outline-primary"
+                                           data-bs-toggle="tooltip" title="Voir les détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if payment.email_reception %}
+                                            <a href="{% url 'dashboard:ticket_send_email_payment' payement_id=payment.id %}"
+                                               class="btn btn-sm btn-outline-info"
+                                               data-bs-toggle="tooltip" title="Renvoyer par email">
+                                                <i class="fas fa-envelope"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center">Aucun paiement trouvé</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    // Activer les tooltips Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+</script>
+{% endblock extra_js %}

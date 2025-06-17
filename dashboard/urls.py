@@ -36,6 +36,7 @@ from dashboard.views.event_views import (
 )
 from dashboard.views.home_views import DashboardHomeView
 from dashboard.views.misc_views import EmailTemplateEditView, ReportsView, StatsView
+from dashboard.views.payment_views import PaymentDetailView, PaymentListView
 from dashboard.views.profile_views import ProfileEditView, ProfileView
 from dashboard.views.ticket_views import (
     TicketDetailView,
@@ -121,6 +122,9 @@ urlpatterns = [
         TicketSendEmailView.as_view(),
         name="ticket_send_email_payment",
     ),
+    # Gestion des paiements
+    path("payments/", PaymentListView.as_view(), name="payment_list"),
+    path("payments/<int:id>/", PaymentDetailView.as_view(), name="payment_detail"),
     # Gestion des contacts
     path("contacts/", ContactListView.as_view(), name="contact_list"),
     path("contacts/<int:id>/detail/", ContactDetailView.as_view(), name="contact_detail"),

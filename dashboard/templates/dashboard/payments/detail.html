@@ -1,0 +1,220 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Détails du Paiement{% endblock title %}
+
+{% block page_title %}Détails du Paiement{% endblock page_title %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Informations du paiement -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Informations du paiement</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Référence</dt>
+                                <dd class="col-sm-8">{{ payment.reference_payement }}</dd>
+
+                                <dt class="col-sm-4">Statut</dt>
+                                <dd class="col-sm-8">
+                                    {% if payment.statut_payement == 'valide' %}
+                                        <span class="badge bg-success">Validé</span>
+                                    {% elif payment.statut_payement == 'en_attente' %}
+                                        <span class="badge bg-warning">En attente</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Échoué</span>
+                                    {% endif %}
+                                </dd>
+
+                                <dt class="col-sm-4">Méthode</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-info">
+                                        {{ payment.get_payment_method_display }}
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-4">Montant</dt>
+                                <dd class="col-sm-8">{{ payment.amount|floatformat:0 }} FG</dd>
+
+                                <dt class="col-sm-4">Quantité</dt>
+                                <dd class="col-sm-8">{{ payment.quantity }} billet(s)</dd>
+
+
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Client</dt>
+                                <dd class="col-sm-8">{{ payment.nom_complet }}</dd>
+
+                                {% if payment.email_reception %}
+                                    <dt class="col-sm-4">Email</dt>
+                                    <dd class="col-sm-8">{{ payment.email_reception }}</dd>
+                                {% endif %}
+
+                                {% if payment.telephone_reception %}
+                                    <dt class="col-sm-4">Téléphone</dt>
+                                    <dd class="col-sm-8">{{ payment.telephone_reception }}</dd>
+                                {% endif %}
+
+                                <dt class="col-sm-4">Événement</dt>
+                                <dd class="col-sm-8">
+                                    <a href="{% url 'dashboard:event_detail' uid=payment.event.uid %}">
+                                        {{ payment.event.title }}
+                                    </a>
+                                </dd>
+                                <dt class="col-sm-4">Date</dt>
+                                <dd class="col-sm-8">
+                                    {{ payment.created_at|date:"d/m/Y H:i" }}
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tickets associés -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Tickets associés</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Type</th>
+                                    <th>Prix</th>
+                                    <th>Statut</th>
+                                    <th>Date d'achat</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticket in payment.ticket_payement.all %}
+                                    <tr>
+                                        <td>{{ ticket.code_ticket }}</td>
+                                        <td>{{ ticket.get_type_ticket_display }}</td>
+                                        <td>
+                                            {% if ticket.event.infoticket_event %}
+                                                {% if ticket.type_ticket == 'normal' %}
+                                                    {{ ticket.event.infoticket_event.prix_normal|floatformat:0 }} FG
+                                                {% elif ticket.type_ticket == 'vip' %}
+                                                    {{ ticket.event.infoticket_event.prix_vip|floatformat:0 }} FG
+                                                {% elif ticket.type_ticket == 'vvip' %}
+                                                    {{ ticket.event.infoticket_event.prix_vvip|floatformat:0 }} FG
+                                                {% endif %}
+                                            {% else %}
+                                                {{ ticket.payement.amount|floatformat:0 }} FG
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge {% if ticket.payement.statut_payement %}bg-success{% else %}bg-warning{% endif %}">
+                                                {% if ticket.payement.statut_payement %}Payé{% else %}En attente{% endif %}
+                                            </span>
+                                        </td>
+                                        <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{% url 'dashboard:ticket_detail' code=ticket.code_ticket %}"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   data-bs-toggle="tooltip" title="Voir les détails">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <form method="post" action="{% url 'dashboard:ticket_send_email' ticket_id=ticket.id %}" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="Renvoyer par email">
+                                                        <i class="fas fa-envelope"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">Aucun ticket associé</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if payment.email_reception %}
+                            <a href="{% url 'dashboard:ticket_send_email_payment' payement_id=payment.id %}"
+                               class="btn btn-primary">
+                                <i class="fas fa-envelope me-2"></i>Renvoyer le reçu par email
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'dashboard:payment_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Historique</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-0">Paiement créé</h6>
+                                <small class="text-muted">{{ payment.created_at|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% if payment.statut_payement == 'valide' %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-0">Paiement validé</h6>
+                                    <small class="text-muted">{{ payment.updated_at|date:"d/m/Y H:i" }}</small>
+                                </div>
+                            </div>
+                        {% elif payment.statut_payement == 'echec' %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-danger"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-0">Paiement échoué</h6>
+                                    <small class="text-muted">{{ payment.updated_at|date:"d/m/Y H:i" }}</small>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    // Activer les tooltips Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+</script>
+{% endblock extra_js %}

@@ -321,6 +321,14 @@
                 <span>Tickets</span>
               </a>
             </li>
+            <li
+              class="nav-item {% if 'payment' in request.resolver_match.url_name %}active{% endif %}"
+            >
+              <a href="{% url 'dashboard:payment_list' %}">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Paiements</span>
+              </a>
+            </li>
             {% if request.user.is_staff or request.user.is_superuser %}
             <li
               class="nav-item {% if 'contact' in request.resolver_match.url_name %}active{% endif %}"
