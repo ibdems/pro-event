@@ -165,8 +165,8 @@ DOMAIN_URL = env(
 )  # Utilisé dans les templates d'activation et de réinitialisation
 
 # Configuration de Celery avec Redis comme broker
-CELERY_BROKER_URL = "redis://127.0.0.1:6380/0"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6380/1"
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://redis:6380/0")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://redis:6380/1")
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_EXTENDED = True

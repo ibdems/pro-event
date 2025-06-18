@@ -176,7 +176,7 @@
     <body>
         <div class="ticket">
             <!-- Image de l'événement -->
-            <img src="{{ absolute_media_url }}{{ event.image.url }}"
+            <img src="{{ event.image.url }}"
                  alt="Event"
                  class="event-image" />
             <div class="ticket-details" style="background-color: #1a1f36;">
@@ -211,7 +211,7 @@
             </div>
             <!-- QR Code -->
             <div class="qr-section" style="background-color: #1a1f36;">
-                <img src="{{ absolute_media_url }}{{ ticket.qr_code.url }}"
+                <img src="{{ ticket.qr_code.url }}"
                      alt="QR Code"
                      class="qr-code" />
             </div>

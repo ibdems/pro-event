@@ -28,13 +28,15 @@ def generate_and_save_ticket_pdf(self, event_id, ticket_id, payement_id):
         site_url = getattr(settings, "BASE_URL", "https://proeventgn.com")
 
         # Contexte avec le domaine pour les URLs absolues
+        # Pour S3/Backblaze, les URLs sont déjà complètes, pas besoin de les préfixer
         context = {
             "event": event,
             "ticket": ticket,
             "payement": payement,
             "domain": site_url,
-            "absolute_static_url": f"{site_url}{settings.STATIC_URL}",
-            "absolute_media_url": f"{site_url}{settings.MEDIA_URL}",
+            "absolute_static_url": site_url
+            + settings.STATIC_URL,  # Pour les fichiers statiques locaux
+            "absolute_media_url": "",  # Les fichiers médias S3 ont déjà des URLs complètes
         }
 
         html_content = render_to_string("event/ticket_vertical.html", context)
@@ -171,8 +173,7 @@ def generate_and_send_invitation_ticket(self, invitation_id):
             "payement": payement,
             "is_invitation": True,
             "domain": site_url,
-            "absolute_static_url": f"{site_url}{settings.STATIC_URL}",
-            "absolute_media_url": f"{site_url}{settings.MEDIA_URL}",
+            "absolute_media_url": "",
         }
 
         # Générer le PDF du ticket
