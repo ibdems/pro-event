@@ -13,6 +13,7 @@ services:
     command:
       - --providers.docker
       - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=traefik-public
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
       - --certificatesresolvers.le.acme.email=devibrahima88@gmail.com
@@ -22,22 +23,17 @@ services:
       - --accesslog.filePath=/var/log/access.log
       - --log
       - --api.dashboard=true
+      - --log.level=DEBUG
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik-public
       - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       - traefik.http.middlewares.https-compress.compress=true
       - traefik.http.middlewares.app-http.headers.stsSeconds=31536000
       - traefik.http.middlewares.app-http.headers.stsIncludeSubdomains=true
       - traefik.http.middlewares.app-http.headers.stsPreload=true
-      - traefik.http.middlewares.app-http.headers.forceSTSHeader=true
     networks:
       - traefik-public
-    restart: always
-
-volumes:
-  traefik_certificates:
 
 networks:
   traefik-public:
