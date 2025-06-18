@@ -655,17 +655,6 @@ l'événement {% endblock title %} {% block content %}
               this.value = value;
           });
       });
-
-      // Validation des entrées pour email (optional)
-      document.querySelectorAll('input[type="email"]').forEach(input => {
-          input.addEventListener('blur', function() {
-              const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-              if (this.value && !emailPattern.test(this.value)) {
-                  alert("Veuillez entrer une adresse email valide.");
-                  this.focus();
-              }
-          });
-      });
   });
 </script>
 <style>
