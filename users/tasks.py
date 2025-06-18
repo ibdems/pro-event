@@ -147,7 +147,7 @@ def send_welcome_password_email(user_id, email, password, is_new_account=True):
             "user": user,
             "password": password,
             "login_url": settings.LOGIN_URL if hasattr(settings, "LOGIN_URL") else "/login/",
-            "domain": settings.DOMAIN_URL if hasattr(settings, "DOMAIN_URL") else "127.0.0.1:8000",
+            "domain": settings.DOMAIN_URL if hasattr(settings, "DOMAIN_URL") else "proeventgn.com",
         }
 
         html_message = render_to_string(template, context)
@@ -229,7 +229,7 @@ def generate_and_send_new_password(user_id, is_new_account=False):
             "user": user,
             "password": password,
             "login_url": settings.LOGIN_URL if hasattr(settings, "LOGIN_URL") else "/login/",
-            "domain": settings.DOMAIN_URL if hasattr(settings, "DOMAIN_URL") else "127.0.0.1:8000",
+            "domain": settings.DOMAIN_URL if hasattr(settings, "DOMAIN_URL") else "proeventgn.com",
         }
 
         # Rendu du template HTML

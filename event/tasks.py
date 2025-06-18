@@ -25,7 +25,7 @@ def generate_and_save_ticket_pdf(self, event_id, ticket_id, payement_id):
         payement = Payement.objects.get(id=payement_id)
 
         # Obtenir le domaine depuis les paramètres
-        site_url = getattr(settings, "BASE_URL", "http://localhost:8000")
+        site_url = getattr(settings, "BASE_URL", "https://proeventgn.com")
 
         # Contexte avec le domaine pour les URLs absolues
         context = {
@@ -105,7 +105,7 @@ def send_invitation_email(self, invitation_id):
         event = invitation.event
 
         # Construire l'URL avec le token pour accepter/refuser
-        base_url = getattr(settings, "BASE_URL", "http://127.0.0.1:8000")
+        base_url = getattr(settings, "BASE_URL", "https://proeventgn.com")
         accept_url = f"{base_url}/invitation/{invitation.token}/accept/"
         decline_url = f"{base_url}/invitation/{invitation.token}/decline/"
 
@@ -162,7 +162,7 @@ def generate_and_send_invitation_ticket(self, invitation_id):
         event = ticket.event
 
         # Obtenir le domaine depuis les paramètres
-        site_url = getattr(settings, "BASE_URL", "http://localhost:8000")
+        site_url = getattr(settings, "BASE_URL", "https://proeventgn.com")
 
         # Contexte avec le domaine pour les URLs absolues
         context = {
