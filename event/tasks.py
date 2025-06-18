@@ -2,6 +2,7 @@ import base64
 import logging
 import os
 
+import requests
 from celery import shared_task
 from celery.exceptions import MaxRetriesExceededError
 from django.conf import settings
@@ -85,7 +86,13 @@ def send_ticket_by_email(self, payement_id, result=None):
 
         for ticket in tickets:
             if ticket.ticket_pdf:
-                email.attach_file(ticket.ticket_pdf.path)
+                response = requests.get(ticket.ticket_pdf.url)
+                if response.status_code == 200:
+                    email.attach(
+                        filename=os.path.basename(ticket.ticket_pdf.name),
+                        content=response.content,
+                        mimetype="application/pdf",
+                    )
 
         email.send()
         return True
