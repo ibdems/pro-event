@@ -1,3 +1,4 @@
+from celery import chain, group
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 
@@ -43,9 +44,9 @@ def paycard_callback(request, reference):
 
         def send_email_or_whatsapp():
             if payement.email_reception:
-                for task in tasks:
-                    task.delay()
-                send_ticket_by_email.delay(payement.id)
+                # Chaînage : d'abord tous les PDFs, puis l'email
+                workflow = chain(group(tasks), send_ticket_by_email.si(payement.id))
+                workflow.apply_async()
             elif payement.telephone_reception:
                 for task in tasks:
                     task.delay()

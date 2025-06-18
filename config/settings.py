@@ -159,14 +159,12 @@ DEFAULT_FROM_EMAIL = "ibrahima882001@gmail.com"
 EMAIL_USE_TLS = True
 
 # URL de base pour les liens dans les emails
-BASE_URL = env("BASE_URL", default="https://proeventgn.com")
-DOMAIN_URL = env(
-    "DOMAIN_URL", default="proeventgn.com"
-)  # Utilisé dans les templates d'activation et de réinitialisation
+BASE_URL = "http://127.0.0.1:8000"
+DOMAIN_URL = "127.0.0.1:8000"  # Utilisé dans les templates d'activation et de réinitialisation
 
 # Configuration de Celery avec Redis comme broker
-CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://redis:6380/0")
-CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://redis:6380/1")
+CELERY_BROKER_URL = "redis://127.0.0.1:6380/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6380/1"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_EXTENDED = True

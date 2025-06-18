@@ -387,79 +387,80 @@
 
     <div class="row">
       {% for event in events %}
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="event-card shadow-sm">
-          <div class="position-relative overflow-hidden">
-            {% if event.image %}
-            <img
-              src="{{ event.image.url }}"
-              alt="{{ event.title }}"
-              class="card-img-top"
-              width="600"
-              height="350"
-              loading="lazy"
-              style="object-fit: cover"
-            />
-            {% else %}
-            <div
-              class="bg-primary text-white d-flex align-items-center justify-content-center rounded"
-              style="height: 180px"
-            >
-              <i class="fas fa-calendar-alt fa-3x"></i>
-            </div>
-            {% endif %}
-
-            <!-- Type d'accès affiché sur l'image -->
-            {% if event.infoticket_event %}
-            <div
-              class="event-badge bg-{% if event.infoticket_event.type_access == 'gratuit' %}success{% else %}info{% endif %}"
-            >
-              <i
-                class="fas fa-{% if event.infoticket_event.type_access == 'gratuit' %}unlock-alt{% else %}lock{% endif %} me-1"
-              ></i>
-              {{ event.infoticket_event.type_access|title }}
-            </div>
-            {% endif %}
-          </div>
-          <div class="card-body">
-            <!-- Date de l'événement -->
-            <div class="event-date mb-2 ms-1">
-              <i class="fas fa-calendar-days text-primary me-2"></i>
-              {{ event.start_date|date:"d F Y" }} - {{ event.end_date|date:"d F" }}
-            </div>
-
-            <!-- Lieu de l'événement -->
-            <div class="event-location mb-2 ms-1">
-              <i class="fas fa-map-marker-alt text-primary me-2"></i>
-              {{ event.location }}
-            </div>
-
-            <!-- Titre et type d'événement -->
-            <h5 class="card-title mb-2">{{ event.title }}</h5>
-            <div class="mb-3 d-flex justify-content-between align-items-center">
-              <span class="badge bg-secondary">{{ event.category.name }}</span>
-              {% if event.type_event == 'private' %}
-              <span class="badge bg-info">Privé</span>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="event-card scroll-animated">
+            <div class="position-relative overflow-hidden">
+              {% if event.image %}
+              <img
+                src="{{ event.image.url }}"
+                alt="Event {{ event.id }}"
+                class="card-img-top"
+                width="600"
+                height="400"
+                loading="lazy"
+              />
               {% else %}
-              <span class="badge bg-success">Public</span>
+              <div
+                  class="bg-primary text-white d-flex align-items-center justify-content-center rounded"
+                  style="height: 180px"
+                >
+                  <i class="fas fa-calendar-alt fa-5x"></i>
+              </div>
               {% endif %}
+              <!-- Type d'accès affiché sur l'image -->
+              {% if event.infoticket_event %}
+              <div
+                class="event-date position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom"
+              >
+                <i
+                  class="fas fa-{% if event.infoticket_event.type_access == 'gratuit' %}unlock-alt{% else %}lock {% endif %} me-2"
+                ></i>
+                {{ event.infoticket_event.type_access|title }}
+              </div>
+              {% endif %}
+              <!-- Dates affichées sous l'image -->
+              <div class="event-date mt-2">
+                <i class="fas fa-calendar-days text-primary"></i>
+                {{ event.start_date }} - {{ event.end_date }}
+              </div>
             </div>
-
-            <!-- Lien vers les détails -->
-            <a
-              href="{% url 'event:event_detail' event.uid %}"
-              class="btn btn-primary w-100"
-            >
-              <i class="fas fa-info-circle me-2"></i>Voir les détails
-            </a>
+            <div class="card-body">
+              <!-- Lieu de l'événement -->
+              <div
+                class="event-location mb-2 d-flex justify-content-between align-items-center"
+              >
+                <div>
+                  <i class="fas fa-map-marker-alt text-primary"></i>
+                  {{ event.location }}
+                </div>
+                <span class="badge bg-secondary">{{ event.category.name }}</span>
+              </div>
+              <!-- Titre et catégorie -->
+              <h5 class="card-title mb-2">{{ event.title }}</h5>
+              <!-- Type d'événement -->
+              <div class="mb-2">
+                {% if event.type_event == 'private' %}
+                <span class="badge bg-info">Privé</span>
+                {% else %}
+                <span class="badge bg-success">Public</span>
+                {% endif %}
+              </div>
+              <!-- Lien et type d'accès -->
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <a
+                  href="{% url 'event:event_detail' event.uid %}"
+                  class="btn btn-primary"
+                  >Voir les détails</a
+                >
+              </div>
+            </div>
           </div>
         </div>
-      </div>
       {% endfor %}
     </div>
 
     <!-- Lien vers tous les événements -->
-    <div class="text-center mt-4">
+    <div class="text-center mt-4 mb-3">
       <a href="{% url 'event:event' %}" class="btn btn-outline-primary">
         <i class="fas fa-calendar-alt me-2"></i>Voir tous les événements
       </a>
