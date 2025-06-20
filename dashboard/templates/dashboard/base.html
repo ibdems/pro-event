@@ -402,7 +402,10 @@
             <button id="sidebar-toggle" class="sidebar-toggle">
               <i class="fas fa-bars"></i>
             </button>
-            <h1 class="page-title">
+            <button class="sidebar-close-navbar d-lg-none" id="sidebar-close" aria-label="Fermer le menu">
+              <i class="fas fa-times"></i>
+            </button>
+            <h1 class="page-title ms-2">
               {% block page_title %} Tableau de Bord {% endblock page_title %}
             </h1>
           </div>
@@ -414,44 +417,7 @@
               </button>
             </div>
             <div class="header-actions">
-              <div class="dropdown notifications">
-                <button
-                  class="btn dropdown-toggle"
-                  type="button"
-                  id="notificationsDropdown"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="fas fa-bell"></i>
-                  <span class="badge bg-danger rounded-pill">3</span>
-                </button>
-                <ul
-                  class="dropdown-menu dropdown-menu-end"
-                  aria-labelledby="notificationsDropdown"
-                >
-                  <li>
-                    <h6 class="dropdown-header">Notifications</h6>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="#">Nouvelle demande créée</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="#"
-                      >Nouveau message de contact</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="#">Nouvel achat de billet</a>
-                  </li>
-                  <li>
-                    <hr class="dropdown-divider" />
-                  </li>
-                  <li>
-                    <a class="dropdown-item text-center" href="#"
-                      >Voir toutes les notifications</a
-                    >
-                  </li>
-                </ul>
-              </div>
+
               <div class="dropdown user-dropdown">
                 <button
                   class="btn dropdown-toggle"
@@ -487,13 +453,7 @@
                       ><i class="fas fa-user"></i> Profil</a
                     >
                   </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="{% url 'dashboard:profile_edit' %}"
-                      ><i class="fas fa-cog"></i> Paramètres</a
-                    >
-                  </li>
+
                   <li>
                     <hr class="dropdown-divider" />
                   </li>
@@ -555,6 +515,11 @@
             .querySelector(".dashboard-container")
             .classList.toggle("sidebar-collapsed");
         });
+
+      // Sidebar close (mobile)
+      document.getElementById("sidebar-close").addEventListener("click", function () {
+        document.querySelector(".dashboard-container").classList.remove("sidebar-collapsed");
+      });
 
       // Update unread contacts count
       function updateUnreadContactsCount() {

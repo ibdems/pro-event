@@ -664,7 +664,7 @@
     font-size: 0.75rem;
 }
 
-.btn-group > .btn {
+.btn-group>.btn {
     padding: 0.375rem 0.5rem;
 }
 
@@ -700,7 +700,8 @@
     }
 
     /* Améliorer l'affichage des tableaux sur tablette */
-    .table th, .table td {
+    .table th,
+    .table td {
         padding: 0.5rem 0.6rem;
         font-size: 0.8rem;
     }
@@ -742,7 +743,8 @@
         font-size: 1.25rem;
     }
 
-    .table th, .table td {
+    .table th,
+    .table td {
         padding: 0.4rem 0.5rem;
         font-size: 0.75rem;
     }
@@ -785,7 +787,8 @@
         font-size: 1rem;
     }
 
-    .table th, .table td {
+    .table th,
+    .table td {
         padding: 0.35rem 0.4rem;
         font-size: 0.7rem;
     }
@@ -793,8 +796,13 @@
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .dashboard-overview {
@@ -841,7 +849,7 @@
 }
 
 /* Parent menu items with submenu */
-.nav-item.has-submenu > a {
+.nav-item.has-submenu>a {
     position: relative;
 }
 
@@ -871,12 +879,12 @@
     transform: translateY(-50%) rotate(90deg);
 }
 
-.nav-item.has-submenu > a {
+.nav-item.has-submenu>a {
     padding-right: 35px;
 }
 
 /* Menu item active states */
-.nav-item.active > a {
+.nav-item.active>a {
     background-color: rgba(255, 255, 255, 0.2);
     color: #fff;
 }
@@ -891,12 +899,12 @@
     color: #fff;
 }
 
-.nav-item:not(.active) > a:hover {
+.nav-item:not(.active)>a:hover {
     background-color: rgba(255, 255, 255, 0.1);
     color: #fff;
 }
 
-/* Collapsed sidebar submenu */
+/* Collapsed sidebar submenu - correction visibilité */
 .sidebar-collapsed .nav-submenu {
     margin-left: 5px;
     position: absolute;
@@ -908,12 +916,21 @@
     box-shadow: var(--box-shadow);
     opacity: 0;
     visibility: hidden;
+    z-index: 1200;
+    pointer-events: none;
     transition: opacity var(--transition-speed), visibility var(--transition-speed);
 }
 
 .sidebar-collapsed .nav-item:hover .nav-submenu {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
+    z-index: 1200;
+}
+
+/* Correction dropdown Bootstrap du header */
+.dropdown-menu {
+    z-index: 1300 !important;
 }
 
 /* Nouvelle structure de menu */
@@ -974,4 +991,40 @@
 
 .toggle-submenu {
     transition: transform 0.3s ease;
+}
+
+.sidebar-close-navbar {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 2rem;
+    margin-left: 1.5rem;
+    margin-right: 0.5rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 40px;
+    transition: margin 0.3s;
+}
+
+@media (max-width: 991.98px) {
+    .dashboard-container.sidebar-collapsed .sidebar-close-navbar {
+        display: flex;
+        position: relative;
+        z-index: 1100;
+    }
+
+    .sidebar-close-navbar {
+        display: none;
+    }
+
+    .main-header .page-title {
+        margin-left: 0.5rem;
+    }
+}
+
+/* On retire l'ancien bouton .sidebar-close du sidebar */
+.sidebar-close {
+    display: none !important;
 }
