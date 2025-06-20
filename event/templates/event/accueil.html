@@ -230,6 +230,17 @@
     color: #6c757d;
     margin-bottom: var(--space-lg);
   }
+
+  /* Correction pour coller le bouton au bas de la carte événement */
+  .event-card .card-body {
+    /* padding-bottom: 0 !important; */
+  }
+  .event-card .d-flex.mt-3 {
+    /* margin-bottom: 0 !important; */
+  }
+  .event-card .btn {
+    /* margin-bottom: 0 !important; */
+  }
 </style>
 {% endblock extra_css %} {% block content %}
 <!-- Section Héros -->
@@ -387,75 +398,75 @@
 
     <div class="row">
       {% for event in events %}
-        <div class="col-md-6 col-lg-4 mb-4">
+      <div class="col-md-6 col-lg-4 mb-4">
           <div class="event-card scroll-animated">
-            <div class="position-relative overflow-hidden">
-              {% if event.image %}
-              <img
-                src="{{ event.image.url }}"
+          <div class="position-relative overflow-hidden">
+            {% if event.image %}
+            <img
+              src="{{ event.image.url }}"
                 alt="Event {{ event.id }}"
-                class="card-img-top"
-                width="600"
+              class="card-img-top"
+              width="600"
                 height="400"
-                loading="lazy"
-              />
-              {% else %}
-              <div
-                  class="bg-primary text-white d-flex align-items-center justify-content-center rounded"
-                  style="height: 180px"
-                >
+              loading="lazy"
+            />
+            {% else %}
+            <div
+              class="bg-primary text-white d-flex align-items-center justify-content-center rounded"
+              style="height: 180px"
+            >
                   <i class="fas fa-calendar-alt fa-5x"></i>
-              </div>
-              {% endif %}
-              <!-- Type d'accès affiché sur l'image -->
-              {% if event.infoticket_event %}
-              <div
+            </div>
+            {% endif %}
+            <!-- Type d'accès affiché sur l'image -->
+            {% if event.infoticket_event %}
+            <div
                 class="event-date position-absolute top-0 start-0 bg-primary text-white px-3 py-1 rounded-bottom"
-              >
-                <i
+            >
+              <i
                   class="fas fa-{% if event.infoticket_event.type_access == 'gratuit' %}unlock-alt{% else %}lock {% endif %} me-2"
-                ></i>
-                {{ event.infoticket_event.type_access|title }}
-              </div>
-              {% endif %}
+              ></i>
+              {{ event.infoticket_event.type_access|title }}
+            </div>
+            {% endif %}
               <!-- Dates affichées sous l'image -->
               <div class="event-date mt-2">
                 <i class="fas fa-calendar-days text-primary"></i>
                 {{ event.start_date }} - {{ event.end_date }}
-              </div>
+          </div>
             </div>
             <div class="card-body">
-              <!-- Lieu de l'événement -->
+            <!-- Lieu de l'événement -->
               <div
                 class="event-location mb-2 d-flex justify-content-between align-items-center"
               >
                 <div>
                   <i class="fas fa-map-marker-alt text-primary"></i>
-                  {{ event.location }}
-                </div>
+              {{ event.location }}
+            </div>
                 <span class="badge bg-secondary">{{ event.category.name }}</span>
               </div>
               <!-- Titre et catégorie -->
-              <h5 class="card-title mb-2">{{ event.title }}</h5>
+            <h5 class="card-title mb-2">{{ event.title }}</h5>
               <!-- Type d'événement -->
               <div class="mb-2">
-                {% if event.type_event == 'private' %}
-                <span class="badge bg-info">Privé</span>
-                {% else %}
-                <span class="badge bg-success">Public</span>
-                {% endif %}
-              </div>
+              {% if event.type_event == 'private' %}
+              <span class="badge bg-info">Privé</span>
+              {% else %}
+              <span class="badge bg-success">Public</span>
+              {% endif %}
+            </div>
               <!-- Lien et type d'accès -->
               <div class="d-flex justify-content-between align-items-center mt-3">
-                <a
-                  href="{% url 'event:event_detail' event.uid %}"
+            <a
+              href="{% url 'event:event_detail' event.uid %}"
                   class="btn btn-primary"
                   >Voir les détails</a
-                >
+            >
               </div>
-            </div>
           </div>
         </div>
+      </div>
       {% endfor %}
     </div>
 
