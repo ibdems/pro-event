@@ -17,7 +17,7 @@
     --border-radius: 8px;
     --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     --font-size-base: 0.875rem;
-    --font-size-sm: 0.8rem;
+    --font-size-sm: 1rem;
     --font-size-lg: 1rem;
     --font-size-xl: 1.25rem;
 }
@@ -1022,9 +1022,57 @@
     .main-header .page-title {
         margin-left: 0.5rem;
     }
+
+    .nav-item.open .nav-submenu {
+        position: static !important;
+        left: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        background: linear-gradient(135deg, #091c3c, #1e3d7c) !important;
+        z-index: 1001;
+    }
+
+    .sidebar-collapsed .nav-submenu {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        position: static !important;
+        left: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        background: linear-gradient(135deg, #091c3c, #1e3d7c) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        z-index: 1001;
+    }
+
+    .sidebar-collapsed .nav-item:hover .nav-submenu {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
 }
 
 /* On retire l'ancien bouton .sidebar-close du sidebar */
 .sidebar-close {
     display: none !important;
+}
+
+.nav-item.open .nav-submenu,
+.nav-item.open .nav-submenu a {
+    color: #fff !important;
+    font-size: 0.9rem;
+}
+
+.nav-item.open .nav-submenu {
+    background: linear-gradient(135deg, #091c3c, #1e3d7c) !important;
+}
+
+.nav-submenu-item.active a {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }

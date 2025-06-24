@@ -410,21 +410,11 @@
             </h1>
           </div>
           <div class="header-right">
-            <div class="search-bar">
-              <input type="text" placeholder="Rechercher..." />
-              <button>
-                <i class="fas fa-search"></i>
-              </button>
-            </div>
+
             <div class="header-actions">
 
               <div class="dropdown user-dropdown">
-                <button
-                  class="btn dropdown-toggle"
-                  type="button"
-                  id="userDropdown"
-                  data-bs-toggle="dropdown"
-                >
+
                   {% if request.user.photo %}
                   <img
                     src="{{ request.user.photo.url }}"
