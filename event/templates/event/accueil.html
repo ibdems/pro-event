@@ -244,9 +244,9 @@
 </style>
 {% endblock extra_css %} {% block content %}
 <!-- Section Héros -->
-<section class="hero-section position-relative" style="min-height: 90vh; margin-top: 60px;">
+<section class="hero-section position-relative">
   <picture>
-    <source media="(max-width: 576px)" srcset="{% static 'img/baniere-mobile.jpg' %}">
+    <source media="(max-width: 576px)" srcset="{% static 'img/baniere-mobile.jpg' %}" >
     <source media="(max-width: 991.98px)" srcset="{% static 'img/baniere-pc.jpg' %}">
     <img src="{% static 'img/baniere-pc.jpg' %}" alt="Bannière ProEvent" class="w-100 h-100 position-absolute top-0 start-0" style="object-fit: cover; min-height: 90vh; z-index:0;">
   </picture>
@@ -254,7 +254,7 @@
     <div class="hero-content mt-5 text-start">
       <span class="badge bg-primary mb-3">Organisation événementielle</span>
       <h1 class="display-2 fw-bold text-primary">
-        Votre événement, notre mission
+        Votre événement, <br>notre mission
       </h1>
       <p class="mb-4 text-black">
         Avec ProEvent, transformez vos idées en événements mémorables.<br />
@@ -271,7 +271,7 @@
       </div>
     </div>
   </div>
-  <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(120deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 10%, rgba(255,255,255,0) 100%); z-index:1;"></div>
+  <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(120deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 5%, rgba(255,255,255,0) 100%); z-index:1;"></div>
 </section>
 
 <!-- Section Pourquoi choisir ProEvent -->
