@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 
 import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,6 +12,14 @@ env = environ.Env(
 )
 
 environ.Env.read_env(BASE_DIR / ".env")
+
+sentry_sdk.init(
+    dsn="https://8ac95c0f385b0546a460455ab326b530@o4508716806963200.ingest.de.sentry.io/4509565728522320",
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=0.5,
+    send_default_pii=True,
+    environment="production",
+)
 
 SECRET_KEY = "7d0bsn&@=dyb@v0f)fmtk6esv2(49@sy_11sia&d1=y@9=_!ut"
 
