@@ -1,4 +1,6 @@
 from django import forms
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV3
 
 from .models import Category, Contact, Event, InfoTicket, Partner, Payement
 
@@ -186,9 +188,11 @@ class TicketForms(forms.ModelForm):
 
 
 class ContactForm(forms.ModelForm):
+    captcha = ReCaptchaField(widget=ReCaptchaV3(action="contact"))
+
     class Meta:
         model = Contact
-        fields = ("name", "email", "subject", "message")
+        fields = ("name", "email", "subject", "message", "captcha")
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Votre nom"}),
             "email": forms.EmailInput(

@@ -91,6 +91,10 @@
                             {{ form.message }}
                             {% if form.message.errors %}<div class="text-danger">{{ form.message.errors }}</div>{% endif %}
                         </div>
+                        <div class="mb-3">
+                            {{ form.captcha }}
+                            {% if form.captcha.errors %}<div class="text-danger">{{ form.captcha.errors }}</div>{% endif %}
+                        </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">Envoyer</button>
                         </div>

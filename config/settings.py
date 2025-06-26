@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "dashboard",
     "ckeditor",
     "ckeditor_uploader",
+    "django_recaptcha",
 ]
 
 MIDDLEWARE = [
@@ -153,9 +154,9 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 # EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "ibrahima882001@gmail.com"
-EMAIL_HOST_PASSWORD = "kgqh dzyc keer zlfv"
-DEFAULT_FROM_EMAIL = "ibrahima882001@gmail.com"
+EMAIL_HOST_USER = "proevent62@gmail.com"
+EMAIL_HOST_PASSWORD = "xugh ecvs nifp dggg"
+DEFAULT_FROM_EMAIL = "proevent62@gmail.com"
 EMAIL_USE_TLS = True
 
 # URL de base pour les liens dans les emails
@@ -205,3 +206,8 @@ LOGGING = {
     },
 }
 PAYCARD_ECOMMERCE_CODE = "ODc5NjI4MzA"
+
+RECAPTCHA_PUBLIC_KEY = "6LcEWm4rAAAAAIUX5WEmuaqtBcK3QvUTavaXlPYE"
+RECAPTCHA_PRIVATE_KEY = "6LcEWm4rAAAAAKoQiIuN2Fa9SsHjlNhTH1IXWIEK"
+RECAPTCHA_DEFAULT_ACTION = "contact"
+RECAPTCHA_SCORE_THRESHOLD = 0.5
