@@ -2,9 +2,9 @@
 Connexion{% endblock %} {% block auth_title %}Connectez-vous à votre compte
 {% endblock %} {% block auth_content %}
 <a href="{% url 'event:home' %}" class="text-primary mb-2 d-inline-block"
-  ><i class="fas fa-arrow-left me-1"></i>Retour à l'accueil</a
+  ><i class="fas fa-arrow-left ms-3"></i>Retour à l'accueil</a
 >
-<form method="post" class="auth-form">
+<form method="post" class="auth-form m-3">
   {% csrf_token %}
   {% if form.non_field_errors %}
   <div class="form-error mb-2">
