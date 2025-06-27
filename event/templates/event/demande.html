@@ -402,6 +402,10 @@
                                                value="{{ anonymous_user_forms.contact.value|default_if_none:'' }}">
                                         {% if errors.anonymous_user.contact %}<div class="text-danger">{{ errors.anonymous_user.contact }}</div>{% endif %}
                                     </div>
+                                    <div class="col-12 mb-3">
+                                        {{ anonymous_user_forms.captcha }}
+                                        {% if errors.anonymous_user.captcha %}<div class="text-danger">{{ errors.anonymous_user.captcha }}</div>{% endif %}
+                                    </div>
                                 </div>
                             </div>
                         {% endif %}

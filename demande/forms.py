@@ -1,13 +1,17 @@
 from django import forms
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV3
 
 from demande.models import AnonymousUser, Demande, Service, ServiceHotesse
 from users.models import User
 
 
 class AnonymousUserForms(forms.ModelForm):
+    captcha = ReCaptchaField(widget=ReCaptchaV3(action="demande"))
+
     class Meta:
         model = AnonymousUser
-        fields = ("first_name", "last_name", "email", "contact")
+        fields = ("first_name", "last_name", "email", "contact", "captcha")
 
     def clean_email(self):
         email = self.cleaned_data.get("email")

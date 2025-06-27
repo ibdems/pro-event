@@ -10,6 +10,8 @@ from django.contrib.auth.forms import (
     UserCreationForm,
 )
 from django.core.exceptions import ValidationError
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV3
 
 from users.models import User
 
@@ -26,6 +28,7 @@ class CustomLoginForm(AuthenticationForm):
         strip=False,
         widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Mot de passe"}),
     )
+    captcha = ReCaptchaField(widget=ReCaptchaV3(action="login"))
 
     def clean(self) -> dict:
         username = self.cleaned_data.get("username")
@@ -109,6 +112,7 @@ class CustomCreateUserForm(UserCreationForm):
             attrs={"class": "form-control", "placeholder": "Confirmez votre mot de passe"}
         ),
     )
+    captcha = ReCaptchaField(widget=ReCaptchaV3(action="signup"))
 
     class Meta:
         model = User
@@ -120,6 +124,7 @@ class CustomCreateUserForm(UserCreationForm):
             "contact",
             "password1",
             "password2",
+            "captcha",
         )
         widgets = {
             "first_name": forms.TextInput(
