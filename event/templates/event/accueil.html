@@ -430,39 +430,39 @@
             </div>
             {% endif %}
               <!-- Dates affichées sous l'image -->
-              <div class="event-date mt-2">
+              <div class="event-date mt-2 m-2">
                 <i class="fas fa-calendar-days text-primary"></i>
-                {{ event.start_date }} - {{ event.end_date }}
+                {{ event.start_date|date:"d M Y H:i" }} - {{ event.end_date|date:"d M Y H:i" }}
           </div>
             </div>
             <div class="card-body">
             <!-- Lieu de l'événement -->
               <div
-                class="event-location mb-2 d-flex justify-content-between align-items-center"
+                class="event-location mb-2 m-2 d-flex justify-content-between align-items-center"
               >
                 <div>
                   <i class="fas fa-map-marker-alt text-primary"></i>
-              {{ event.location }}
-            </div>
+                  {{ event.location }}
+                </div>
                 <span class="badge bg-secondary">{{ event.category.name }}</span>
               </div>
               <!-- Titre et catégorie -->
-            <h5 class="card-title mb-2">{{ event.title }}</h5>
+              <h5 class="card-title mb-2 m-2">{{ event.title }}</h5>
               <!-- Type d'événement -->
-              <div class="mb-2">
-              {% if event.type_event == 'private' %}
-              <span class="badge bg-info">Privé</span>
-              {% else %}
-              <span class="badge bg-success">Public</span>
-              {% endif %}
-            </div>
+              <div class="mb-2 m-2">
+                {% if event.type_event == 'private' %}
+                <span class="badge bg-info">Privé</span>
+                {% else %}
+                <span class="badge bg-success">Public</span>
+                {% endif %}
+              </div>
               <!-- Lien et type d'accès -->
               <div class="d-flex justify-content-between align-items-center mt-3">
-            <a
-              href="{% url 'event:event_detail' event.uid %}"
-                  class="btn btn-primary"
-                  >Voir les détails</a
-            >
+                <a
+                  href="{% url 'event:event_detail' event.uid %}"
+                      class="btn btn-primary"
+                      >Voir les détails</a
+                >
               </div>
           </div>
         </div>
