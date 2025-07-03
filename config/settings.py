@@ -171,7 +171,7 @@ EMAIL_USE_TLS = True
 
 # URL de base pour les liens dans les emails
 BASE_URL = "http://127.0.0.1:8000"
-DOMAIN_URL = "127.0.0.1:8000"  # Utilisé dans les templates d'activation et de réinitialisation
+DOMAIN_URL = "127.0.0.1:8000"
 
 # Configuration de Celery avec Redis comme broker
 CELERY_BROKER_URL = "redis://127.0.0.1:6380/0"

@@ -39,6 +39,8 @@ STATICFILES_LOCATION = "proevent-static"
 
 B2_CUSTOM_DOMAIN = env("B2_CUSTOM_DOMAIN", default=None)
 
+DOMAIN_URL = "proeventgn.com"
+
 if B2_CUSTOM_DOMAIN:
     MEDIA_URL = f"https://{B2_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/"
     STATIC_URL = f"https://{B2_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/"
