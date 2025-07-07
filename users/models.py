@@ -50,6 +50,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     update_at = models.DateTimeField(auto_now=True, null=True)
     date_joined = models.DateTimeField(default=timezone.now)
+    activation_token = models.CharField(max_length=64, blank=True, null=True)
+    activation_token_created_at = models.DateTimeField(null=True, blank=True)
     objects = UserManager()
     USERNAME_FIELD = "email"
 

@@ -1,5 +1,6 @@
 import random
 import string
+import uuid
 
 from django import forms
 from django.contrib.auth import authenticate
@@ -10,6 +11,7 @@ from django.contrib.auth.forms import (
     UserCreationForm,
 )
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV3
 
@@ -40,6 +42,10 @@ class CustomLoginForm(AuthenticationForm):
 
             # Vérifier si le compte est actif
             if not user.is_active:
+                # Générer un nouveau token sécurisé et daté
+                user.activation_token = uuid.uuid4().hex
+                user.activation_token_created_at = timezone.now()
+                user.save()
                 # Renvoyer l'email d'activation en arrière-plan
                 task_id = send_mail_activation(user.id)
                 print(f"Tâche d'envoi d'email d'activation lancée avec ID: {task_id}")

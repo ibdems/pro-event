@@ -1,9 +1,10 @@
 import logging
+import uuid
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import (
     LoginView,
     PasswordResetCompleteView,
@@ -14,7 +15,7 @@ from django.contrib.auth.views import (
 from django.db import transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.utils.http import urlsafe_base64_decode
+from django.utils import timezone
 from django.utils.timezone import now
 from django.views import View
 from django.views.generic import CreateView
@@ -62,6 +63,8 @@ class CustomUserCreationView(CreateView):
                 user = form.save(commit=False)
                 user.is_active = False
                 user.role = "organisateur"
+                user.activation_token = uuid.uuid4().hex
+                user.activation_token_created_at = timezone.now()
                 user.save()
                 user.refresh_from_db()
                 logger.warning(
@@ -94,23 +97,29 @@ class ActivationUserView(View):
 
     def get(self, request, uid, token):
         try:
-            id = urlsafe_base64_decode(uid).decode("utf-8")
+            id = uid
             user = User.objects.get(pk=id)
             logger.warning(
                 f"[ACTIVATION] uid={uid}, token={token}, user.id={user.id}"
                 f", user.email={user.email}, is_active={user.is_active}"
             )
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            # Log l'erreur
             print(f"Activation échouée: uid={uid}, token={token}")
             messages.error(request, "Le lien d'activation est invalide.")
             return render(request, "accounts/activation_invalid.html")
 
-        if default_token_generator.check_token(user, token):
+        # Vérification du token et de l'expiration (24h)
+        if (
+            user.activation_token == token
+            and user.activation_token_created_at
+            and timezone.now() - user.activation_token_created_at <= timedelta(hours=24)
+        ):
             if user.is_active:
                 messages.info(request, "Votre compte est déjà activé. Vous pouvez vous connecter.")
             else:
                 user.is_active = True
+                user.activation_token = None
+                user.activation_token_created_at = None
                 user.save()
                 messages.success(
                     request,
