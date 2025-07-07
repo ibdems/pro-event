@@ -96,6 +96,10 @@ class ActivationUserView(View):
         try:
             id = urlsafe_base64_decode(uid).decode("utf-8")
             user = User.objects.get(pk=id)
+            logger.warning(
+                f"[ACTIVATION] uid={uid}, token={token}, user.id={user.id}"
+                f", user.email={user.email}, is_active={user.is_active}"
+            )
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             # Log l'erreur
             print(f"Activation échouée: uid={uid}, token={token}")
