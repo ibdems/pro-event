@@ -26,7 +26,7 @@ def generate_and_save_ticket_pdf(self, event_id, ticket_id, payement_id):
         payement = Payement.objects.get(id=payement_id)
 
         # Obtenir le domaine depuis les paramètres
-        site_url = getattr(settings, "BASE_URL", "https://proeventgn.com")
+        site_url = getattr(settings, "DOMAIN_URL", "https://proeventgn.com")
 
         # Contexte avec le domaine pour les URLs absolues
         # Pour S3/Backblaze, les URLs sont déjà complètes, pas besoin de les préfixer
@@ -114,9 +114,9 @@ def send_invitation_email(self, invitation_id):
         event = invitation.event
 
         # Construire l'URL avec le token pour accepter/refuser
-        base_url = getattr(settings, "BASE_URL", "https://proeventgn.com")
-        accept_url = f"{base_url}/invitation/{invitation.token}/accept/"
-        decline_url = f"{base_url}/invitation/{invitation.token}/decline/"
+        base_url = getattr(settings, "DOMAIN_URL", "https://proeventgn.com")
+        accept_url = f"https://{base_url}/invitation/{invitation.token}/accept/"
+        decline_url = f"https://{base_url}/invitation/{invitation.token}/decline/"
 
         context = {
             "invitation": invitation,
@@ -171,7 +171,7 @@ def generate_and_send_invitation_ticket(self, invitation_id):
         event = ticket.event
 
         # Obtenir le domaine depuis les paramètres
-        site_url = getattr(settings, "BASE_URL", "https://proeventgn.com")
+        site_url = getattr(settings, "DOMAIN_URL", "https://proeventgn.com")
 
         # Contexte avec le domaine pour les URLs absolues
         context = {
@@ -330,7 +330,7 @@ def send_ticket_by_whatsapp(self, payement_id, result=None):
                             "document": {
                                 "filename": f"ticket_{ticket.code_ticket}.pdf",
                                 "caption": message_text,
-                                "link": f"{settings.BASE_URL}{ticket.ticket_pdf.url}"
+                                "link": f"https://{settings.DOMAIN_URL}{ticket.ticket_pdf.url}"
                             }
                         }
                     )

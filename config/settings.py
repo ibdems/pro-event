@@ -170,7 +170,6 @@ DEFAULT_FROM_EMAIL = "proevent62@gmail.com"
 EMAIL_USE_TLS = True
 
 # URL de base pour les liens dans les emails
-BASE_URL = "http://127.0.0.1:8000"
 DOMAIN_URL = "127.0.0.1:8000"
 
 # Configuration de Celery avec Redis comme broker
