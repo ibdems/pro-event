@@ -15,8 +15,8 @@ from django.contrib.auth.views import (
 from django.db import transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode
-from django.utils.timezone import now, timezone
 from django.views import View
 from django.views.generic import CreateView
 
@@ -83,7 +83,9 @@ class CustomUserCreationView(CreateView):
         except Exception as e:
             print(f"Erreur lors de la création du compte: {e}")
             messages.error(
-                self.request, f"Une erreur est survenue lors de la création de votre compte: {e}"
+                self.request,
+                "Une erreur technique est survenue lors de"
+                " la création de votre compte. Veuillez réessayer plus tard.",
             )
             return self.form_invalid(form)
 
@@ -112,7 +114,7 @@ class ActivationUserView(View):
         if (
             user.activation_token == token
             and user.activation_token_created_at
-            and now() - user.activation_token_created_at <= timedelta(hours=24)
+            and timezone.now() - user.activation_token_created_at <= timedelta(hours=24)
         ):
             if user.is_active:
                 messages.info(request, "Votre compte est déjà activé. Vous pouvez vous connecter.")
@@ -209,7 +211,7 @@ def lock(request):
             # Si l'utilisateur est authentifié, déverrouiller la session
             login(request, user)
             request.session["locked"] = False
-            request.session["last_activity"] = now().timestamp()
+            request.session["last_activity"] = timezone.now().timestamp()
             return redirect("dashboard:home")  # Redirection après succès
         else:
             return render(
