@@ -15,8 +15,8 @@ from django.contrib.auth.views import (
 from django.db import transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.utils import timezone
-from django.utils.timezone import now
+from django.utils.http import urlsafe_base64_decode
+from django.utils.timezone import now, timezone
 from django.views import View
 from django.views.generic import CreateView
 
@@ -97,7 +97,7 @@ class ActivationUserView(View):
 
     def get(self, request, uid, token):
         try:
-            id = uid
+            id = urlsafe_base64_decode(uid).decode("utf-8")
             user = User.objects.get(pk=id)
             logger.warning(
                 f"[ACTIVATION] uid={uid}, token={token}, user.id={user.id}"
@@ -108,11 +108,11 @@ class ActivationUserView(View):
             messages.error(request, "Le lien d'activation est invalide.")
             return render(request, "accounts/activation_invalid.html")
 
-        # Vérification du token et de l'expiration (24h)
+        # Vérification du token d'activation personnalisé
         if (
             user.activation_token == token
             and user.activation_token_created_at
-            and timezone.now() - user.activation_token_created_at <= timedelta(hours=24)
+            and now() - user.activation_token_created_at <= timedelta(hours=24)
         ):
             if user.is_active:
                 messages.info(request, "Votre compte est déjà activé. Vous pouvez vous connecter.")

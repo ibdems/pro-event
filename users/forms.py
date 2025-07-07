@@ -42,10 +42,10 @@ class CustomLoginForm(AuthenticationForm):
 
             # Vérifier si le compte est actif
             if not user.is_active:
-                # Générer un nouveau token sécurisé et daté
+                # Générer un nouveau token d'activation et le stocker
                 user.activation_token = uuid.uuid4().hex
                 user.activation_token_created_at = timezone.now()
-                user.save()
+                user.save(update_fields=["activation_token", "activation_token_created_at"])
                 # Renvoyer l'email d'activation en arrière-plan
                 task_id = send_mail_activation(user.id)
                 print(f"Tâche d'envoi d'email d'activation lancée avec ID: {task_id}")
