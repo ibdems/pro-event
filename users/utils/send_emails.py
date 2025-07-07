@@ -6,12 +6,12 @@ from users.tasks import (
 )
 
 
-def send_mail_activation(user):
+def send_mail_activation(user_id):
     task = send_activation_email.delay(
-        user_id=user.id,
-        email=user.email,
-        first_name=user.first_name or "",
-        last_name=user.last_name or "",
+        user_id=user_id,
+        email=None,
+        first_name=None,
+        last_name=None,
     )
 
     return task.id

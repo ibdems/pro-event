@@ -41,7 +41,7 @@ class CustomLoginForm(AuthenticationForm):
             # Vérifier si le compte est actif
             if not user.is_active:
                 # Renvoyer l'email d'activation en arrière-plan
-                task_id = send_mail_activation(user)
+                task_id = send_mail_activation(user.id)
                 print(f"Tâche d'envoi d'email d'activation lancée avec ID: {task_id}")
 
                 # Message plus descriptif pour aider l'utilisateur

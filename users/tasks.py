@@ -13,7 +13,7 @@ from users.models import User
 
 
 @shared_task(name="users.send_activation_email")
-def send_activation_email(user_id, email, first_name, last_name):
+def send_activation_email(user_id, email=None, first_name=None, last_name=None):
     """
     Tâche Celery pour l'envoi d'un email d'activation de compte
     """
@@ -21,17 +21,16 @@ def send_activation_email(user_id, email, first_name, last_name):
 
     try:
         user = User.objects.get(id=user_id)
-
+        email = user.email
+        first_name = user.first_name or ""
+        last_name = user.last_name or ""
         # Génération des tokens
         uid = urlsafe_base64_encode(force_bytes(user.id))
         token = default_token_generator.make_token(user)
-
         # Contexte pour le template
         context = {"user": user, "uid": uid, "token": token, "domain": settings.DOMAIN_URL}
-
         # Rendu du template HTML
         html_message = render_to_string("registration/activation_mail.html", context)
-
         # Version texte simple
         plain_message = f"""
 Bonjour {first_name} {last_name or ''} ou {email},
@@ -46,10 +45,8 @@ Ce lien est valable pendant 24 heures.
 Cordialement,
 L'équipe ProEvent
         """
-
         # Récupérer l'email expéditeur depuis les paramètres
         from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@proevent.com")
-
         # Envoi de l'email avec version HTML et texte
         send_mail(
             subject="Activation de votre compte",
@@ -59,7 +56,6 @@ L'équipe ProEvent
             fail_silently=False,
             html_message=html_message,
         )
-
         return f"Email d'activation envoyé à {email} (uid={uid}, token={token})"
     except User.DoesNotExist:
         return f"Utilisateur {user_id} introuvable"

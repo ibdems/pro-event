@@ -59,7 +59,7 @@ class CustomUserCreationView(CreateView):
                 user.is_active = False
                 user.role = "organisateur"
                 user.save()
-                transaction.on_commit(lambda: send_mail_activation(user))
+                transaction.on_commit(lambda: send_mail_activation(user.id))
 
             messages.success(
                 self.request,
