@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -26,6 +28,8 @@ from .forms import (
     CustomSetPasswordForm,
 )
 from .utils.send_emails import send_mail_activation, send_mail_reset_password
+
+logger = logging.getLogger(__name__)
 
 
 class CustomLoginView(LoginView):
@@ -59,6 +63,11 @@ class CustomUserCreationView(CreateView):
                 user.is_active = False
                 user.role = "organisateur"
                 user.save()
+                user.refresh_from_db()
+                logger.warning(
+                    f"[DJANGO] Création: id={user.id}, email={user.email}, "
+                    f"is_active={user.is_active}, last_login={user.last_login}"
+                )
                 transaction.on_commit(lambda: send_mail_activation(user.id))
 
             messages.success(

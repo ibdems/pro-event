@@ -1,3 +1,4 @@
+import logging
 import random
 import string
 
@@ -10,6 +11,8 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from users.models import User
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task(name="users.send_activation_email")
@@ -24,6 +27,10 @@ def send_activation_email(user_id, email=None, first_name=None, last_name=None):
         email = user.email
         first_name = user.first_name or ""
         last_name = user.last_name or ""
+        logger.warning(
+            f"[CELERY] Activation: id={user.id}, email={user.email}, "
+            f"is_active={user.is_active}, last_login={user.last_login}"
+        )
         # Génération des tokens
         uid = urlsafe_base64_encode(force_bytes(user.id))
         token = default_token_generator.make_token(user)
