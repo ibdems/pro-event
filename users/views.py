@@ -60,9 +60,8 @@ class CustomUserCreationView(CreateView):
                 user.role = "organisateur"
                 user.save()
 
-                # Déclencher l'envoi de l'email d'activation en tâche de fond
-                task_id = send_mail_activation(user)
-                print(f"Tâche d'envoi d'email d'activation lancée avec ID: {task_id}")
+            task_id = send_mail_activation(user)
+            print(f"Tâche d'envoi d'email d'activation lancée avec ID: {task_id}")
 
             messages.success(
                 self.request,
