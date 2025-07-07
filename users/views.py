@@ -59,9 +59,7 @@ class CustomUserCreationView(CreateView):
                 user.is_active = False
                 user.role = "organisateur"
                 user.save()
-
-            task_id = send_mail_activation(user)
-            print(f"Tâche d'envoi d'email d'activation lancée avec ID: {task_id}")
+                transaction.on_commit(lambda: send_mail_activation(user))
 
             messages.success(
                 self.request,
