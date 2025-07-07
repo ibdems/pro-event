@@ -62,7 +62,7 @@ class CustomLoginForm(AuthenticationForm):
             auth_user = authenticate(email=username, password=password)
 
             if auth_user is None:
-                raise ValidationError("Mot de passe incorrect.")
+                raise ValidationError("Email ou mot de passe incorrect.")
 
             # Stocker l'utilisateur pour une utilisation ultérieure
             self.cleaned_data["user"] = auth_user
