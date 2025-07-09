@@ -134,13 +134,13 @@
             {% if event.description %}
                 <div class="description">
                     <h3>À propos de l'événement:</h3>
-                    <p>{{ event.description|linebreaks }}</p>
+                    <p>{{ event.description|safe|linebreaks }}</p>
                 </div>
             {% endif %}
             {% if invitation.message %}
                 <div class="message">
                     <h3>Message personnel:</h3>
-                    <p>{{ invitation.message|linebreaks }}</p>
+                    <p>{{ invitation.message|safe|linebreaks }}</p>
                 </div>
             {% endif %}
             <div class="action-buttons">

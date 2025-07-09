@@ -285,7 +285,7 @@
                             data-bs-dismiss="modal"
                             aria-label="Close"></button>
                 </div>
-                <form method="post" action="#" id="password-change-form">
+                <form method="post" action="{% url 'dashboard:profile_edit' %}" id="password-change-form">
                     <div class="modal-body">
                         {% csrf_token %}
                         <input type="hidden" name="password_change" value="1" />
@@ -294,7 +294,7 @@
                             <input type="password"
                                    class="form-control"
                                    id="current_password"
-                                   name="current_password"
+                                   name="old_password"
                                    required />
                         </div>
                         <div class="mb-3">

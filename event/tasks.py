@@ -212,7 +212,13 @@ def generate_and_send_invitation_ticket(self, invitation_id):
         email = EmailMessage(subject, message, "tickets@proevent.com", [invitation.email])
 
         if ticket.ticket_pdf:
-            email.attach_file(ticket.ticket_pdf.path)
+            response = requests.get(ticket.ticket_pdf.url)
+            if response.status_code == 200:
+                email.attach(
+                    filename=os.path.basename(ticket.ticket_pdf.name),
+                    content=response.content,
+                    mimetype="application/pdf",
+                )
 
         email.send()
         return True
