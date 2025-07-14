@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nouvelle demande reçue - ProEvent</title>
+    <style>
+        body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        .header { text-align: center; padding: 20px 0; border-bottom: 1px solid #eee; }
+        .header h1 { color: #4a6fdc; margin: 0; }
+        .content { padding: 20px 0; }
+        .footer { text-align: center; padding: 20px 0; color: #888; font-size: 12px; border-top: 1px solid #eee; }
+        .btn { display: inline-block; padding: 12px 25px; background-color: #4a6fdc; color: white; text-decoration: none; border-radius: 4px; margin-top: 15px; }
+        .btn:hover { background-color: #3a5dba; }
+        .service-card { background-color: #f5f7fa; border-left: 4px solid #4a6fdc; padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+        .info-list { list-style: none; padding: 0; }
+        .info-list li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ProEvent</h1>
+            <p>Notification interne - Nouvelle demande</p>
+        </div>
+        <div class="content">
+            <h2>Nouvelle demande reçue</h2>
+            <ul class="info-list">
+                <li><strong>Nom :</strong> {{ user.get_full_name|default:user.email }}</li>
+                <li><strong>Email :</strong> {{ user.email }}</li>
+                <li><strong>ID Demande :</strong> {{ demande.pk }}</li>
+                <li><strong>Date :</strong> {{ demande.created_at|date:"d/m/Y H:i" }}</li>
+            </ul>
+            <h3>Services demandés :</h3>
+            {% for service in services %}
+                <div class="service-card">
+                    <h4>{{ service.name }}</h4>
+                    <p>{{ service.description }}</p>
+                </div>
+            {% endfor %}
+            <!-- Ajouter d'autres détails pertinents sur l'événement, ticket, etc. -->
+            <div style="text-align: center">
+                <a href="{{ dashboard_url }}" class="btn">Voir la demande dans le dashboard</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>&copy; {% now "Y" %} ProEvent. Tous droits réservés.</p>
+            <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
+        </div>
+    </div>
+</body>
+</html>

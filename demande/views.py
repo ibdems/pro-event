@@ -1,9 +1,13 @@
+from django.conf import settings
 from django.contrib import messages
+from django.core.mail import send_mail
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
 from django.views import View
 
 from demande.forms import AnonymousUserForms, ServiceHotesseForms
 from demande.models import Demande, Service
+from demande.utils import create_user_from_anonymous_user
 from event.forms import EventForms, TicketForms
 from event.models import Category
 
@@ -105,6 +109,74 @@ class DemandeView(View):
             if selected_services:
                 services = Service.objects.filter(accronyme__in=selected_services)
                 demande.service.set(services)
+
+            password = None
+            user = None
+            if instances["anonymous_user"] and not request.user.is_authenticated:
+                from users.models import User
+
+                email = instances["anonymous_user"].email
+                if not User.objects.filter(email=email).exists():
+                    user, password = create_user_from_anonymous_user(instances["anonymous_user"])
+                    demande.user = user
+                    demande.save()
+
+            user_email = None
+            if request.user.is_authenticated:
+                user_email = request.user.email
+            elif instances["anonymous_user"]:
+                user_email = instances["anonymous_user"].email
+            if user_email:
+                html_message = render_to_string(
+                    "event/emails/demande_confirmation.html",
+                    {
+                        "name": (
+                            request.user.get_full_name()
+                            if request.user.is_authenticated
+                            else (
+                                instances["anonymous_user"].first_name
+                                if instances["anonymous_user"]
+                                else ""
+                            )
+                        ),
+                        "services": demande.service.all(),
+                        "demande": demande,
+                        "has_password": bool(password),
+                        "password": password,
+                    },
+                )
+                send_mail(
+                    subject="Confirmation de votre demande",
+                    message=(
+                        "Votre demande a bien été reçue. "
+                        "Nous la traiterons dans les plus brefs délais."
+                    ),
+                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@proevent.com"),
+                    recipient_list=[user_email],
+                    fail_silently=True,
+                    html_message=html_message,
+                )
+
+            team_email = getattr(settings, "TEAM_EMAIL", "proevent62@gmail.com")
+            domain_url = getattr(settings, "DOMAIN_URL", "https://proeventgn.com")
+            dashboard_url = f"{domain_url}/dashboard/demandes/{demande.uid}/"
+            html_message_team = render_to_string(
+                "event/emails/demande_notification.html",
+                {
+                    "demande": demande,
+                    "services": demande.service.all(),
+                    "user": demande.user or instances["anonymous_user"],
+                    "dashboard_url": dashboard_url,
+                },
+            )
+            send_mail(
+                subject="Nouvelle demande soumise",
+                message="Une nouvelle demande a été soumise",
+                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "proevent62@gmail.com"),
+                recipient_list=[team_email],
+                fail_silently=True,
+                html_message=html_message_team,
+            )
 
             messages.success(
                 request,

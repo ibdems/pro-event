@@ -3,7 +3,6 @@ from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV3
 
 from demande.models import AnonymousUser, Demande, Service, ServiceHotesse
-from users.models import User
 
 
 class AnonymousUserForms(forms.ModelForm):
@@ -17,8 +16,7 @@ class AnonymousUserForms(forms.ModelForm):
         email = self.cleaned_data.get("email")
         if not email:
             raise forms.ValidationError("L'email est requis.")
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError("Cet email a deja un compte. Connectez-vous.")
+
         return email
 
 
