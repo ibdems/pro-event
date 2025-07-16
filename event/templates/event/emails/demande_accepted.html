@@ -111,11 +111,11 @@
                         </p>
                     </div>
                     <div style="text-align: center">
-                        <a href="{% url 'login' %}" class="btn">Accéder à mon tableau de bord</a>
+                        <a href="http://{{ domain }}{% url 'login' %}" class="btn">Accéder à mon tableau de bord</a>
                     </div>
                 {% else %}
                     <div style="text-align: center">
-                        <a href="{% url 'login' %}" class="btn">Accéder à mon tableau de bord</a>
+                        <a href="http://{{ domain }}{% url 'login' %}" class="btn">Accéder à mon tableau de bord</a>
                     </div>
                 {% endif %}
                 <p>
