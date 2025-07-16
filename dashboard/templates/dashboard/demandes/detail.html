@@ -255,8 +255,7 @@ de la demande {% endblock title %} {% block page_title %} Détails de la demande
                       <td><strong>Total</strong></td>
                       <td>
                         <strong>
-                          {{
-                          demande.ticket.normal_capacity|add:demande.ticket.vip_capacity|add:demande.ticket.vvip_capacity
+                          {{ demande.ticket.normal_capacity|add:demande.ticket.vip_capacity|add:demande.ticket.vvip_capacity
                           }}
                         </strong>
                       </td>

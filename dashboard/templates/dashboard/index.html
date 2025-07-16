@@ -210,12 +210,9 @@
                                             <h6>Demande #{{ demande.id }}</h6>
                                             <p>
                                                 {% if demande.anonymous_user %}
-                                                    Par: {{
-                                                    demande.anonymous_user.first_name }} {{
-                                                    demande.anonymous_user.last_name }}
+                                                    Par: {{ demande.anonymous_user.first_name }} {{ demande.anonymous_user.last_name }}
                                                 {% elif demande.user %}
-                                                    Par: {{ demande.user.first_name }} {{ demande.user.last_name
-                                                    }}
+                                                    Par: {{ demande.user.first_name }} {{ demande.user.last_name }}
                                                 {% else %}
                                                     Utilisateur inconnu
                                                 {% endif %}
