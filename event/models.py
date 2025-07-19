@@ -420,3 +420,34 @@ class Invitation(models.Model):
         verbose_name = "Invitation"
         verbose_name_plural = "Invitations"
         ordering = ["-created_at"]
+
+
+class EventScanner(models.Model):
+    """Modèle pour gérer les utilisateurs autorisés à scanner les tickets d'un événement"""
+
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="scanners")
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="scanner_events")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "users.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="scanner_assignments",
+    )
+
+    class Meta:
+        unique_together = ["event", "user"]
+        verbose_name = "Scanner d'événement"
+        verbose_name_plural = "Scanners d'événements"
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.event.title}"
+
+    @classmethod
+    def is_user_authorized(cls, user, event):
+        """Vérifie si un utilisateur est autorisé à scanner les tickets d'un événement"""
+        if user.is_staff or user.is_superuser:
+            return True
+        return cls.objects.filter(event=event, user=user, is_active=True).exists()

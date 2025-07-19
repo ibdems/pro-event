@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import (
@@ -19,8 +19,9 @@ from django.views.generic import (
 )
 
 from event.forms import CategoryForms, EventForms, PartnerForms, TicketForms
-from event.models import Category, Event, InfoTicket, Invitation, Partner
+from event.models import Category, Event, EventScanner, InfoTicket, Invitation, Partner
 from event.tasks import send_invitation_email
+from users.models import User
 
 
 class AdminOrOrganizerRequiredMixin(UserPassesTestMixin):
@@ -692,3 +693,109 @@ class EventDownloadInvitationTemplateView(LoginRequiredMixin, View):
         writer.writerow(["Marie Martin", "marie.martin@example.com", "vip"])
 
         return response
+
+
+class EventScannerListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """Vue pour lister les scanners d'un événement dans le dashboard"""
+
+    template_name = "dashboard/events/scanner_list.html"
+    context_object_name = "scanners"
+
+    def test_func(self):
+        event = get_object_or_404(Event, uid=self.kwargs.get("uid"))
+        return (
+            self.request.user.is_staff
+            or self.request.user.is_superuser
+            or event.user == self.request.user
+        )
+
+    def get_queryset(self):
+        event = get_object_or_404(Event, uid=self.kwargs.get("uid"))
+        return EventScanner.objects.filter(event=event).select_related("user", "created_by")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["event"] = get_object_or_404(Event, uid=self.kwargs.get("uid"))
+        return context
+
+
+class EventScannerAddView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Vue pour ajouter un scanner à un événement dans le dashboard"""
+
+    template_name = "dashboard/events/scanner_add.html"
+
+    def test_func(self):
+        event = get_object_or_404(Event, uid=self.kwargs.get("uid"))
+        return (
+            self.request.user.is_staff
+            or self.request.user.is_superuser
+            or event.user == self.request.user
+        )
+
+    def get(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, uid=self.kwargs.get("uid"))
+        # Récupérer tous les utilisateurs qui ne sont pas déjà scanners pour cet événement
+        existing_scanners = EventScanner.objects.filter(event=event).values_list(
+            "user_id", flat=True
+        )
+        available_users = User.objects.filter(is_active=True, role="scanner").exclude(
+            id__in=existing_scanners
+        )
+
+        context = {
+            "event": event,
+            "available_users": available_users,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, uid=self.kwargs.get("uid"))
+        user_id = request.POST.get("user_id")
+
+        if not user_id:
+            messages.error(request, "Veuillez sélectionner un utilisateur.")
+            return redirect("dashboard:event_scanner_add", uid=event.uid)
+
+        try:
+            user = User.objects.get(id=user_id, is_active=True)
+
+            # Vérifier si l'utilisateur n'est pas déjà scanner
+            if EventScanner.objects.filter(event=event, user=user).exists():
+                messages.error(request, "Cet utilisateur est déjà scanner pour cet événement.")
+                return redirect("dashboard:event_scanner_add", uid=event.uid)
+
+            # Créer le scanner
+            EventScanner.objects.create(event=event, user=user, created_by=request.user)
+
+            messages.success(request, f"{user.get_full_name()} a été ajouté comme scanner.")
+            return redirect("dashboard:event_scanner_list", uid=event.uid)
+
+        except User.DoesNotExist:
+            messages.error(request, "Utilisateur introuvable.")
+            return redirect("dashboard:event_scanner_add", uid=event.uid)
+
+
+class EventScannerRemoveView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Vue pour retirer un scanner d'un événement dans le dashboard"""
+
+    def test_func(self):
+        event = get_object_or_404(Event, uid=self.kwargs.get("uid"))
+        return (
+            self.request.user.is_staff
+            or self.request.user.is_superuser
+            or event.user == self.request.user
+        )
+
+    def post(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, uid=self.kwargs.get("uid"))
+        scanner_id = request.POST.get("scanner_id")
+
+        try:
+            scanner = EventScanner.objects.get(id=scanner_id, event=event)
+            user_name = scanner.user.get_full_name()
+            scanner.delete()
+            messages.success(request, f"{user_name} a été retiré des scanners.")
+        except EventScanner.DoesNotExist:
+            messages.error(request, "Scanner introuvable.")
+
+        return redirect("dashboard:event_scanner_list", uid=event.uid)

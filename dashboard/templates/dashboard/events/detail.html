@@ -22,40 +22,30 @@
                 <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
             </ol>
         </nav>
-        <!-- Actions rapides -->
-        <div class="d-flex justify-content-end mb-4">
+        <!-- Actions rapides - Boutons alignés horizontalement -->
+        <div class="d-flex justify-content-end mb-4 flex-wrap gap-2">
             <a href="{% url 'dashboard:event_edit' uid=event.uid %}"
-               class="btn btn-primary me-2">
+               class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Modifier
             </a>
-            <div class="dropdown me-2">
-                <button class="btn btn-outline-primary dropdown-toggle"
-                        type="button"
-                        id="moreActionsDropdown"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    <i class="fas fa-cog me-2"></i>Actions
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="moreActionsDropdown">
-                    <li>
-                        <a class="dropdown-item"
-                           href="{% url 'event:event_detail' event.uid %}"
-                           target="_blank"><i class="fas fa-eye me-2"></i>Voir côté client</a>
-                    </li>
-                    {% if event.type_event %}
-                        <li>
-                            <a class="dropdown-item"
-                               href="{% url 'dashboard:event_invitations' uid=event.uid %}"><i class="fas fa-envelope me-2"></i>Gérer les invitations</a>
-                        </li>
-                    {% endif %}
-                    <li>
-                        <a class="dropdown-item" href="#"><i class="fas fa-share-alt me-2"></i>Partager</a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#"><i class="fas fa-qrcode me-2"></i>Générer QR Code</a>
-                    </li>
-                </ul>
-            </div>
+            <a href="{% url 'event:event_detail' event.uid %}"
+               target="_blank"
+               class="btn btn-outline-info">
+                <i class="fas fa-eye me-2"></i>Voir côté client
+            </a>
+            {% if event.type_event %}
+                <a href="{% url 'dashboard:event_invitations' uid=event.uid %}"
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-envelope me-2"></i>Gérer les invitations
+                </a>
+            {% endif %}
+            <a href="{% url 'dashboard:event_scanner_list' uid=event.uid %}"
+               class="btn btn-outline-success">
+                <i class="fas fa-qrcode me-2"></i>Gérer les scanners
+            </a>
+            <button class="btn btn-outline-primary" onclick="shareEvent()">
+                <i class="fas fa-share-alt me-2"></i>Partager
+            </button>
             {% if event.statut %}
                 <button class="btn btn-success">
                     <i class="fas fa-check-circle me-2"></i>Actif
@@ -205,6 +195,60 @@
                         </div>
                     </div>
                 {% endif %}
+
+                <!-- Scanners -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-qrcode me-2"></i>Scanners autorisés
+                        </h5>
+                        <a href="{% url 'dashboard:event_scanner_list' uid=event.uid %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-cog me-1"></i>Gérer
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% with event.scanners.count as scanner_count %}
+                            {% if scanner_count > 0 %}
+                                <div class="row g-3">
+                                    {% for scanner in event.scanners.all %}
+                                        <div class="col-md-6 col-lg-4">
+                                            <div class="scanner-card p-3 border rounded">
+                                                <div class="d-flex align-items-center">
+                                                    {% if scanner.user.photo %}
+                                                        <img src="{{ scanner.user.photo.url }}"
+                                                             alt="{{ scanner.user.get_full_name }}"
+                                                             class="rounded-circle me-3"
+                                                             width="40" height="40">
+                                                    {% else %}
+                                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                             style="width: 40px; height: 40px;">
+                                                            <i class="fas fa-user"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div>
+                                                        <h6 class="mb-1">{{ scanner.user.get_full_name }}</h6>
+                                                        <small class="text-muted">{{ scanner.user.email }}</small>
+                                                        {% if scanner.user.contact %}
+                                                            <br><small class="text-muted">{{ scanner.user.contact }}</small>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-3">
+                                    <i class="fas fa-qrcode fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted mb-0">Aucun scanner assigné</p>
+                                    <a href="{% url 'dashboard:event_scanner_add' uid=event.uid %}" class="btn btn-sm btn-primary mt-2">
+                                        <i class="fas fa-plus me-1"></i>Ajouter un scanner
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
                 <!-- Section invitations (uniquement pour événements privés) -->
                 {% if event.type_event %}
                     <div id="invitations" class="card dashboard-card mb-4">
@@ -806,6 +850,8 @@
   }
     </style>
 {% endblock extra_css %}
+{% url 'event:event_detail' event.uid as event_relative_url %}
+{% with event_url=request.build_absolute_uri|add:event_relative_url %}
 {% block extra_js %}
     <script>
   $(document).ready(function () {
@@ -813,13 +859,10 @@
     $("#openInviteModalBtn, #openInviteModalBtn2").on("click", function (e) {
       e.preventDefault();
       try {
-        // Solution 1: Utilisation de l'API vanilla JS
         var modalEl = document.getElementById("inviteModal");
         modalEl.classList.add("show");
         modalEl.style.display = "block";
         document.body.classList.add("modal-open");
-
-        // Créer un backdrop manuellement
         var backdropEl = document.createElement("div");
         backdropEl.className = "modal-backdrop fade show";
         document.body.appendChild(backdropEl);
@@ -831,13 +874,10 @@
     // Gestionnaire pour le bouton de fermeture du modal
     $(".btn-close, [data-bs-dismiss='modal']").on("click", function () {
       try {
-        // Solution 1: Utilisation de l'API vanilla JS
         var modalEl = document.getElementById("inviteModal");
         modalEl.classList.remove("show");
         modalEl.style.display = "none";
         document.body.classList.remove("modal-open");
-
-        // Supprimer le backdrop
         var backdropEl = document.querySelector(".modal-backdrop");
         if (backdropEl) {
           backdropEl.parentNode.removeChild(backdropEl);
@@ -850,26 +890,15 @@
     // Gestion des onglets manuellement
     $(".nav-tabs .nav-link").on("click", function (e) {
       e.preventDefault();
-
-      // Désactiver tous les onglets
-      $(".nav-tabs .nav-link")
-        .removeClass("active")
-        .attr("aria-selected", "false");
-
-      // Activer l'onglet cliqué
+      $(".nav-tabs .nav-link").removeClass("active").attr("aria-selected", "false");
       $(this).addClass("active").attr("aria-selected", "true");
-
-      // Cacher tous les contenus d'onglets
       $(".tab-pane").removeClass("show active");
-
-      // Afficher le contenu de l'onglet sélectionné
       var targetId = $(this).attr("data-bs-target");
       $(targetId).addClass("show active");
     });
 
     // Gestion des invitations en masse - ne pas empêcher la soumission du formulaire
     $("#csvUploadForm").on("submit", function () {
-      // Le formulaire sera soumis normalement
       return true;
     });
 
@@ -881,5 +910,40 @@
       }
     });
   });
+
+  // Fonction pour partager l'événement
+  function shareEvent() {
+    const eventTitle = "{{ event.title }}";
+    const eventUrl = "{{ event_url }}";
+    const shareText = `Découvrez l'événement : ${eventTitle}`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: eventTitle,
+        text: shareText,
+        url: eventUrl
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(eventUrl).then(function() {
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-success position-fixed';
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.innerHTML = `
+          <i class="fas fa-check-circle me-2"></i>
+          Lien de l'événement copié dans le presse-papier !
+          <button type="button" class="btn-close ms-2" onclick="this.parentElement.remove()"></button>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          if (toast.parentElement) {
+            toast.remove();
+          }
+        }, 3000);
+      }).catch(function() {
+        alert('Lien de l\'événement : ' + eventUrl);
+      });
+    }
+  }
     </script>
 {% endblock extra_js %}
+{% endwith %}

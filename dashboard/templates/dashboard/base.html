@@ -410,11 +410,9 @@
             </h1>
           </div>
           <div class="header-right">
-
             <div class="header-actions">
-
               <div class="dropdown user-dropdown">
-
+                <button class="btn btn-link dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                   {% if request.user.photo %}
                   <img
                     src="{{ request.user.photo.url }}"
@@ -428,29 +426,19 @@
                     class="user-avatar-small"
                   />
                   {% endif %}
-                  <span class="d-none d-md-inline"
-                    >{{ request.user.get_full_name }}</span
-                  >
+                  <span class="d-none d-md-inline ms-2">{{ request.user.get_full_name }}</span>
                 </button>
-                <ul
-                  class="dropdown-menu dropdown-menu-end"
-                  aria-labelledby="userDropdown"
-                >
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                   <li>
-                    <a
-                      class="dropdown-item"
-                      href="{% url 'dashboard:profile' %}"
-                      ><i class="fas fa-user"></i> Profil</a
-                    >
+                    <a class="dropdown-item" href="{% url 'dashboard:profile' %}">
+                      <i class="fas fa-user me-2"></i>Profil
+                    </a>
                   </li>
-
+                  <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <hr class="dropdown-divider" />
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="{% url 'logout' %}"
-                      ><i class="fas fa-sign-out-alt"></i> Déconnexion</a
-                    >
+                    <a class="dropdown-item" href="{% url 'logout' %}">
+                      <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                    </a>
                   </li>
                 </ul>
               </div>
@@ -492,9 +480,11 @@
         </footer>
       </div>
     </div>
-    <!-- JavaScript Dependencies -->
+
+    <!-- JavaScript Dependencies - UNIQUEMENT UNE FOIS -->
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
     <!-- Custom JavaScript -->
     <script>
       // Sidebar toggle
@@ -595,6 +585,7 @@
         });
       });
     </script>
+
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
@@ -605,38 +596,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
-    <!-- Script personnalisé pour le dashboard -->
-    <script src="{% static 'js/dashboard.js' %}"></script>
-    <!-- Scripts -->
-    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'js/dashboard.js' %}"></script>
-
-    <!-- DataTables Scripts -->
-    <script
-      type="text/javascript"
-      src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.datatables.net/responsive/2.3.0/js/responsive.bootstrap5.min.js"
-    ></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/responsive.bootstrap5.min.js"></script>
 
     <!-- Script responsive pour les tableaux -->
     <script src="{% static 'js/responsive-tables.js' %}"></script>

@@ -10,7 +10,13 @@ from event.views.public import (
     MentionsLegalesView,
     PolitiqueConfidentialiteView,
 )
-from event.views.scan import CheckTicketView, ScanCodeView
+from event.views.scan import (
+    CheckTicketView,
+    EventScannerAddView,
+    EventScannerListView,
+    EventScannerRemoveView,
+    ScanCodeView,
+)
 
 app_name = "event"
 urlpatterns = [
@@ -20,6 +26,14 @@ urlpatterns = [
     path("event/detail/<uid>", DetailEventView.as_view(), name="event_detail"),
     path("event/<str:event_id>/scan/", ScanCodeView.as_view(), name="scan_code"),
     path("check_ticket/<str:code>/", CheckTicketView.as_view(), name="check_ticket"),
+    # URLs pour la gestion des scanners
+    path("event/<str:event_id>/scanners/", EventScannerListView.as_view(), name="scanner_list"),
+    path("event/<str:event_id>/scanners/add/", EventScannerAddView.as_view(), name="scanner_add"),
+    path(
+        "event/<str:event_id>/scanners/remove/",
+        EventScannerRemoveView.as_view(),
+        name="scanner_remove",
+    ),
     path(
         "invitation/<str:token>/accept/",
         InvitationResponseView.as_view(),

@@ -28,6 +28,9 @@ from dashboard.views.event_views import (
     EventEditView,
     EventImportInvitationsView,
     EventListView,
+    EventScannerAddView,
+    EventScannerListView,
+    EventScannerRemoveView,
     EventSendInvitationView,
     PartnerAddView,
     PartnerDeleteView,
@@ -68,6 +71,16 @@ urlpatterns = [
     path("events/<uuid:uid>/detail/", EventDetailView.as_view(), name="event_detail"),
     path("events/<uuid:uid>/activate/", EventActivateView.as_view(), name="event_activate"),
     path("events/<uuid:uid>/deactivate/", EventDeactivateView.as_view(), name="event_deactivate"),
+    # Gestion des scanners d'événements
+    path("events/<uuid:uid>/scanners/", EventScannerListView.as_view(), name="event_scanner_list"),
+    path(
+        "events/<uuid:uid>/scanners/add/", EventScannerAddView.as_view(), name="event_scanner_add"
+    ),
+    path(
+        "events/<uuid:uid>/scanners/remove/",
+        EventScannerRemoveView.as_view(),
+        name="event_scanner_remove",
+    ),
     # Gestion des invitations pour les événements privés
     path(
         "events/<uuid:uid>/invitations/",

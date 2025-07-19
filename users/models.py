@@ -33,6 +33,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     role_choices = (
         ("membre", "Membre"),
         ("organisateur", "Organisateur"),
+        ("scanner", "Scanner"),  # Ajout du rôle scanner
     )
     email = models.EmailField(verbose_name="Adresse Email", unique=True)
     first_name = models.CharField(max_length=150, blank=True, null=True, verbose_name="Prénom")

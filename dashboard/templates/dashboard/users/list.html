@@ -61,12 +61,9 @@
                             <label for="filter-role" class="form-label">Rôle</label>
                             <select class="form-select" id="filter-role" name="role">
                                 <option value="">Tous les rôles</option>
-                                <option value="admin" {% if request.GET.role == 'admin' %}selected{% endif %}>Administrateur</option>
-                                <option value="organizer"
-                                        {% if request.GET.role == 'organizer' %}selected{% endif %}>
-                                    Organisateur
-                                </option>
-                                <option value="user" {% if request.GET.role == 'user' %}selected{% endif %}>Utilisateur</option>
+                                <option value="membre" {% if request.GET.role == 'membre' %}selected{% endif %}>Membre</option>
+                                <option value="organisateur" {% if request.GET.role == 'organisateur' %}selected{% endif %}>Organisateur</option>
+                                <option value="scanner" {% if request.GET.role == 'scanner' %}selected{% endif %}>Scanner</option>
                             </select>
                         </div>
                         <div class="col-md-3 mb-3">
@@ -156,12 +153,14 @@
                                     </td>
                                     <td>
                                         <div class="d-flex">
-                                            {% if user.is_superuser %}<span class="badge bg-danger me-1">Admin</span>
+                                            {% if user.role == 'scanner' %}
+                                                <span class="badge bg-success me-1">Scanner</span>
+                                            {% elif user.role == 'organisateur' %}
+                                                <span class="badge bg-primary me-1">Organisateur</span>
+                                            {% elif user.role == 'membre' %}
+                                                <span class="badge bg-secondary me-1">Membre</span>
                                             {% endif %}
-                                            {% if user.is_staff and not user.is_superuser %}<span class="badge bg-primary me-1">Organisateur</span>{% endif %}
-                                            {% if not user.is_staff and not user.is_superuser %}
-                                                <span class="badge bg-secondary me-1">Utilisateur</span>
-                                            {% endif %}
+                                            {% if user.is_superuser %}<span class="badge bg-danger me-1">Admin</span>{% endif %}
                                         </div>
                                     </td>
                                     <td class="text-center">

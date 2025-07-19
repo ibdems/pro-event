@@ -1,0 +1,111 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Ajouter un Scanner - {{ event.title }}{% endblock title %}
+
+{% block page_title %}Ajouter un Scanner - {{ event.title }}{% endblock page_title %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% url 'dashboard:event_scanner_list' uid=event.uid %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour aux scanners
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Ajouter un scanner pour "{{ event.title }}"
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if available_users %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="user_id" class="form-label">Sélectionner un utilisateur :</label>
+                                <select name="user_id" id="user_id" class="form-select" required>
+                                    <option value="">Choisir un utilisateur...</option>
+                                    {% for user in available_users %}
+                                        <option value="{{ user.id }}">
+                                            {{ user.get_full_name }} ({{ user.email }})
+                                            {% if user.role %} - {{ user.get_role_display }}{% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">
+                                    Seuls les utilisateurs actifs qui ne sont pas déjà scanners pour cet événement sont affichés.
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Ajouter le scanner
+                                </button>
+                                <a href="{% url 'dashboard:event_scanner_list' uid=event.uid %}" class="btn btn-outline-secondary">
+                                    Annuler
+                                </a>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucun utilisateur disponible</h5>
+                            <p class="text-muted">
+                                Tous les utilisateurs actifs sont déjà assignés comme scanners pour cet événement
+                                ou il n'y a pas d'utilisateurs disponibles.
+                            </p>
+                            <a href="{% url 'dashboard:event_scanner_list' uid=event.uid %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Retour aux scanners
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6>À propos des scanners :</h6>
+                    <ul class="mb-3">
+                        <li>Les scanners peuvent accéder à la page de scan de tickets</li>
+                        <li>Ils doivent être connectés à leur compte</li>
+                        <li>Chaque scan est tracé et enregistré</li>
+                        <li>Les administrateurs ont automatiquement accès</li>
+                    </ul>
+
+                    <h6>Événement :</h6>
+                    <div class="mb-3">
+                        <strong>{{ event.title }}</strong><br>
+                        <small class="text-muted">
+                            {{ event.start_date|date:"d/m/Y H:i" }} - {{ event.end_date|date:"d/m/Y H:i" }}<br>
+                            {{ event.location }}
+                        </small>
+                    </div>
+
+                    <h6>Scanners actuels :</h6>
+                    <div class="mb-0">
+                        {% with event.scanners.count as scanner_count %}
+                            <span class="badge bg-primary">{{ scanner_count }} scanner{{ scanner_count|pluralize }}</span>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

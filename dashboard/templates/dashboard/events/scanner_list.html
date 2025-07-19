@@ -1,0 +1,173 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Scanners - {{ event.title }}{% endblock title %}
+
+{% block page_title %}Gestion des Scanners - {{ event.title }}{% endblock page_title %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% url 'dashboard:event_detail' uid=event.uid %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour à l'événement
+                </a>
+                <a href="{% url 'dashboard:event_scanner_add' uid=event.uid %}" class="btn btn-sm btn-success">
+                    <i class="fas fa-plus me-2"></i>Ajouter un scanner
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-qrcode me-2"></i>
+                        Scanners autorisés pour "{{ event.title }}"
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if scanners %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Utilisateur</th>
+                                        <th>Email</th>
+                                        <th>Contact</th>
+                                        <th>Ajouté par</th>
+                                        <th>Date d'ajout</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for scanner in scanners %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if scanner.user.photo %}
+                                                    <img src="{{ scanner.user.photo.url }}"
+                                                         alt="{{ scanner.user.get_full_name }}"
+                                                         class="rounded-circle me-2"
+                                                         width="32" height="32">
+                                                {% else %}
+                                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                         style="width: 32px; height: 32px;">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ scanner.user.get_full_name }}</strong>
+                                                    {% if scanner.user.role %}
+                                                        <br><small class="text-muted">{{ scanner.user.get_role_display }}</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ scanner.user.email }}</td>
+                                        <td>{{ scanner.user.contact|default:"Non spécifié" }}</td>
+                                        <td>
+                                            {% if scanner.created_by %}
+                                                {{ scanner.created_by.get_full_name }}
+                                            {% else %}
+                                                <span class="text-muted">Système</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ scanner.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <form method="post" action="{% url 'dashboard:event_scanner_remove' uid=event.uid %}"
+                                                  style="display: inline;"
+                                                  onsubmit="return confirm('Êtes-vous sûr de vouloir retirer ce scanner ?')">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="scanner_id" value="{{ scanner.id }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash me-1"></i>Retirer
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-qrcode fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucun scanner assigné</h5>
+                            <p class="text-muted">Aucun utilisateur n'est actuellement autorisé à scanner les tickets pour cet événement.</p>
+                            <a href="{% url 'dashboard:event_scanner_add' uid=event.uid %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Ajouter le premier scanner
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations sur le scan de tickets
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>URL de scan pour cet événement :</h6>
+                            <div class="input-group">
+                                <input type="text"
+                                       class="form-control"
+                                       value="{{ request.scheme }}://{{ request.get_host }}{% url 'event:scan_code' event_id=event.uid %}"
+                                       readonly>
+                                <button class="btn btn-outline-secondary"
+                                        type="button"
+                                        onclick="copyToClipboard(this.previousElementSibling)">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Partagez cette URL avec les scanners autorisés</small>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Instructions :</h6>
+                            <ul class="mb-0">
+                                <li>Seuls les utilisateurs listés ci-dessus peuvent accéder à la page de scan</li>
+                                <li>Les scanners doivent être connectés à leur compte pour scanner les tickets</li>
+                                <li>Chaque scan est enregistré avec l'identité du scanner</li>
+                                <li>Les administrateurs et organisateurs ont automatiquement accès</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(element) {
+    element.select();
+    element.setSelectionRange(0, 99999); // Pour mobile
+    document.execCommand("copy");
+
+    // Afficher une notification
+    const button = element.nextElementSibling;
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i>';
+    button.classList.remove('btn-outline-secondary');
+    button.classList.add('btn-success');
+
+    setTimeout(() => {
+        button.innerHTML = originalHTML;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+</script>
+{% endblock content %}

@@ -40,12 +40,8 @@ class UserListView(AdminRequiredMixin, LoginRequiredMixin, ListView):
 
         # Filtrer par rôle
         role = self.request.GET.get("role")
-        if role == "admin":
-            queryset = queryset.filter(is_superuser=True)
-        elif role == "organizer":
-            queryset = queryset.filter(is_staff=True, is_superuser=False)
-        elif role == "user":
-            queryset = queryset.filter(is_staff=False, is_superuser=False)
+        if role:
+            queryset = queryset.filter(role=role)
 
         # Filtrer par statut
         is_active = self.request.GET.get("is_active")
