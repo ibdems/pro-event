@@ -347,87 +347,12 @@ l'événement {% endblock title %} {% block content %}
                 </div>
               </div>
             </div>
-            <!-- Modes de paiement -->
+            <!-- Paiement Lengo Pay (unique passerelle) -->
+            <input type="hidden" name="payment_method" value="lengopay" />
             <div class="mb-3">
-              <label class="form-label">Mode de paiement *</label>
-              <div class="row g-2" id="payment-methods-row">
-                <div class="col-6 col-sm-3">
-                  <input
-                    type="radio"
-                    class="btn-check"
-                    name="payment_method"
-                    id="orange-money"
-                    value="orange_money"
-                    required
-                  />
-                  <label
-                    class="btn payment-method-card w-100 h-100 d-flex align-items-center justify-content-center"
-                    for="orange-money"
-                  >
-                    <img
-                      src="{% static 'img/logo_om.png' %}"
-                      alt="Orange Money"
-                      class="payment-icon"
-                    />
-                  </label>
-                </div>
-                <div class="col-6 col-sm-3">
-                  <input
-                    type="radio"
-                    class="btn-check"
-                    name="payment_method"
-                    id="mobile-money"
-                    value="mobile_money"
-                  />
-                  <label
-                    class="btn payment-method-card w-100 h-100 d-flex align-items-center justify-content-center"
-                    for="mobile-money"
-                  >
-                    <img
-                      src="{% static 'img/logo_mtn.png' %}"
-                      alt="Mobile Money"
-                      class="payment-icon"
-                    />
-                  </label>
-                </div>
-                <div class="col-6 col-sm-3">
-                  <input
-                    type="radio"
-                    class="btn-check"
-                    name="payment_method"
-                    id="paycard"
-                    value="paycard"
-                  />
-                  <label
-                    class="btn payment-method-card w-100 h-100 d-flex align-items-center justify-content-center"
-                    for="paycard"
-                  >
-                    <img
-                      src="{% static 'img/logo_paycard.png' %}"
-                      alt="Paycard"
-                      class="payment-icon"
-                    />
-                  </label>
-                </div>
-                <div class="col-6 col-sm-3">
-                  <input
-                    type="radio"
-                    class="btn-check"
-                    name="payment_method"
-                    id="visa"
-                    value="visa"
-                  />
-                  <label
-                    class="btn payment-method-card w-100 h-100 d-flex align-items-center justify-content-center"
-                    for="visa"
-                  >
-                    <img
-                      src="{% static 'img/logo_visa.png' %}"
-                      alt="Visa"
-                      class="payment-icon"
-                    />
-                  </label>
-                </div>
+              <div class="alert alert-light border d-flex align-items-center">
+                <i class="fas fa-lock text-success me-2"></i>
+                <span>Paiement sécurisé par <strong>Lengo Pay</strong> (Orange Money, MTN, Visa, etc.)</span>
               </div>
             </div>
             <!-- Champ pour les tickets Normaux -->
@@ -611,28 +536,6 @@ l'événement {% endblock title %} {% block content %}
               }
           });
       });
-
-      // Mise en surbrillance du mode de paiement sélectionné
-      const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
-      paymentRadios.forEach(radio => {
-          radio.addEventListener('change', function() {
-              document.querySelectorAll('.payment-method-card').forEach(label => {
-                  label.classList.remove('border-primary', 'border-3', 'shadow');
-              });
-              const selectedLabel = document.querySelector('label[for="' + this.id + '"]');
-              if (selectedLabel) {
-                  selectedLabel.classList.add('border-primary', 'border-3', 'shadow');
-              }
-          });
-      });
-      // Initialiser le style si un mode est déjà sélectionné
-      const checkedRadio = document.querySelector('input[name="payment_method"]:checked');
-      if (checkedRadio) {
-          const selectedLabel = document.querySelector('label[for="' + checkedRadio.id + '"]');
-          if (selectedLabel) {
-              selectedLabel.classList.add('border-primary', 'border-3', 'shadow');
-          }
-      }
 
       // Gestion responsive
       window.addEventListener('resize', function() {

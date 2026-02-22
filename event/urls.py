@@ -3,7 +3,7 @@ from django.urls import path
 from event.views.contact import ContactView
 from event.views.event import DetailEventView, EventView
 from event.views.invitation import InvitationResponseView
-from event.views.payments import paycard_callback
+from event.views.payments import lengopay_callback, lengopay_return
 from event.views.public import (
     ConditionsUtilisationView,
     HomeView,
@@ -57,5 +57,6 @@ urlpatterns = [
         PolitiqueConfidentialiteView.as_view(),
         name="politique_confidentialite",
     ),
-    path("paycard/return/<str:reference>/", paycard_callback, name="paycard_callback"),
+    path("lengopay/callback/", lengopay_callback, name="lengopay_callback"),
+    path("lengopay/return/", lengopay_return, name="lengopay_return"),
 ]

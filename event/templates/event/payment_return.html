@@ -5,13 +5,19 @@
     {% if status == "success" %}
         <div class="alert alert-success text-center">
             <h2>Paiement réussi !</h2>
-            <p>Merci pour votre achat. Vos tickets seront envoyés sous peu.</p>
+            <p>Merci pour votre achat. Vos tickets seront envoyés sous peu par email.</p>
+            <a href="/" class="btn btn-primary mt-3">Retour à l'accueil</a>
+        </div>
+    {% elif status == "pending" %}
+        <div class="alert alert-info text-center">
+            <h2>Paiement en cours</h2>
+            <p>Votre paiement est en cours de traitement. Vous recevrez vos tickets par email dès que la confirmation sera reçue.</p>
             <a href="/" class="btn btn-primary mt-3">Retour à l'accueil</a>
         </div>
     {% else %}
         <div class="alert alert-danger text-center">
             <h2>Échec du paiement</h2>
-            <p>Votre paiement n'a pas pu être validé. {{ error }}</p>
+            <p>Votre paiement n'a pas pu être validé. {{ error|default:"" }}</p>
             <a href="/" class="btn btn-secondary mt-3">Réessayer</a>
         </div>
     {% endif %}

@@ -222,6 +222,11 @@ class PayementForm(forms.ModelForm):
     quantity_normal = forms.IntegerField(min_value=0, required=False)
     quantity_vip = forms.IntegerField(min_value=0, required=False)
     quantity_vvip = forms.IntegerField(min_value=0, required=False)
+    payment_method = forms.CharField(
+        initial="lengopay",
+        required=False,
+        widget=forms.HiddenInput(),
+    )
 
     class Meta:
         model = Payement

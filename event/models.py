@@ -234,10 +234,8 @@ class InfoTicket(models.Model):
 
 class Payement(models.Model):
     mode_choices = [
-        ("orange_money", "Orange money"),
-        ("mobile_money", "Mobile money"),
-        ("paycard", "Paycard"),
-        ("visa", "VISA"),
+        ("lengopay", "Lengo Pay"),
+        ("invitation", "Invitation"),
     ]
     reference_payement = models.CharField(max_length=100, unique=True)
     operation_reference = models.CharField(max_length=100, unique=True, null=True, blank=True)
@@ -245,7 +243,7 @@ class Payement(models.Model):
     email_reception = models.EmailField(null=True, blank=True)
     telephone_reception = models.CharField(max_length=20, null=True, blank=True)
     payment_method = models.CharField(
-        max_length=25, choices=mode_choices, default="orange_money", null=True, blank=True
+        max_length=25, choices=mode_choices, default="lengopay", null=True, blank=True
     )
     statut_payement = models.CharField(max_length=30, default="en_attente")
     quantity = models.PositiveIntegerField(default=1)

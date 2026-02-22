@@ -9,34 +9,69 @@ def generer_reference():
     return str(uuid.uuid4())
 
 
-def create_paycard_payment(request, montant, description, payment_method):
-    url = "https://mapaycard.com/epay/create/"
-    reference = generer_reference()
-    callback_url = request.build_absolute_uri(reverse("event:paycard_callback", args=[reference]))
-    data = {
-        "c": settings.PAYCARD_ECOMMERCE_CODE,
-        "paycard-amount": montant,
-        "paycard-description": description,
-        "paycard-operation-reference": reference,
-        "paycard-callback-url": callback_url,
-        "paycard-auto-redirect": "off",
-        "paycard-redirect-with-get": "on",
+def create_lengopay_payment(request, amount, currency=None):
+    """
+    Crée un paiement via l'API Lengo Pay (Cash out - Collect payments).
+    Retourne (result_dict, pay_id) en cas de succès.
+    """
+    base_url = getattr(settings, "LENGOPAY_API_BASE_URL", "https://sandbox.lengopay.com").rstrip(
+        "/"
+    )
+    url = f"{base_url}/api/v1/payments"
+    website_id = getattr(settings, "LENGOPAY_WEBSITE_ID", "")
+    license_key = getattr(settings, "LENGOPAY_LICENSE_KEY", "")
+    currency = currency or getattr(settings, "LENGOPAY_CURRENCY", "GNF")
+
+    callback_url = request.build_absolute_uri(reverse("event:lengopay_callback"))
+    return_url = request.build_absolute_uri(reverse("event:lengopay_return"))
+    failure_url = request.build_absolute_uri(reverse("event:lengopay_return"))
+
+    headers = {
+        "Authorization": f"Basic {license_key}",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
     }
-    if payment_method == "paycard":
-        data["paycard-jump-to-paycard"] = "on"
-    elif payment_method == "visa":
-        data["paycard-jump-to-cc"] = "on"
-    elif payment_method == "orange_money":
-        data["paycard-jump-to-om"] = "on"
-    elif payment_method == "mobile_money":
-        data["paycard-jump-to-momo"] = "on"
+    payload = {
+        "websiteid": website_id,
+        "amount": int(amount),
+        "currency": currency,
+        "callback_url": callback_url,
+        "return_url": return_url,
+        "failure_url": failure_url,
+    }
 
-    response = requests.post(url, data=data)
+    response = requests.post(url, json=payload, headers=headers, timeout=30)
     result = response.json()
-    return result, reference
+
+    pay_id = result.get("pay_id") or result.get("payment_id")
+    payment_url = result.get("payment_url")
+
+    if response.status_code == 200 and payment_url and pay_id:
+        return result, pay_id
+
+    return result, None
 
 
-def check_paycard_status(reference):
-    url = f"https://mapaycard.com/epay/{settings.PAYCARD_ECOMMERCE_CODE}/{reference}/status"
-    response = requests.get(url)
+def check_lengopay_status(pay_id):
+    """
+    Vérifie le statut d'un paiement Lengo Pay (POST /api/v1/transaction/status).
+    """
+    base_url = getattr(settings, "LENGOPAY_API_BASE_URL", "https://sandbox.lengopay.com").rstrip(
+        "/"
+    )
+    url = f"{base_url}/api/v1/transaction/status"
+    website_id = getattr(settings, "LENGOPAY_WEBSITE_ID", "")
+    license_key = getattr(settings, "LENGOPAY_LICENSE_KEY", "")
+
+    headers = {
+        "Authorization": f"Basic {license_key}",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "pay_id": pay_id,
+        "websiteid": website_id,
+    }
+
+    response = requests.post(url, json=payload, headers=headers, timeout=15)
     return response.json()

@@ -82,18 +82,14 @@
                             <div class="col-md-3 mb-3">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
-                                        {% if method.payment_method == 'orange_money' %}
-                                            <i class="fas fa-mobile-alt text-warning fa-2x"></i>
-                                        {% elif method.payment_method == 'mobile_money' %}
-                                            <i class="fas fa-mobile-alt text-success fa-2x"></i>
-                                        {% elif method.payment_method == 'paycard' %}
-                                            <i class="fas fa-credit-card text-primary fa-2x"></i>
-                                        {% elif method.payment_method == 'visa' %}
-                                            <i class="fas fa-credit-card text-info fa-2x"></i>
+                                        {% if method.payment_method == 'lengopay' %}
+                                            <i class="fas fa-wallet text-primary fa-2x"></i>
+                                        {% else %}
+                                            <i class="fas fa-credit-card text-secondary fa-2x"></i>
                                         {% endif %}
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <h6 class="mb-0">{{ method.payment_method|title }}</h6>
+                                        <h6 class="mb-0">{% if method.payment_method == 'lengopay' %}Lengo Pay{% else %}{{ method.payment_method|title }}{% endif %}</h6>
                                         <small class="text-muted">
                                             {{ method.count }} paiements<br>
                                             {{ method.total|floatformat:0 }} FG

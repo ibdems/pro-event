@@ -2,7 +2,6 @@ import base64
 import logging
 import os
 
-import requests
 from celery import shared_task
 from celery.exceptions import MaxRetriesExceededError
 from django.conf import settings
@@ -17,6 +16,15 @@ from .models import Event, Invitation, Payement, Ticket
 logger = logging.getLogger("celery")
 
 
+def _normalize_base_url(url):
+    if not url:
+        return "http://127.0.0.1:8000"
+    url = (url or "").strip()
+    if not url.startswith(("http://", "https://")):
+        return "http://" + url
+    return url
+
+
 @shared_task(bind=True, max_retries=3)
 def generate_and_save_ticket_pdf(self, event_id, ticket_id, payement_id):
     """Generate and save ticket PDF asynchronously"""
@@ -25,8 +33,8 @@ def generate_and_save_ticket_pdf(self, event_id, ticket_id, payement_id):
         ticket = Ticket.objects.get(id=ticket_id)
         payement = Payement.objects.get(id=payement_id)
 
-        # Obtenir le domaine depuis les paramètres
-        site_url = getattr(settings, "DOMAIN_URL", "https://proeventgn.com")
+        # Obtenir le domaine depuis les paramètres (WeasyPrint exige une URL avec http/https)
+        site_url = _normalize_base_url(getattr(settings, "DOMAIN_URL", "https://proeventgn.com"))
 
         # Contexte avec le domaine pour les URLs absolues
         # Pour S3/Backblaze, les URLs sont déjà complètes, pas besoin de les préfixer
@@ -61,8 +69,7 @@ def generate_and_save_ticket_pdf(self, event_id, ticket_id, payement_id):
 
 @shared_task(bind=True, max_retries=3)
 def send_ticket_by_email(self, payement_id, result=None):
-    print(f"No payement recu {payement_id} et type: {type(payement_id)}")
-    """Envoie les tickets générés par email"""
+    """Envoie les tickets générés par email. Lit les PDF via le storage Django (local ou S3)."""
     try:
         payement = Payement.objects.get(id=payement_id)
         tickets = Ticket.objects.filter(payement=payement)
@@ -86,13 +93,16 @@ def send_ticket_by_email(self, payement_id, result=None):
 
         for ticket in tickets:
             if ticket.ticket_pdf:
-                response = requests.get(ticket.ticket_pdf.url)
-                if response.status_code == 200:
+                try:
+                    with ticket.ticket_pdf.open("rb") as f:
+                        content = f.read()
                     email.attach(
                         filename=os.path.basename(ticket.ticket_pdf.name),
-                        content=response.content,
+                        content=content,
                         mimetype="application/pdf",
                     )
+                except Exception as e:
+                    logger.warning("Impossible de joindre le PDF du ticket %s: %s", ticket.id, e)
 
         email.send()
         return True
@@ -170,8 +180,8 @@ def generate_and_send_invitation_ticket(self, invitation_id):
         payement = ticket.payement
         event = ticket.event
 
-        # Obtenir le domaine depuis les paramètres
-        site_url = getattr(settings, "DOMAIN_URL", "https://proeventgn.com")
+        # Obtenir le domaine depuis les paramètres (WeasyPrint exige une URL avec http/https)
+        site_url = _normalize_base_url(getattr(settings, "DOMAIN_URL", "https://proeventgn.com"))
 
         # Contexte avec le domaine pour les URLs absolues
         context = {
@@ -212,12 +222,19 @@ def generate_and_send_invitation_ticket(self, invitation_id):
         email = EmailMessage(subject, message, "tickets@proevent.com", [invitation.email])
 
         if ticket.ticket_pdf:
-            response = requests.get(ticket.ticket_pdf.url)
-            if response.status_code == 200:
+            try:
+                with ticket.ticket_pdf.open("rb") as f:
+                    content = f.read()
                 email.attach(
                     filename=os.path.basename(ticket.ticket_pdf.name),
-                    content=response.content,
+                    content=content,
                     mimetype="application/pdf",
+                )
+            except Exception as e:
+                logger.warning(
+                    "Impossible de joindre le PDF du ticket invitation %s: %s",
+                    ticket.id,
+                    e,
                 )
 
         email.send()

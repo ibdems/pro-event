@@ -8,7 +8,7 @@ from django_filters.views import FilterView
 from event.filter import EventFilter
 from event.forms import PayementForm
 from event.models import Event, InfoTicket
-from event.utils import create_paycard_payment
+from event.utils import create_lengopay_payment
 
 
 class EventView(FilterView, ListView):
@@ -111,24 +111,23 @@ class DetailEventView(DetailView):
                     payement.email_reception = data.get("email_reception")
                     payement.telephone_reception = data.get("telephone_reception")
 
-                    # Toujours initier le paiement externe (Orange, Paycard, Visa, MTN MoMo)
+                    # Initier le paiement via Lengo Pay
                     montant = payement.amount
-                    description = f"Paiement pour l'événement {event.title}"
-                    payment_method = data.get("payment_method")
-                    result, reference = create_paycard_payment(
-                        request, montant, description, payment_method
-                    )
-                    if result.get("code") == 0:
-                        payement.operation_reference = reference
+                    payement.payment_method = "lengopay"
+                    result, pay_id = create_lengopay_payment(request, montant)
+                    payment_url = result.get("payment_url")
+                    if pay_id and payment_url:
+                        payement.operation_reference = pay_id
                         payement.statut_payement = "en_attente"
                         payement.save()
-                        return redirect(result["payment_url"])
-                    else:
-                        error_msg = result.get(
-                            "error_message", "Erreur lors de la création du paiement."
-                        )
-                        messages.error(request, error_msg)
-                        return self.render_to_response(self.get_context_data(form=form))
+                        request.session["lengopay_pay_id"] = pay_id
+                        return redirect(payment_url)
+                    error_msg = result.get(
+                        "message",
+                        result.get("error_message", "Erreur lors de la création du paiement."),
+                    )
+                    messages.error(request, error_msg)
+                    return self.render_to_response(self.get_context_data(form=form))
 
             except Exception:
                 messages.error(request, "Une erreur est survenue")
