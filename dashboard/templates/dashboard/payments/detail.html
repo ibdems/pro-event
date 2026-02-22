@@ -158,10 +158,12 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         {% if payment.email_reception %}
-                            <a href="{% url 'dashboard:ticket_send_email_payment' payement_id=payment.id %}"
-                               class="btn btn-primary">
-                                <i class="fas fa-envelope me-2"></i>Renvoyer le reçu par email
-                            </a>
+                            <form method="post" action="{% url 'dashboard:ticket_send_email_payment' payement_id=payment.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-envelope me-2"></i>Renvoyer le reçu par email
+                                </button>
+                            </form>
                         {% endif %}
                         <a href="{% url 'dashboard:payment_list' %}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Retour à la liste

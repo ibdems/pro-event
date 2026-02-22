@@ -215,7 +215,18 @@ class TicketPrintView(LoginRequiredMixin, DetailView):
 
 
 class TicketSendEmailView(LoginRequiredMixin, View):
-    """Vue pour envoyer un ticket par email"""
+    """Vue pour envoyer un ticket par email (POST). GET redirige vers la page appropriée."""
+
+    def get(self, request, *args, **kwargs):
+        """Évite le 405 si l'URL est ouverte en GET (lien, barre d'adresse)."""
+        payement_id = kwargs.get("payement_id")
+        ticket_id = kwargs.get("ticket_id")
+        if payement_id:
+            return redirect(reverse("dashboard:payment_detail", kwargs={"id": payement_id}))
+        if ticket_id:
+            ticket = get_object_or_404(Ticket, id=ticket_id)
+            return redirect(reverse("dashboard:ticket_detail", kwargs={"code": ticket.code_ticket}))
+        return redirect("dashboard:ticket_list")
 
     def post(self, request, *args, **kwargs):
         payement_id = kwargs.get("payement_id")
@@ -234,18 +245,21 @@ class TicketSendEmailView(LoginRequiredMixin, View):
             payement_id = ticket.payement.id
             tickets = [ticket]
         elif payement_id:
+            payment_redirect = redirect(
+                reverse("dashboard:payment_detail", kwargs={"id": payement_id})
+            )
             # Vérifier l'accès aux tickets associés à ce paiement
             tickets = Ticket.objects.filter(payement_id=payement_id)
             if not tickets.exists():
                 messages.error(request, "Aucun ticket trouvé pour ce paiement.")
-                return redirect("dashboard:ticket_list")
+                return payment_redirect
 
             if (
                 not (request.user.is_staff or request.user.is_superuser)
                 and tickets.first().event.user != request.user
             ):
                 messages.error(request, "Vous n'avez pas la permission d'envoyer ces tickets.")
-                return redirect("dashboard:ticket_list")
+                return payment_redirect
         else:
             messages.error(request, "Ticket ou paiement non spécifié.")
             return redirect("dashboard:ticket_list")
@@ -288,6 +302,8 @@ class TicketSendEmailView(LoginRequiredMixin, View):
             return redirect(
                 reverse("dashboard:ticket_detail", kwargs={"code": tickets[0].code_ticket})
             )
+        if payement_id:
+            return redirect(reverse("dashboard:payment_detail", kwargs={"id": payement_id}))
         return redirect("dashboard:ticket_list")
 
 
